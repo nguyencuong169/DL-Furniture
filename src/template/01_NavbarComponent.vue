@@ -1,4 +1,14 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { useRoute } from 'vue-router'
+import { computed, reactive } from 'vue'
+
+const state = reactive({
+  current: ''
+});
+
+const route = useRoute();
+const currentRouteName = computed(() => route.name);
+</script>
 
 <template>
   <nav class="navbar navbar-expand-lg">
@@ -25,7 +35,14 @@
       <!-- Menu -->
       <div class="collapse navbar-collapse" id="navbar">
         <ul class="navbar-nav ms-auto">
-          <li class="nav-item"><a class="nav-link active" href="/">Home</a></li>
+          <li class="nav-item">
+            <a
+              :class="currentRouteName == 'home' || currentRouteName == '' ? 'active' : ''"
+              class="nav-link"
+              href="/"
+              >Home</a
+            >
+          </li>
           <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
           <li class="nav-item dropdown">
             <a
