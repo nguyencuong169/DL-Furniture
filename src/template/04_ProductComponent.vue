@@ -15,8 +15,8 @@
             <div class="position-re o-hidden"><img src="@/assets/img/rooms/1.jpg" alt="" /></div>
             <span class="category"><a href="rooms2.html">Book</a></span>
             <div class="con">
-              <h6><a href="room-details.html">150$ / Night</a></h6>
-              <h5><a href="room-details.html">Junior Suite</a></h5>
+              <h6><a href="product/detail/1">150$ / Night</a></h6>
+              <h5><a href="product/detail/1">Junior Suite</a></h5>
               <div class="line"></div>
               <div class="row facilities">
                 <div class="col col-md-7">
@@ -29,7 +29,7 @@
                 </div>
                 <div class="col col-md-5 text-end">
                   <div class="permalink">
-                    <a href="room-details.html">Details <i class="ti-arrow-right"></i></a>
+                    <a href="product/detail/1">Details <i class="ti-arrow-right"></i></a>
                   </div>
                 </div>
               </div>
@@ -41,8 +41,8 @@
             <div class="position-re o-hidden"><img src="@/assets/img/rooms/2.jpg" alt="" /></div>
             <span class="category"><a href="rooms2.html">Book</a></span>
             <div class="con">
-              <h6><a href="room-details.html">200$ / Night</a></h6>
-              <h5><a href="room-details.html">Family Room</a></h5>
+              <h6><a href="product/detail/1">200$ / Night</a></h6>
+              <h5><a href="product/detail/1">Family Room</a></h5>
               <div class="line"></div>
               <div class="row facilities">
                 <div class="col col-md-7">
@@ -55,7 +55,7 @@
                 </div>
                 <div class="col col-md-5 text-end">
                   <div class="permalink">
-                    <a href="room-details.html">Details <i class="ti-arrow-right"></i></a>
+                    <a href="product/detail/1">Details <i class="ti-arrow-right"></i></a>
                   </div>
                 </div>
               </div>
@@ -67,8 +67,8 @@
             <div class="position-re o-hidden"><img src="@/assets/img/rooms/3.jpg" alt="" /></div>
             <span class="category"><a href="rooms2.html">Book</a></span>
             <div class="con">
-              <h6><a href="room-details.html">250$ / Night</a></h6>
-              <h5><a href="room-details.html">Double Room</a></h5>
+              <h6><a href="product/detail/1">250$ / Night</a></h6>
+              <h5><a href="product/detail/1">Double Room</a></h5>
               <div class="line"></div>
               <div class="row facilities">
                 <div class="col col-md-7">
@@ -81,7 +81,7 @@
                 </div>
                 <div class="col col-md-5 text-end">
                   <div class="permalink">
-                    <a href="room-details.html">Details <i class="ti-arrow-right"></i></a>
+                    <a href="product/detail/1">Details <i class="ti-arrow-right"></i></a>
                   </div>
                 </div>
               </div>
@@ -93,8 +93,8 @@
             <div class="position-re o-hidden"><img src="@/assets/img/rooms/4.jpg" alt="" /></div>
             <span class="category"><a href="rooms2.html">Book</a></span>
             <div class="con">
-              <h6><a href="room-details.html">300$ / Night</a></h6>
-              <h5><a href="room-details.html">Deluxe Room</a></h5>
+              <h6><a href="product/detail/1">300$ / Night</a></h6>
+              <h5><a href="product/detail/1">Deluxe Room</a></h5>
               <div class="line"></div>
               <div class="row facilities">
                 <div class="col col-md-7">
@@ -107,7 +107,7 @@
                 </div>
                 <div class="col col-md-5 text-end">
                   <div class="permalink">
-                    <a href="room-details.html">Details <i class="ti-arrow-right"></i></a>
+                    <a href="product/detail/1">Details <i class="ti-arrow-right"></i></a>
                   </div>
                 </div>
               </div>
@@ -119,8 +119,8 @@
             <div class="position-re o-hidden"><img src="@/assets/img/rooms/7.jpg" alt="" /></div>
             <span class="category"><a href="rooms2.html">Book</a></span>
             <div class="con">
-              <h6><a href="room-details.html">150$ / Night</a></h6>
-              <h5><a href="room-details.html">Superior Room</a></h5>
+              <h6><a href="product/detail/1">150$ / Night</a></h6>
+              <h5><a href="product/detail/1">Superior Room</a></h5>
               <div class="line"></div>
               <div class="row facilities">
                 <div class="col col-md-7">
@@ -133,7 +133,7 @@
                 </div>
                 <div class="col col-md-5 text-end">
                   <div class="permalink">
-                    <a href="room-details.html">Details <i class="ti-arrow-right"></i></a>
+                    <a href="product/detail/1">Details <i class="ti-arrow-right"></i></a>
                   </div>
                 </div>
               </div>

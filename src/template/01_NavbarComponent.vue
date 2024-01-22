@@ -1,13 +1,9 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { computed, reactive } from 'vue'
+import { computed } from 'vue'
 
-const state = reactive({
-  current: ''
-});
-
-const route = useRoute();
-const currentRouteName = computed(() => route.name);
+const route = useRoute()
+const currentRouteName = computed(() => route.name)
 </script>
 
 <template>
@@ -43,35 +39,29 @@ const currentRouteName = computed(() => route.name);
               >Home</a
             >
           </li>
-          <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-          <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              href="#"
-              role="button"
-              data-bs-toggle="dropdown"
-              data-bs-auto-close="outside"
-              aria-expanded="false"
-              >Rooms & Suites <i class="ti-angle-down"></i
-            ></a>
-            <ul class="dropdown-menu">
-              <li>
-                <a href="rooms.html" class="dropdown-item"><span>Rooms 1</span></a>
-              </li>
-              <li>
-                <a href="rooms2.html" class="dropdown-item"><span>Rooms 2</span></a>
-              </li>
-              <li>
-                <a href="rooms3.html" class="dropdown-item"><span>Rooms 3</span></a>
-              </li>
-              <li>
-                <a href="room-details.html" class="dropdown-item"><span>Room Details</span></a>
-              </li>
-            </ul>
+          <li class="nav-item">
+            <a class="nav-link" :class="currentRouteName == 'about' ? 'active' : ''" href="/about"
+              >Giới thiệu</a
+            >
           </li>
-          <li class="nav-item"><a class="nav-link" href="/gallery">Gallery</a></li>
-          <li class="nav-item"><a class="nav-link" href="restaurant.html">Restaurant</a></li>
-          <li class="nav-item"><a class="nav-link" href="spa-wellness.html">Spa</a></li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              :class="
+                currentRouteName == 'product' || route.path.startsWith('/product') ? 'active' : ''
+              "
+              href="/product"
+              >Sản phẩm</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              :class="currentRouteName == 'gallery' ? 'active' : ''"
+              href="/gallery"
+              >Thư viện</a
+            >
+          </li>
           <li class="nav-item dropdown">
             <a
               class="nav-link dropdown-toggle"
