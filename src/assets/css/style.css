@@ -3746,11 +3746,12 @@ button.mfp-arrow {
     top: 0;
     background: inherit;
 }
-.input1_inner {
+.input1_inner,.full_name {
     position: relative;
     position: relative;
 }
-.input1_inner:after {
+.input1_inner:after,
+.full_name:after {
     content: '';
     display: block;
     position: absolute;
@@ -3763,7 +3764,8 @@ button.mfp-arrow {
     color: #aa8453;
     line-height: 1;
 }
-.input1_inner input {
+.input1_inner input,
+.full_name input {
     display: block;
     width: 100%;
     font-size: 15px;
@@ -3774,10 +3776,12 @@ button.mfp-arrow {
     box-shadow: none;
     border-radius: 0;
 }
-.input1_inner input::placeholder {
+.input1_inner input::placeholder,
+.full_name input::placeholder {
     font-size: 15px;
     color: #222 !important;
 }
+.input1_inner input:focus,
 .input1_inner input:focus {
     outline: none;
     box-shadow: none;

@@ -13,13 +13,13 @@
             ><i class="star-rating"></i><i class="star-rating"></i><i class="star-rating"></i
             ><i class="star-rating"></i><i class="star-rating"></i
           ></span>
-          <div class="section-subtitle"><span>The Cappa Luxury Hotel</span></div>
+          <div class="section-subtitle"><span>D&L Furniture</span></div>
           <div class="section-title"><span>Promotional Video</span></div>
         </div>
       </div>
       <div class="row">
         <div class="text-center col-md-12">
-          <a class="vid" href="https://youtu.be/7BGNAGahig8">
+          <a class="vid" href="https://www.youtube.com/watch?v=iclLe7GECZ0">
             <div class="vid-butn">
               <span class="icon">
                 <i class="ti-control-play"></i>

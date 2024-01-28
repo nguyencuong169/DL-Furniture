@@ -12,24 +12,20 @@
             <i class="star-rating"></i>
             <i class="star-rating"></i>
           </span>
-          <div class="section-subtitle">The Cappa Luxury Hotel</div>
-          <div class="section-title">Enjoy a Luxury Experience</div>
+          <div class="section-subtitle">D&L Furniture</div>
+          <div class="section-title">Không gian sống đích thực
+          </div>
           <p>
-            Welcome to the best five-star deluxe hotel in New York. Hotel elementum sesue the aucan
-            vestibulum aliquam justo in sapien rutrum volutpat. Donec in quis the pellentesque
-            velit. Donec id velit ac arcu posuere blane.
-          </p>
-          <p>
-            Hotel ut nisl quam nestibulum ac quam nec odio elementum sceisue the aucan ligula. Orci
-            varius natoque penatibus et magnis dis parturient monte nascete ridiculus mus
-            nellentesque habitant morbine.
+            Chuyên thiết kế thi công nội thất căn hộ chung cư, biệt thự, văn phòng, showroom...
+            Với sứ mệnh “thổi hồn” vào những công trình kiến trúc tạo nên không gian sống tiện nghi, thẩm mỹ.
+            <strong>D&L Furniture</strong> luôn đi đầu nắm bắt những xu thế mới cho ra đời các mẫu thiết kế nội thất đẹp – độc – lạ làm hài lòng mọi khách hàng.
           </p>
           <!-- call -->
           <div class="reservations">
             <div class="icon"><span class="flaticon-call"></span></div>
             <div class="text">
-              <p>Reservation</p>
-              <a href="tel:855-100-4444">855 100 4444</a>
+              <p>Tư vấn thiết kế</p>
+              <a href="tel:0945366622">(+84) 945-366-622</a>
             </div>
           </div>
         </div>

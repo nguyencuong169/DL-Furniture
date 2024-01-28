@@ -18,10 +18,10 @@
                   <i class="star-rating"></i>
                   <i class="star-rating"></i>
                 </span>
-                <h4>Luxury Hotel & Best Resort</h4>
-                <h1>Enjoy a Luxury Experience</h1>
+                <h4>Thiết kế & thi công</h4>
+                <h1>Phong cách <br/> thiết kế đa dạng</h1>
                 <div class="butn-light mt-30 mb-30">
-                  <a href="#" data-scroll-nav="1"><span>Rooms & Suites</span></a>
+                  <a href="#" data-scroll-nav="1"><span>Khám phá ngay</span></a>
                 </div>
               </div>
             </div>
@@ -44,10 +44,10 @@
                   <i class="star-rating"></i>
                   <i class="star-rating"></i>
                 </span>
-                <h4>Unique Place to Relax & Enjoy</h4>
-                <h1>The Perfect Base For You</h1>
+                <h4>Sựa lựa chọn tốt nhất</h4>
+                <h1>Biến ước mơ thành hiện thực</h1>
                 <div class="butn-light mt-30 mb-30">
-                  <a href="#" data-scroll-nav="1"><span>Rooms & Suites</span></a>
+                  <a href="#" data-scroll-nav="1"><span>Khám phá ngay</span></a>
                 </div>
               </div>
             </div>
@@ -70,10 +70,10 @@
                   <i class="star-rating"></i>
                   <i class="star-rating"></i>
                 </span>
-                <h4>The Ultimate Luxury Experience</h4>
-                <h1>Enjoy The Best Moments of Life</h1>
+                <h4>Trải nghiệm sống đích thực</h4>
+                <h1>Không gian <br> tiện nghi đẳng cấp</h1>
                 <div class="butn-light mt-30 mb-30">
-                  <a href="#" data-scroll-nav="1"><span>Rooms & Suites</span></a>
+                  <a href="#" data-scroll-nav="1"><span>Khám phá ngay</span></a>
                 </div>
               </div>
             </div>
@@ -87,7 +87,7 @@
         <div class="icon d-flex justify-content-center align-items-center">
           <i class="flaticon-call"></i>
         </div>
-        <div class="call"><span>855 100 4444</span> <br />Reservation</div>
+        <div class="call"><span>(+84) 945-366-622</span> <br />Tư vấn thiết kế</div>
       </a>
     </div>
   </header>

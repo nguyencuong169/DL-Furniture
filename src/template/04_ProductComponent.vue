@@ -5,8 +5,8 @@
     <div class="container">
       <div class="row">
         <div class="col-md-12">
-          <div class="section-subtitle">The Cappa Luxury Hotel</div>
-          <div class="section-title">Rooms & Suites</div>
+          <div class="section-subtitle">D&L Furniture</div>
+          <div class="section-title">Các mẫu nội thất mới nhất</div>
         </div>
       </div>
       <div class="row">
@@ -15,8 +15,8 @@
             <div class="position-re o-hidden"><img src="@/assets/img/rooms/1.jpg" alt="" /></div>
             <span class="category"><a href="rooms2.html">Book</a></span>
             <div class="con">
-              <h6><a href="product/detail/1">150$ / Night</a></h6>
-              <h5><a href="product/detail/1">Junior Suite</a></h5>
+              <h6><a href="product/detail/1">11.000.000 VND</a></h6>
+              <h5><a href="product/detail/1">Giường Óc Chó - G01</a></h5>
               <div class="line"></div>
               <div class="row facilities">
                 <div class="col col-md-7">
@@ -29,7 +29,7 @@
                 </div>
                 <div class="col col-md-5 text-end">
                   <div class="permalink">
-                    <a href="product/detail/1">Details <i class="ti-arrow-right"></i></a>
+                    <a href="product/detail/1">Chi tiết <i class="ti-arrow-right"></i></a>
                   </div>
                 </div>
               </div>
@@ -41,8 +41,8 @@
             <div class="position-re o-hidden"><img src="@/assets/img/rooms/2.jpg" alt="" /></div>
             <span class="category"><a href="rooms2.html">Book</a></span>
             <div class="con">
-              <h6><a href="product/detail/1">200$ / Night</a></h6>
-              <h5><a href="product/detail/1">Family Room</a></h5>
+              <h6><a href="product/detail/1">10.700.000 VND</a></h6>
+              <h5><a href="product/detail/1">Giường Óc Chó - G02</a></h5>
               <div class="line"></div>
               <div class="row facilities">
                 <div class="col col-md-7">
@@ -55,7 +55,7 @@
                 </div>
                 <div class="col col-md-5 text-end">
                   <div class="permalink">
-                    <a href="product/detail/1">Details <i class="ti-arrow-right"></i></a>
+                    <a href="product/detail/1">Chi tiết <i class="ti-arrow-right"></i></a>
                   </div>
                 </div>
               </div>
@@ -67,8 +67,8 @@
             <div class="position-re o-hidden"><img src="@/assets/img/rooms/3.jpg" alt="" /></div>
             <span class="category"><a href="rooms2.html">Book</a></span>
             <div class="con">
-              <h6><a href="product/detail/1">250$ / Night</a></h6>
-              <h5><a href="product/detail/1">Double Room</a></h5>
+              <h6><a href="product/detail/1">25.000.000</a></h6>
+              <h5><a href="product/detail/1">Giường Óc Chó - G03</a></h5>
               <div class="line"></div>
               <div class="row facilities">
                 <div class="col col-md-7">
@@ -81,7 +81,7 @@
                 </div>
                 <div class="col col-md-5 text-end">
                   <div class="permalink">
-                    <a href="product/detail/1">Details <i class="ti-arrow-right"></i></a>
+                    <a href="product/detail/1">Chi tiết <i class="ti-arrow-right"></i></a>
                   </div>
                 </div>
               </div>
@@ -93,8 +93,8 @@
             <div class="position-re o-hidden"><img src="@/assets/img/rooms/4.jpg" alt="" /></div>
             <span class="category"><a href="rooms2.html">Book</a></span>
             <div class="con">
-              <h6><a href="product/detail/1">300$ / Night</a></h6>
-              <h5><a href="product/detail/1">Deluxe Room</a></h5>
+              <h6><a href="product/detail/1">30.000.000 VNĐ</a></h6>
+              <h5><a href="product/detail/1">Giường Nhập Khẩu - G04</a></h5>
               <div class="line"></div>
               <div class="row facilities">
                 <div class="col col-md-7">
@@ -107,7 +107,7 @@
                 </div>
                 <div class="col col-md-5 text-end">
                   <div class="permalink">
-                    <a href="product/detail/1">Details <i class="ti-arrow-right"></i></a>
+                    <a href="product/detail/1">Chi tiết <i class="ti-arrow-right"></i></a>
                   </div>
                 </div>
               </div>
@@ -119,8 +119,8 @@
             <div class="position-re o-hidden"><img src="@/assets/img/rooms/7.jpg" alt="" /></div>
             <span class="category"><a href="rooms2.html">Book</a></span>
             <div class="con">
-              <h6><a href="product/detail/1">150$ / Night</a></h6>
-              <h5><a href="product/detail/1">Superior Room</a></h5>
+              <h6><a href="product/detail/1">15.000.000</a></h6>
+              <h5><a href="product/detail/1">Tủ Óc Chó - T01</a></h5>
               <div class="line"></div>
               <div class="row facilities">
                 <div class="col col-md-7">
@@ -133,7 +133,7 @@
                 </div>
                 <div class="col col-md-5 text-end">
                   <div class="permalink">
-                    <a href="product/detail/1">Details <i class="ti-arrow-right"></i></a>
+                    <a href="product/detail/1">Chi tiết <i class="ti-arrow-right"></i></a>
                   </div>
                 </div>
               </div>

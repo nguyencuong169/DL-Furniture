@@ -7,17 +7,18 @@
           <div class="row">
             <div class="col-md-4">
               <div class="footer-column footer-about">
-                <h3 class="footer-title">About Hotel</h3>
+                <h3 class="footer-title">D&L Furniture</h3>
                 <p class="footer-about-text">
-                  Welcome to the best five-star deluxe hotel in New York. Hotel elementum sesue the
-                  aucan vestibulum aliquam justo in sapien rutrum volutpat.
+                  Là thương hiệu nội thất được thành lập vào năm 2022 bởi đội ngũ kiến trúc sư, 
+                  thiết kế đầy sáng tạo và nhiệt huyết kết hợp với đội ngũ thợ thi công tay nghề cao, giàu kinh nghiệm. <br/>
+                  Các thiết kế của chúng tôi : phong cách đương đại và triết lý tối giản.
                 </p>
 
                 <div class="footer-language">
                   <i class="lni ti-world"></i>
                   <select onchange="location = this.value;">
+                    <option value="#0">Vietnamese</option>
                     <option value="#0">English</option>
-                    <option value="#0">German</option>
                   </select>
                 </div>
               </div>
@@ -37,13 +38,13 @@
             </div>
             <div class="col-md-4">
               <div class="footer-column footer-contact">
-                <h3 class="footer-title">Contact</h3>
+                <h3 class="footer-title">Liên hệ</h3>
                 <p class="footer-contact-text">
-                  1616 Broadway NY, New York 10001<br />United States of America
+                  Đường Cầu Liêu<br />Thạch Xá - Thạch Thất - Hà Nội
                 </p>
                 <div class="footer-contact-info">
                   <p class="footer-contact-phone">
-                    <span class="flaticon-call"></span> 855 100 4444
+                    <span class="flaticon-call"></span> (+84)945-366-622
                   </p>
                   <p class="footer-contact-mail">info@luxuryhotel.com</p>
                 </div>
@@ -65,7 +66,7 @@
             <div class="col-md-12">
               <div class="footer-bottom-inner">
                 <p class="footer-bottom-copy-right">
-                  © Copyright 2022 by <a href="#">DuruThemes.com</a>
+                  © Copyright 2024 by <a href="#">D&L Furniture</a>
                 </p>
               </div>
             </div>

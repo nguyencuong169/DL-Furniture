@@ -5,8 +5,8 @@
     <div class="container">
       <div class="row">
         <div class="col-md-12">
-          <div class="section-subtitle"><span>Hotel Blog</span></div>
-          <div class="section-title"><span>Our News</span></div>
+          <div class="section-subtitle"><span>D&L Furniture Blog</span></div>
+          <div class="section-title"><span>Tin tức nội thất</span></div>
         </div>
       </div>
       <div class="row">
@@ -21,9 +21,9 @@
               </div>
               <div class="con">
                 <span class="category">
-                  <a href="news.html">Restaurant</a>
+                  <a href="news.html">SHOWROOM</a>
                 </span>
-                <h5><a href="post.html">Historic restaurant renovated</a></h5>
+                <h5><a href="post.html">Showroom nội thất gỗ óc chó đẳng cấp nhất tại Hà Nội</a></h5>
               </div>
             </div>
             <div class="item">
