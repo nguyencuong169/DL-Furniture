@@ -6,14 +6,15 @@ import vueJsx from '@vitejs/plugin-vue-jsx'
 
 // https://vitejs.dev/config/
 export default defineConfig({
+  base:'/DL-Furniture/',
   plugins: [
     vue(),
     vueJsx(),
   ],
+  build: { chunkSizeWarningLimit: 1600, },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
   },
-  base: './',
 })
