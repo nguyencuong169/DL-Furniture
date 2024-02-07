@@ -14,9 +14,19 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@floating-ui/vue": "^1.0.6",
+    "@popperjs/core": "^2.11.8",
+    "global": "^4.4.0",
+    "isotope-layout": "^3.0.6",
+    "jquery": "^3.7.1",
+    "owl.carousel": "^2.3.4",
     "pinia": "^2.1.7",
+    "popper.js": "^1.16.1",
+    "select2": "^4.1.0-rc.0",
+    "smooth-scroll": "^16.1.3",
     "vue": "^3.3.11",
-    "vue-router": "^4.2.5"
+    "vue-router": "^4.2.5",
+    "vue-select2": "^0.2.6"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.3.3",

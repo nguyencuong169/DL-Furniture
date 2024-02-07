@@ -4,7 +4,8 @@ require('@rushstack/eslint-patch/modern-module-resolution')
 module.exports = {
   root: true,
   env: {
-    node: true
+    node: true,
+    amd: true
   },
   extends: [
     'plugin:vue/vue3-essential',
@@ -14,5 +15,9 @@ module.exports = {
   ],
   parserOptions: {
     ecmaVersion: 'latest'
+  },
+  global: {
+    $: true,
+    jQuery: true
   }
 }
