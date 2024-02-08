@@ -40,7 +40,7 @@
               <i class="star-rating"></i>
               <i class="star-rating"></i>
             </span>
-            <div class="section-subtitle">Luxury Hotel</div>
+            <div class="section-subtitle">D&L Furniture</div>
             <div class="section-title">Junior Suite</div>
           </div>
           <div class="col-md-8">
@@ -167,7 +167,7 @@
       <div class="container">
         <div class="row">
           <div class="col-md-12">
-            <div class="section-subtitle"><span>Luxury Hotel</span></div>
+            <div class="section-subtitle"><span>D&L Furniture</span></div>
             <div class="section-title"><span>Similar Rooms</span></div>
           </div>
         </div>

@@ -14,7 +14,7 @@ const currentRouteName = computed(() => route.name)
         <a class="logo" href="index.html">
           <img src="@/assets/img/logo.png" class="logo-img" alt="" />
         </a>
-        <!-- <a class="logo" href="index.html"> <h2>THE CAPPA <span>Luxury Hotel</span></h2> </a> -->
+        <!-- <a class="logo" href="index.html"> <h2>THE CAPPA <span>D&L Furniture</span></h2> </a> -->
       </div>
       <!-- Button -->
       <button

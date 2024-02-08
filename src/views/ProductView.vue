@@ -18,7 +18,7 @@
               <i class="star-rating"></i>
               <i class="star-rating"></i>
             </span>
-            <h5>The Cappa Luxury Hotel</h5>
+            <h5>D&L Furniture</h5>
             <h1>Rooms & Suites</h1>
           </div>
         </div>

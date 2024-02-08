@@ -17,7 +17,7 @@ import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
       <div class="container">
         <div class="row">
           <div class="col-md-12 caption mt-90">
-            <h5>Luxury Hotel</h5>
+            <h5>D&L Furniture</h5>
             <h1>About Us</h1>
           </div>
         </div>

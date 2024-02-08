@@ -13,17 +13,16 @@
             <div class="testimonials-box">
               <div class="head-box">
                 <h6>Testimonials</h6>
-                <h4>What Client's Say?</h4>
+                <h4>Khách hàng nói gì về chúng tôi?</h4>
                 <div class="line"></div>
               </div>
               <div class="owl-carousel owl-theme">
                 <div class="item">
                   <span class="quote"><img src="@/assets/img/quot.png" alt="" /></span>
                   <p>
-                    Hotel dapibus asue metus the nec feusiate eraten miss hendreri net ve ante the
-                    lemon sanleo nectan feugiat erat hendrerit necuis ve ante otel inilla duiman at
-                    finibus viverra neca the sene on satien the miss drana inc fermen norttito sit
-                    space, mus nellentesque habitan.
+                    Tôi rất ấn tượng với các dịch vụ và sản phẩm của Nội thất <strong>D&L Furniture</strong>. 
+                    Từ tư vấn thiết kế đến thi công, lắp đặt đều chuyên nghiệp, chính vì vậy nên gia đình tôi rất hài lòng khi lựa chọn. 
+                    Với sự chuyên nghiệp và tận tình như vậy thì tôi nghĩ là <strong>D&L Furniture</strong> sẽ còn phát triển vững mạnh hơn nữa.
                   </p>
                   <div class="info">
                     <div class="author-img"><img src="@/assets/img/team/4.jpg" alt="" /></div>
@@ -33,18 +32,16 @@
                         ><i class="star-rating"></i><i class="star-rating"></i
                         ><i class="star-rating"></i
                       ></span>
-                      <h6>Emily Brown</h6>
-                      <span>Guest review</span>
+                      <h6>Chị Nguyễn Thị Thuỳ Linh</h6>
+                      <span>Hồ Chí Minh</span>
                     </div>
                   </div>
                 </div>
                 <div class="item">
                   <span class="quote"><img src="@/assets/img/quot.png" alt="" /></span>
                   <p>
-                    Hotel dapibus asue metus the nec feusiate eraten miss hendreri net ve ante the
-                    lemon sanleo nectan feugiat erat hendrerit necuis ve ante otel inilla duiman at
-                    finibus viverra neca the sene on satien the miss drana inc fermen norttito sit
-                    space, mus nellentesque habitan.
+                    Tất cả những sản phẩm nội thất gỗ óc chó của <strong>D&L Furniture</strong> luôn mang giá trị thẩm mỹ rất cao, chất lượng và công năng hoàn hảo.
+                    <strong>D&L Furniture</strong> không chỉ có sự nghiên cứu kỹ lưỡng mà luôn học hỏi, thay đổi và sáng tạo để đáp ứng tối ưu những yêu cầu từ phía khách hàng
                   </p>
                   <div class="info">
                     <div class="author-img"><img src="@/assets/img/team/1.jpg" alt="" /></div>
@@ -54,18 +51,17 @@
                         ><i class="star-rating"></i><i class="star-rating"></i
                         ><i class="star-rating"></i
                       ></span>
-                      <h6>Nolan White</h6>
-                      <span>Guest review</span>
+                      <h6>Anh Nguyễn Hùng Cường</h6>
+                      <span>Hà Nội</span>
                     </div>
                   </div>
                 </div>
                 <div class="item">
                   <span class="quote"><img src="@/assets/img/quot.png" alt="" /></span>
                   <p>
-                    Hotel dapibus asue metus the nec feusiate eraten miss hendreri net ve ante the
-                    lemon sanleo nectan feugiat erat hendrerit necuis ve ante otel inilla duiman at
-                    finibus viverra neca the sene on satien the miss drana inc fermen norttito sit
-                    space, mus nellentesque habitan.
+                    Tôi rất ấn tượng với các dịch vụ và sản phẩm của Nội thất <strong>D&L Furniture</strong>. 
+                    Từ tư vấn thiết kế đến thi công, lắp đặt đều chuyên nghiệp, chính vì vậy nên gia đình tôi rất hài lòng khi lựa chọn. 
+                    Với sự chuyên nghiệp và tận tình như vậy thì tôi nghĩ là <strong>D&L Furniture</strong> sẽ còn phát triển vững mạnh hơn nữa.
                   </p>
                   <div class="info">
                     <div class="author-img"><img src="@/assets/img/team/5.jpg" alt="" /></div>
@@ -75,8 +71,8 @@
                         ><i class="star-rating"></i><i class="star-rating"></i
                         ><i class="star-rating"></i
                       ></span>
-                      <h6>Olivia Martin</h6>
-                      <span>Guest review</span>
+                      <h6>Chị Nguyễn Thị Nguyệt</h6>
+                      <span>Hà Nội</span>
                     </div>
                   </div>
                 </div>

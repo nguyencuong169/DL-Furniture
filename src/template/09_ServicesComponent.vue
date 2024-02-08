@@ -13,7 +13,7 @@
               <div class="info">
                 <h6>Experiences</h6>
               </div>
-              <h4>SANG TRỌNG, ĐẲNG CẤP, TINH TẾ</h4>
+              <h4>SANG TRỌNG, ĐẲNG CẤP</h4>
               <p>
                 Xây dựng và khẳng định vị thế thương hiệu bằng uy tín, chất lượng với những sản phẩm mang tính độc bản.
                 <strong>D&L Furniture</strong> luôn đón đầu xu hướng thiết kế đẹp và đẳng cấp nhất hiện nay, đem lại cho khách hàng giá trị sống vẹn cùng sự trải nghiệm có một không hai tại Việt Nam..

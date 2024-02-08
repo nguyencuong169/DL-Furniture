@@ -5,7 +5,7 @@
     <div class="container">
       <div class="row">
         <div class="col-md-4">
-          <div class="section-subtitle"><span>Best Prices</span></div>
+          <div class="section-subtitle"><span>Our Services</span></div>
           <div class="section-title"><span>Dịch vụ thi công</span></div>
           <p class="color-2">
             <strong>D&L Furniture</strong> tự hào là đơn vị hàng đầu trong lĩnh vực thiết kế thi công nội thất với đội nhân sự lành nghề giàu kinh nghiệm.
