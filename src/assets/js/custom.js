@@ -1,7 +1,4 @@
 /* eslint-disable no-unused-vars */
-import 'owl.carousel/dist/assets/owl.carousel.css'
-import 'owl.carousel'
-
 /* -------------------------------------------------------
 
 [ Custom settings ]
