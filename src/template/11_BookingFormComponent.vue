@@ -16,8 +16,8 @@
               ><i class="star-rating"></i><i class="star-rating"></i>
             </p>
             <h5>
-              Each of our guest rooms feature a private bath, wi-fi, cable television and include
-              full breakfast.
+              Xây dựng và khẳng định vị thế thương hiệu bằng uy tín, chất lượng với những sản phẩm mang tính độc bản.
+              <strong>D&L Furniture</strong> luôn đón đầu xu hướng thiết kế đẹp và đẳng cấp nhất hiện nay, đem lại cho khách hàng giá trị sống vẹn cùng sự trải nghiệm có một không hai tại Việt Nam..
             </h5>
             <div class="reservations mb-30">
               <div class="icon color-1"><span class="flaticon-call"></span></div>

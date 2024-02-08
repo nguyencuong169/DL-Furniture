@@ -11,10 +11,10 @@ const currentRouteName = computed(() => route.name)
     <div class="container">
       <!-- Logo -->
       <div class="logo-wrapper">
-        <a class="logo" href="index.html">
+        <!-- <a class="logo" href="index.html">
           <img src="@/assets/img/logo.png" class="logo-img" alt="" />
-        </a>
-        <!-- <a class="logo" href="index.html"> <h2>THE CAPPA <span>D&L Furniture</span></h2> </a> -->
+        </a> -->
+        <a class="logo" href="index.html"> <h2>D&L Furniture <span>Nội thất Dũng Linh</span></h2> </a>
       </div>
       <!-- Button -->
       <button
