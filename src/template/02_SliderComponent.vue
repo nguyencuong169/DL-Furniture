@@ -13,7 +13,7 @@ const state = reactive({
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        data-background="/src/assets/img/slider/2.jpg"
+        data-background="https://dl-furniture.netlify.app/assets/img/slider/2.jpg"
       >
         <img src="../assets/img/slider/2.jpg" v-show="false" />
         <div class="v-middle caption">
@@ -43,7 +43,7 @@ const state = reactive({
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        data-background="/src/assets/img/slider/3.jpg"
+        data-background="https://dl-furniture.netlify.app/assets/img/slider/3.jpg"
       >
         <img src="../assets/img/slider/3.jpg" v-show="false" />
         <div class="v-middle caption">
@@ -70,7 +70,7 @@ const state = reactive({
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        data-background="/src/assets/img/slider/1.jpg"
+        data-background="https://dl-furniture.netlify.app/assets/img/slider/1.jpg"
       >
         <img src="../assets/img/slider/1.jpg" v-show="false" />
         <div class="v-middle caption">
