@@ -8,7 +8,7 @@ const bookingStore = bookingUseStore();
   <section class="testimonials" v-show="bookingStore.isDisplay">
     <div
       class="background bg-img bg-fixed section-padding pb-0"
-      data-background="../../src/assets/img/slider/2.jpg"
+      data-background="https://dl-furniture.netlify.app/assets/2-xOjvuLYK.jpg"
       data-overlay-dark="2"
     >
       <div class="container">

@@ -6,7 +6,7 @@
     <div
       class="banner-header section-padding valign bg-img bg-fixed"
       data-overlay-dark="4"
-      data-background="src/assets/img/slider/3.jpg"
+      data-background="https://dl-furniture.netlify.app/assets/3-DTrcElLx.jpg"
     >
       <div class="container">
         <div class="row">

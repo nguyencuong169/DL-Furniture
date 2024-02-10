@@ -4,9 +4,10 @@
   <section class="testimonials">
     <div
       class="background bg-img bg-fixed section-padding pb-0"
-      data-background="src/assets/img/slider/2.jpg"
+      data-background="https://dl-furniture.netlify.app/assets/2-xOjvuLYK.jpg"
       data-overlay-dark="3"
     >
+    <img src="../assets/img/slider/2.jpg" v-show="false" />
       <div class="container">
         <div class="row">
           <div class="col-md-8 offset-md-2">
