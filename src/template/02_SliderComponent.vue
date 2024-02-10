@@ -13,7 +13,7 @@ const state = reactive({
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        data-background="../assets/img/slider/2.jpg"
+        data-background="../src/assets/img/slider/2.jpg"
       >
         <div class="v-middle caption">
           <div class="container">
@@ -42,7 +42,7 @@ const state = reactive({
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        data-background="../assets/img/slider/3.jpg"
+        data-background="../src/assets/img/slider/3.jpg"
       >
         <div class="v-middle caption">
           <div class="container">
@@ -68,7 +68,7 @@ const state = reactive({
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        data-background="../assets/img/slider/1.jpg"
+        data-background="../src/assets/img/slider/1.jpg"
       >
         <div class="v-middle caption">
           <div class="container">
