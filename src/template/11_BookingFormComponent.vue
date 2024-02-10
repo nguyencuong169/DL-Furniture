@@ -1,10 +1,14 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { bookingUseStore } from '../stores/bookingstore'
+
+const bookingStore = bookingUseStore();
+</script>
 
 <template>
-  <section class="testimonials">
+  <section class="testimonials" v-show="bookingStore.isDisplay">
     <div
       class="background bg-img bg-fixed section-padding pb-0"
-      data-background="src/assets/img/slider/2.jpg"
+      data-background="../../src/assets/img/slider/2.jpg"
       data-overlay-dark="2"
     >
       <div class="container">
@@ -16,8 +20,11 @@
               ><i class="star-rating"></i><i class="star-rating"></i>
             </p>
             <h5>
-              Xây dựng và khẳng định vị thế thương hiệu bằng uy tín, chất lượng với những sản phẩm mang tính độc bản.
-              <strong>D&L Furniture</strong> luôn đón đầu xu hướng thiết kế đẹp và đẳng cấp nhất hiện nay, đem lại cho khách hàng giá trị sống vẹn cùng sự trải nghiệm có một không hai tại Việt Nam..
+              Xây dựng và khẳng định vị thế thương hiệu bằng uy tín, chất lượng với những sản phẩm
+              mang tính độc bản.
+              <strong>D&L Furniture</strong> luôn đón đầu xu hướng thiết kế đẹp và đẳng cấp nhất
+              hiện nay, đem lại cho khách hàng giá trị sống vẹn cùng sự trải nghiệm có một không hai
+              tại Việt Nam..
             </h5>
             <div class="reservations mb-30">
               <div class="icon color-1"><span class="flaticon-call"></span></div>
@@ -61,7 +68,11 @@
                       <div class="input1_wrapper">
                         <label>Số điện thoại</label>
                         <div class="full_name">
-                          <input type="text" class="form-control input" placeholder="Số điện thoại" />
+                          <input
+                            type="text"
+                            class="form-control input"
+                            placeholder="Số điện thoại"
+                          />
                         </div>
                       </div>
                     </div>
@@ -69,7 +80,10 @@
                       <div class="input1_wrapper">
                         <label>Nội dung</label>
                         <div class="full_name">
-                          <textarea class="form-control input" placeholder="Nội dung tin nhắn"></textarea>
+                          <textarea
+                            class="form-control input"
+                            placeholder="Nội dung tin nhắn"
+                          ></textarea>
                         </div>
                       </div>
                     </div>
@@ -126,9 +140,7 @@
                       </div>
                     </div> -->
                     <div class="col-md-12">
-                      <button type="submit" class="btn-form1-submit mt-15">
-                        Gửi tin nhắn
-                      </button>
+                      <button type="submit" class="btn-form1-submit mt-15">Gửi tin nhắn</button>
                     </div>
                   </div>
                 </form>

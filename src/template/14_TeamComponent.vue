@@ -6,7 +6,7 @@
       <div class="row">
         <div class="col-md-12">
           <div class="section-subtitle">Professionals</div>
-          <div class="section-title">Meet The Team</div>
+          <div class="section-title">Nhà thiết kế</div>
         </div>
       </div>
       <div class="row">

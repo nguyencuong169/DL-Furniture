@@ -14,7 +14,9 @@ const currentRouteName = computed(() => route.name)
         <!-- <a class="logo" href="index.html">
           <img src="@/assets/img/logo.png" class="logo-img" alt="" />
         </a> -->
-        <a class="logo" href="index.html"> <h2>D&L Furniture <span>Nội thất Dũng Linh</span></h2> </a>
+        <a class="logo" href="index.html">
+          <h2>D&L Furniture <span>Nội thất Dũng Linh</span></h2>
+        </a>
       </div>
       <!-- Button -->
       <button
@@ -44,14 +46,95 @@ const currentRouteName = computed(() => route.name)
               >Giới thiệu</a
             >
           </li>
-          <li class="nav-item">
+          <li class="nav-item dropdown">
             <a
-              class="nav-link"
+              class="nav-link dropdown-toggle"
+              href="#"
+              role="button"
+              data-bs-toggle="dropdown"
+              data-bs-auto-close="outside"
+              aria-expanded="false"
               :class="
                 currentRouteName == 'product' || route.path.startsWith('/product') ? 'active' : ''
               "
-              href="/product"
-              >Sản phẩm</a
+              >Sản phẩm <i class="ti-angle-down"></i
+            ></a>
+            <ul class="dropdown-menu">
+              <li class="dropdown-submenu dropdown">
+                <a
+                  class="dropdown-item dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                  data-bs-auto-close="outside"
+                  aria-expanded="false"
+                  href="/product/phong-khach"
+                  :class="route.path.startsWith('/product/phong-khach') ? 'active' : ''"
+                  ><span>Phòng khách <i class="ti-angle-right"></i></span
+                ></a>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a href="/product/phong-khach/1" class="dropdown-item"><span>Sofa gỗ</span></a>
+                  </li>
+                  <li>
+                    <a href="/product/phong-khach/2" class="dropdown-item"><span>Bàn trà</span></a>
+                  </li>
+                  <li>
+                    <a href="/product/phong-khach/3" class="dropdown-item"><span>Kệ ti vi</span></a>
+                  </li>
+                </ul>
+              </li>
+              <li class="dropdown-submenu dropdown">
+                <a
+                  class="dropdown-item dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                  data-bs-auto-close="outside"
+                  aria-expanded="false"
+                  href="/product/phong-ngu"
+                  :class="route.path.startsWith('/product/phong-ngu') ? 'active' : ''"
+                  ><span>Phòng ngủ <i class="ti-angle-right"></i></span
+                ></a>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a href="/product/phong-ngu/1" class="dropdown-item"><span>Giường ngủ</span></a>
+                  </li>
+                  <li>
+                    <a href="/product/phong-ngu/2" class="dropdown-item"><span>Tủ quần áo</span></a>
+                  </li>
+                  <li>
+                    <a href="/product/phong-ngu/3" class="dropdown-item"
+                      ><span>Kệ trang điểm</span></a
+                    >
+                  </li>
+                </ul>
+              </li>
+              <li class="dropdown-submenu dropdown">
+                <a
+                  class="dropdown-item dropdown-toggle"
+                  data-bs-toggle="dropdown"
+                  data-bs-auto-close="outside"
+                  aria-expanded="false"
+                  href="/product/phong-bep"
+                  :class="route.path.startsWith('/product/phong-bep') ? 'active' : ''"
+                  ><span>Phòng bếp <i class="ti-angle-right"></i></span
+                ></a>
+                <ul class="dropdown-menu">
+                  <li>
+                    <a href="/product/phong-bep/1" class="dropdown-item"><span>Bàn ghế ăn</span></a>
+                  </li>
+                  <li>
+                    <a href="/product/phong-bep/2" class="dropdown-item"
+                      ><span>Tủ bếp<picture></picture></span
+                    ></a>
+                  </li>
+                </ul>
+              </li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              :class="currentRouteName == 'project' ? 'active' : ''"
+              href="/project"
+              >Dự án</a
             >
           </li>
           <li class="nav-item">

@@ -1,10 +1,18 @@
+<script setup lang="ts">
+import { reactive } from 'vue'
+
+const state = reactive({
+  overlayDark: 2
+})
+</script>
+
 <template>
   <header class="header slider-fade">
     <div class="owl-carousel owl-theme">
       <!-- The opacity on the image is made with "data-overlay-dark="number". You can change it using the numbers 0-9. -->
       <div
         class="text-center item bg-img"
-        data-overlay-dark="2"
+        :data-overlay-dark="state.overlayDark"
         data-background="src/assets/img/slider/2.jpg"
       >
         <div class="v-middle caption">
@@ -19,7 +27,10 @@
                   <i class="star-rating"></i>
                 </span>
                 <h4>Thiết kế & thi công</h4>
-                <h1>Phong cách <br/> thiết kế đa dạng</h1>
+                <h1>
+                  Phong cách <br />
+                  thiết kế đa dạng
+                </h1>
                 <div class="butn-light mt-30 mb-30">
                   <a href="#" data-scroll-nav="1"><span>Khám phá ngay</span></a>
                 </div>
@@ -30,7 +41,7 @@
       </div>
       <div
         class="text-center item bg-img"
-        data-overlay-dark="2"
+        :data-overlay-dark="state.overlayDark"
         data-background="src/assets/img/slider/3.jpg"
       >
         <div class="v-middle caption">
@@ -56,7 +67,7 @@
       </div>
       <div
         class="text-center item bg-img"
-        data-overlay-dark="3"
+        :data-overlay-dark="state.overlayDark"
         data-background="src/assets/img/slider/1.jpg"
       >
         <div class="v-middle caption">
@@ -71,7 +82,10 @@
                   <i class="star-rating"></i>
                 </span>
                 <h4>Trải nghiệm sống đích thực</h4>
-                <h1>Không gian <br> tiện nghi đẳng cấp</h1>
+                <h1>
+                  Không gian <br />
+                  tiện nghi đẳng cấp
+                </h1>
                 <div class="butn-light mt-30 mb-30">
                   <a href="#" data-scroll-nav="1"><span>Khám phá ngay</span></a>
                 </div>

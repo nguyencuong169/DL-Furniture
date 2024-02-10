@@ -5,7 +5,7 @@
     <div class="container">
       <div class="row">
         <div class="col-md-12">
-          <div class="section-subtitle"><span>D&L Furniture Blog</span></div>
+          <div class="section-subtitle"><span>D&L Furniture News</span></div>
           <div class="section-title"><span>Tin tức nội thất</span></div>
         </div>
       </div>
@@ -14,7 +14,7 @@
           <div class="owl-carousel owl-theme">
             <div class="item">
               <div class="position-re o-hidden">
-                <img src="@/assets/img/news/1.jpg" alt="" />
+                <img src="../assets/img/news/1.jpg" alt="" />
                 <div class="date">
                   <a href="post.html"> <span>Dec</span> <i>02</i> </a>
                 </div>
@@ -23,7 +23,7 @@
                 <span class="category">
                   <a href="news.html">SHOWROOM</a>
                 </span>
-                <h5><a href="post.html">Showroom nội thất gỗ óc chó đẳng cấp nhất tại Hà Nội</a></h5>
+                <h5><a href="post.html">Showroom nội thất gỗ óc chó đẳng cấp tại Hà Nội</a></h5>
               </div>
             </div>
             <div class="item">

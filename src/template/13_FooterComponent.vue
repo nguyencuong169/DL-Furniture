@@ -9,9 +9,9 @@
               <div class="footer-column footer-about">
                 <h3 class="footer-title">D&L Furniture</h3>
                 <p class="footer-about-text">
-                  Là thương hiệu nội thất được thành lập vào năm 2022 bởi đội ngũ kiến trúc sư, 
-                  thiết kế đầy sáng tạo và nhiệt huyết kết hợp với đội ngũ thợ thi công tay nghề cao, giàu kinh nghiệm. <br/>
-                  Các thiết kế của chúng tôi : phong cách đương đại và triết lý tối giản.
+                  Được thành lập vào năm 2022 bởi đội ngũ kiến trúc sư đầy sáng tạo
+                  nhiệt huyết cùng với đội ngũ thợ thi công tay nghề cao, giàu kinh nghiệm. <br/>
+                  Các thiết kế của chúng tôi theo phong cách đương đại với triết lý tối giản.
                 </p>
 
                 <div class="footer-language">
@@ -25,14 +25,14 @@
             </div>
             <div class="col-md-3 offset-md-1">
               <div class="footer-column footer-explore clearfix">
-                <h3 class="footer-title">Explore</h3>
+                <h3 class="footer-title">Danh mục</h3>
                 <ul class="footer-explore-list list-unstyled">
-                  <li><a href="index.html">Home</a></li>
-                  <li><a href="rooms.html">Rooms & Suites</a></li>
-                  <li><a href="restaurant.html">Restaurant</a></li>
-                  <li><a href="spa-wellness.html">Spa & Wellness</a></li>
-                  <li><a href="about.html">About Hotel</a></li>
-                  <li><a href="contact.html">Contact</a></li>
+                  <li><a href="/">Home</a></li>
+                  <li><a href="#">Giới thiệu</a></li>
+                  <li><a href="/product">Sản phẩm</a></li>
+                  <li><a href="#">Dự án</a></li>                  
+                  <li><a href="/about">Về chúng tôi</a></li>
+                  <li><a href="#">Liên hệ</a></li>
                 </ul>
               </div>
             </div>
@@ -46,7 +46,7 @@
                   <p class="footer-contact-phone">
                     <span class="flaticon-call"></span> (+84)945-366-622
                   </p>
-                  <p class="footer-contact-mail">info@luxuryhotel.com</p>
+                  <p class="footer-contact-mail">info@dl-furniture.com</p>
                 </div>
                 <div class="footer-about-social-list">
                   <a href="#"><i class="ti-instagram"></i></a>
