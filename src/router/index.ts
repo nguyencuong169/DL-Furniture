@@ -5,7 +5,7 @@ import AboutView from '../views/AboutView.vue'
 import ProductView from '../views/ProductView.vue'
 import ProjectView from '../views/ProjectView.vue'
 import ProductDetailView from '../views/ProductDetailView.vue'
-import NotFoundComponent from '../template/015_NotFoundComponent.vue'
+import NotFoundComponent from '../template/15_NotFoundComponent.vue'
 
 const router = createRouter({
   linkActiveClass: 'active',
