@@ -42,16 +42,8 @@ const currentRouteName = computed(() => route.name)
             >
           </li>
           <li class="nav-item">
-            <!-- <a class="nav-link" :class="currentRouteName == 'about' ? 'active' : ''" href="/about"
-              >Giới thiệu</a
-            > -->
             <router-link to="/about" class="nav-link">Giới thiệu</router-link>
           </li>
-          <!-- <li class="nav-item">
-            <a class="nav-link" :class="currentRouteName == 'about' ? 'active' : ''" href="/about"
-              >Giới thiệu</a
-            >
-          </li> -->
           <li class="nav-item dropdown">
             <a
               class="nav-link dropdown-toggle"
