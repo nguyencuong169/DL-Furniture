@@ -16,6 +16,7 @@
   "dependencies": {
     "@floating-ui/vue": "^1.0.6",
     "@popperjs/core": "^2.11.8",
+    "connect-history-api-fallback": "^2.0.0",
     "global": "^4.4.0",
     "isotope-layout": "^3.0.6",
     "jquery": "^3.7.1",
