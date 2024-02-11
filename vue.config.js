@@ -6,5 +6,5 @@
 //     .loader('html-loader')
 // }
 module.exports = {
-  publicPath: process.env.NODE_ENV === 'production' ? '/dl-furniture/' : '/'
+  // publicPath: process.env.NODE_ENV === 'production' ? '/dl-furniture/' : '/'
 }
