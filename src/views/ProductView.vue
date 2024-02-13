@@ -38,11 +38,12 @@ const cateTitle = computed(() => {
               <i class="star-rating"></i>
             </span>
             <h5>{{ cateTitle }}</h5>
-            <h1>Rooms & Suites</h1>
+            <h1>Sofa gỗ</h1>
           </div>
         </div>
       </div>
     </div>
     <Product />
+    <router-view></router-view>
   </main>
 </template>

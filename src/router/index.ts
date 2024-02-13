@@ -6,6 +6,7 @@ import ProductView from '../views/ProductView.vue'
 import ProjectView from '../views/ProjectView.vue'
 import ProductDetailView from '../views/ProductDetailView.vue'
 import NotFoundComponent from '../template/15_NotFoundComponent.vue'
+import ProductComponent from '../template/04_ProductComponent.vue'
 
 const router = createRouter({
   linkActiveClass: 'active',
@@ -45,26 +46,55 @@ const router = createRouter({
       component: ProductView,
       children: [
         {
-          path: '/product/phong-ngu/:id',
+          path: 'phong-ngu',
           name: 'phongngu',
-          component: ProductView
+          component: ProductComponent,
+          children: [
+            {
+              path: 'giuong-ngu',
+              name: 'giuongngu',
+              component: ProductComponent
+            },
+            {
+              path: 'tu-quan-ao',
+              name: 'tuquanao',
+              component: ProductComponent
+            },
+            {
+              path: 'ke-trang-diem',
+              name: 'ketrangdiem',
+              component: ProductComponent
+            }
+          ]
         },
         {
-          path: '/product/phong-khach/:id',
+          path: '/phong-khach',
           name: 'phongkhach',
-          component: ProductView
+          component: ProductView,
+          children: [
+            {
+              path: 'sofa',
+              name: 'sofa',
+              component: ProductComponent
+            },
+            {
+              path: 'ban-tra',
+              name: 'bantra',
+              component: ProductComponent
+            },
+            {
+              path: 'ke-ti-vi',
+              name: 'ketivi',
+              component: ProductComponent
+            }
+          ]
         },
         {
-          path: '/product/phong-bep/:id',
+          path: 'phong-bep',
           name: 'phongbep',
           component: ProductView
         }
       ]
-    },
-    {
-      path: '/product/detail/:id',
-      name: 'detail',
-      component: ProductDetailView
     },
     {
       // path: "*",

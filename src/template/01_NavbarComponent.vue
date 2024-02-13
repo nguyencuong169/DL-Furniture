@@ -77,13 +77,19 @@ const currentRouteName = computed(() => route.name)
                 ></a>
                 <ul class="dropdown-menu">
                   <li>
-                    <a href="/product/phong-khach/1" class="dropdown-item"><span>Sofa gỗ</span></a>
+                    <a href="/product/phong-khach/sofa" class="dropdown-item"
+                      ><span>Sofa gỗ</span></a
+                    >
                   </li>
                   <li>
-                    <a href="/product/phong-khach/2" class="dropdown-item"><span>Bàn trà</span></a>
+                    <a href="/product/phong-khach/ban-tra" class="dropdown-item"
+                      ><span>Bàn trà</span></a
+                    >
                   </li>
                   <li>
-                    <a href="/product/phong-khach/3" class="dropdown-item"><span>Kệ ti vi</span></a>
+                    <a href="/product/phong-khach/ke-ti-vi" class="dropdown-item"
+                      ><span>Kệ ti vi</span></a
+                    >
                   </li>
                 </ul>
               </li>
@@ -99,13 +105,17 @@ const currentRouteName = computed(() => route.name)
                 ></a>
                 <ul class="dropdown-menu">
                   <li>
-                    <a href="/product/phong-ngu/1" class="dropdown-item"><span>Giường ngủ</span></a>
+                    <a href="/product/phong-ngu/giuong-ngu" class="dropdown-item"
+                      ><span>Giường ngủ</span></a
+                    >
                   </li>
                   <li>
-                    <a href="/product/phong-ngu/2" class="dropdown-item"><span>Tủ quần áo</span></a>
+                    <a href="/product/phong-ngu/tu-quan-ao" class="dropdown-item"
+                      ><span>Tủ quần áo</span></a
+                    >
                   </li>
                   <li>
-                    <a href="/product/phong-ngu/3" class="dropdown-item"
+                    <a href="/product/phong-ngu/ke-trang-diem" class="dropdown-item"
                       ><span>Kệ trang điểm</span></a
                     >
                   </li>
@@ -123,10 +133,12 @@ const currentRouteName = computed(() => route.name)
                 ></a>
                 <ul class="dropdown-menu">
                   <li>
-                    <a href="/product/phong-bep/1" class="dropdown-item"><span>Bàn ghế ăn</span></a>
+                    <a href="/product/phong-bep/ban-an" class="dropdown-item"
+                      ><span>Bàn ăn</span></a
+                    >
                   </li>
                   <li>
-                    <a href="/product/phong-bep/2" class="dropdown-item"
+                    <a href="/product/phong-bep/tu-bep" class="dropdown-item"
                       ><span>Tủ bếp<picture></picture></span
                     ></a>
                   </li>
