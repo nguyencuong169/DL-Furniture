@@ -31,7 +31,7 @@
               <div class="gallery-box">
                 <div class="gallery-img">
                   <img
-                    src="@/assets/img/slider/7.jpg"
+                    src="../assets/img/slider/7.jpg"
                     class="img-fluid mx-auto d-block"
                     alt="work-img"
                   />
@@ -44,7 +44,7 @@
               <div class="gallery-box">
                 <div class="gallery-img">
                   <img
-                    src="@/assets/img/slider/5.jpg"
+                    src="../assets/img/slider/5.jpg"
                     class="img-fluid mx-auto d-block"
                     alt="work-img"
                   />
@@ -57,7 +57,7 @@
               <div class="gallery-box">
                 <div class="gallery-img">
                   <img
-                    src="@/assets/img/slider/4.jpg"
+                    src="../assets/img/slider/4.jpg"
                     class="img-fluid mx-auto d-block"
                     alt="work-img"
                   />
@@ -71,7 +71,7 @@
               <div class="gallery-box">
                 <div class="gallery-img">
                   <img
-                    src="@/assets/img/slider/2.jpg"
+                    src="../assets/img/slider/2.jpg"
                     class="img-fluid mx-auto d-block"
                     alt="work-img"
                   />
@@ -84,7 +84,7 @@
               <div class="gallery-box">
                 <div class="gallery-img">
                   <img
-                    src="@/assets/img/slider/1.jpg"
+                    src="../assets/img/slider/1.jpg"
                     class="img-fluid mx-auto d-block"
                     alt="work-img"
                   />
@@ -98,7 +98,7 @@
               <div class="gallery-box">
                 <div class="gallery-img">
                   <img
-                    src="@/assets/img/rooms/8.jpg"
+                    src="../assets/img/rooms/8.jpg"
                     class="img-fluid mx-auto d-block"
                     alt="work-img"
                   />
@@ -111,7 +111,7 @@
               <div class="gallery-box">
                 <div class="gallery-img">
                   <img
-                    src="@/assets/img/rooms/5.jpg"
+                    src="../assets/img/rooms/5.jpg"
                     class="img-fluid mx-auto d-block"
                     alt="work-img"
                   />
@@ -124,7 +124,7 @@
               <div class="gallery-box">
                 <div class="gallery-img">
                   <img
-                    src="@/assets/img/rooms/10.jpg"
+                    src="../assets/img/rooms/10.jpg"
                     class="img-fluid mx-auto d-block"
                     alt="work-img"
                   />
