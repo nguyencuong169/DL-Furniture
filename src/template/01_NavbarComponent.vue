@@ -34,15 +34,10 @@ const currentRouteName = computed(() => route.name)
       <div class="collapse navbar-collapse" id="navbar">
         <ul class="navbar-nav ms-auto">
           <li class="nav-item">
-            <a
-              :class="currentRouteName == 'home' || currentRouteName == '' ? 'active' : ''"
-              class="nav-link"
-              href="/"
-              >Home</a
-            >
+            <a class="nav-link" href="/">Home</a>
           </li>
           <li class="nav-item">
-            <router-link to="/about" class="nav-link">Giới thiệu</router-link>
+            <a class="nav-link" href="/about">Giới thiệu</a>
           </li>
           <li class="nav-item dropdown">
             <a
@@ -52,9 +47,6 @@ const currentRouteName = computed(() => route.name)
               data-bs-toggle="dropdown"
               data-bs-auto-close="outside"
               aria-expanded="false"
-              :class="
-                currentRouteName == 'product' || route.path.startsWith('/product') ? 'active' : ''
-              "
               >Sản phẩm <i class="ti-angle-down"></i
             ></a>
             <ul class="dropdown-menu">
@@ -65,7 +57,6 @@ const currentRouteName = computed(() => route.name)
                   data-bs-auto-close="outside"
                   aria-expanded="false"
                   href="/product/phong-khach"
-                  :class="route.path.startsWith('/product/phong-khach') ? 'active' : ''"
                   ><span>Phòng khách <i class="ti-angle-right"></i></span
                 ></a>
                 <ul class="dropdown-menu">
@@ -87,7 +78,6 @@ const currentRouteName = computed(() => route.name)
                   data-bs-auto-close="outside"
                   aria-expanded="false"
                   href="/product/phong-ngu"
-                  :class="route.path.startsWith('/product/phong-ngu') ? 'active' : ''"
                   ><span>Phòng ngủ <i class="ti-angle-right"></i></span
                 ></a>
                 <ul class="dropdown-menu">
@@ -111,7 +101,6 @@ const currentRouteName = computed(() => route.name)
                   data-bs-auto-close="outside"
                   aria-expanded="false"
                   href="/product/phong-bep"
-                  :class="route.path.startsWith('/product/phong-bep') ? 'active' : ''"
                   ><span>Phòng bếp <i class="ti-angle-right"></i></span
                 ></a>
                 <ul class="dropdown-menu">
@@ -128,20 +117,10 @@ const currentRouteName = computed(() => route.name)
             </ul>
           </li>
           <li class="nav-item">
-            <a
-              class="nav-link"
-              :class="currentRouteName == 'project' ? 'active' : ''"
-              href="/project"
-              >Dự án</a
-            >
+            <a class="nav-link" href="/project">Dự án</a>
           </li>
           <li class="nav-item">
-            <a
-              class="nav-link"
-              :class="currentRouteName == 'gallery' ? 'active' : ''"
-              href="/gallery"
-              >Thư viện</a
-            >
+            <a class="nav-link" href="/gallery">Thư viện</a>
           </li>
           <li class="nav-item dropdown">
             <a
