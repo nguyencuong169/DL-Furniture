@@ -12,9 +12,8 @@ import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
     <div
       class="banner-header section-padding valign bg-img bg-fixed"
       data-overlay-dark="4"
-      data-background="src/assets/img/slider/1.jpg"
+      data-background="https://dl-furniture.netlify.app/assets/1-FQ5yJaaV.jpg"
     >
-      <img src="../assets/img/slider/2.jpg" v-show="false" />
       <div class="container">
         <div class="row">
           <div class="col-md-12 caption mt-90">
