@@ -121,7 +121,7 @@ $(function () {
     loop: true,
     margin: 30,
     mouseDrag: true,
-    autoplay: false,
+    autoplay: true,
     dots: true,
     nav: false,
     navText: [
@@ -254,7 +254,7 @@ $(function () {
     loop: true,
     margin: 30,
     mouseDrag: true,
-    autoplay: false,
+    autoplay: true,
     dots: true,
     autoplayHoverPause: true,
     nav: false,
@@ -312,7 +312,7 @@ $(function () {
     margin: 30,
     dots: true,
     mouseDrag: true,
-    autoplay: false,
+    autoplay: true,
     nav: false,
     navText: [
       "<span class='lnr ti-angle-left'></span>",

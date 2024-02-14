@@ -8,6 +8,7 @@ import ProductDetailView from '../views/ProductDetailView.vue'
 import NotFoundComponent from '../template/15_NotFoundComponent.vue'
 import ProductComponent from '../template/04_ProductComponent.vue'
 import NewsView from '../views/NewsView.vue'
+import ContactUsView from '../views/ContactUsView.vue'
 
 const router = createRouter({
   linkActiveClass: 'active',
@@ -27,27 +28,27 @@ const router = createRouter({
     //   component: () => import('../views/AboutView.vue')
     // },
     {
-      path: '/about',
+      path: '/gioi-thieu',
       name: 'about',
       component: AboutView
     },
     {
-      path: '/gallery',
+      path: '/thu-vien',
       name: 'gallery',
       component: GalleryView
     },
     {
-      path: '/project',
+      path: '/du-an',
       name: 'project',
       component: ProjectView
     },
     {
-      path: '/news',
+      path: '/tin-tuc',
       name: 'news',
       component: NewsView
     },
     {
-      path: '/product',
+      path: '/san-pham',
       name: 'product',
       component: ProductView,
       children: [
@@ -103,9 +104,14 @@ const router = createRouter({
       ]
     },
     {
-      path: '/product/detail/:id',
+      path: '/san-pham/detail/:id',
       name: 'detail',
       component: ProductDetailView
+    },
+    {
+      path: '/lien-he',
+      name: 'contacts',
+      component: ContactUsView
     },
     {
       // path: "*",

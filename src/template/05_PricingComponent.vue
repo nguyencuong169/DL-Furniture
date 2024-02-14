@@ -24,7 +24,7 @@
             <div class="pricing-card">
               <img src="@/assets/img/pricing/1.jpg" alt="" />
               <div class="desc">
-                <div class="name">NỘI THẤT BIỆT THỰ</div>
+                <div class="name">Nội thất biệt thự</div>
                 <!-- <div class="amount">$50<span>/ month</span></div> -->
                 <!-- <ul class="list-unstyled list">
                   <li><i class="ti-check"></i> Hotel ut nisan the duru</li>
@@ -37,7 +37,7 @@
             <div class="pricing-card">
               <img src="@/assets/img/pricing/2.jpg" alt="" />
               <div class="desc">
-                <div class="name">NỘI THẤT CHUNG CƯ</div>
+                <div class="name">Nội thất chung cư</div>
                 <!-- <div class="amount">$30<span>/ daily</span></div>
                 <ul class="list-unstyled list">
                   <li><i class="ti-check"></i> Hotel ut nisan the duru</li>
@@ -50,7 +50,7 @@
             <div class="pricing-card">
               <img src="@/assets/img/pricing/3.jpg" alt="" />
               <div class="desc">
-                <div class="name">VĂN PHÒNG</div>
+                <div class="name">Nội thất văn phòng</div>
                 <!-- <div class="amount">$30<span>/ daily</span></div>
                 <ul class="list-unstyled list">
                   <li><i class="ti-check"></i> Hotel ut nisan the duru</li>

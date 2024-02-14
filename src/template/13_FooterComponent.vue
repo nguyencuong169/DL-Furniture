@@ -27,12 +27,11 @@
               <div class="footer-column footer-explore clearfix">
                 <h3 class="footer-title">Danh mục</h3>
                 <ul class="footer-explore-list list-unstyled">
-                  <li><a href="/">Home</a></li>
-                  <li><a href="#">Giới thiệu</a></li>
-                  <li><a href="/product">Sản phẩm</a></li>
-                  <li><a href="#">Dự án</a></li>                  
-                  <li><a href="/about">Về chúng tôi</a></li>
-                  <li><a href="#">Liên hệ</a></li>
+                  <li><a href="/">Trang chủ</a></li>
+                  <li><a href="/gioi-thieu">Giới thiệu</a></li>
+                  <li><a href="/san-pham">Sản phẩm</a></li>
+                  <li><a href="/du-an">Dự án</a></li>                  
+                  <li><a href="/lien-he">Liên hệ</a></li>
                 </ul>
               </div>
             </div>

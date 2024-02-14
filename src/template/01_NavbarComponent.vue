@@ -38,13 +38,13 @@ const currentRouteName = computed(() => route.name)
               :class="currentRouteName == 'home' || currentRouteName == '' ? 'active' : ''"
               class="nav-link"
               href="/"
-              >Home</a
+              >Trang chủ</a
             >
           </li>
           <li class="nav-item">
             <a
               class="nav-link"
-              href="/about"
+              href="/gioi-thieu"
               :class="
                 currentRouteName == 'about' || route.path.startsWith('/about') ? 'active' : ''
               "
@@ -60,7 +60,7 @@ const currentRouteName = computed(() => route.name)
               data-bs-auto-close="outside"
               aria-expanded="false"
               :class="
-                currentRouteName == 'product' || route.path.startsWith('/product') ? 'active' : ''
+                currentRouteName == 'product' || route.path.startsWith('/san-pham') ? 'active' : ''
               "
               >Sản phẩm <i class="ti-angle-down"></i
             ></a>
@@ -71,23 +71,23 @@ const currentRouteName = computed(() => route.name)
                   data-bs-toggle="dropdown"
                   data-bs-auto-close="outside"
                   aria-expanded="false"
-                  href="/product/phong-khach"
-                  :class="route.path.startsWith('/product/phong-khach') ? 'active' : ''"
+                  href="/san-pham/phong-khach"
+                  :class="route.path.startsWith('/san-pham/phong-khach') ? 'active' : ''"
                   ><span>Phòng khách <i class="ti-angle-right"></i></span
                 ></a>
                 <ul class="dropdown-menu">
                   <li>
-                    <a href="/product/phong-khach/sofa" class="dropdown-item"
+                    <a href="/san-pham/phong-khach/sofa" class="dropdown-item"
                       ><span>Sofa gỗ</span></a
                     >
                   </li>
                   <li>
-                    <a href="/product/phong-khach/ban-tra" class="dropdown-item"
+                    <a href="/san-pham/phong-khach/ban-tra" class="dropdown-item"
                       ><span>Bàn trà</span></a
                     >
                   </li>
                   <li>
-                    <a href="/product/phong-khach/ke-ti-vi" class="dropdown-item"
+                    <a href="/san-pham/phong-khach/ke-ti-vi" class="dropdown-item"
                       ><span>Kệ ti vi</span></a
                     >
                   </li>
@@ -99,23 +99,23 @@ const currentRouteName = computed(() => route.name)
                   data-bs-toggle="dropdown"
                   data-bs-auto-close="outside"
                   aria-expanded="false"
-                  href="/product/phong-ngu"
-                  :class="route.path.startsWith('/product/phong-ngu') ? 'active' : ''"
+                  href="/san-pham/phong-ngu"
+                  :class="route.path.startsWith('/san-pham/phong-ngu') ? 'active' : ''"
                   ><span>Phòng ngủ <i class="ti-angle-right"></i></span
                 ></a>
                 <ul class="dropdown-menu">
                   <li>
-                    <a href="/product/phong-ngu/giuong-ngu" class="dropdown-item"
+                    <a href="/san-pham/phong-ngu/giuong-ngu" class="dropdown-item"
                       ><span>Giường ngủ</span></a
                     >
                   </li>
                   <li>
-                    <a href="/product/phong-ngu/tu-quan-ao" class="dropdown-item"
+                    <a href="/san-pham/phong-ngu/tu-quan-ao" class="dropdown-item"
                       ><span>Tủ quần áo</span></a
                     >
                   </li>
                   <li>
-                    <a href="/product/phong-ngu/ke-trang-diem" class="dropdown-item"
+                    <a href="/san-pham/phong-ngu/ke-trang-diem" class="dropdown-item"
                       ><span>Kệ trang điểm</span></a
                     >
                   </li>
@@ -127,18 +127,18 @@ const currentRouteName = computed(() => route.name)
                   data-bs-toggle="dropdown"
                   data-bs-auto-close="outside"
                   aria-expanded="false"
-                  href="/product/phong-bep"
-                  :class="route.path.startsWith('/product/phong-bep') ? 'active' : ''"
+                  href="/san-pham/phong-bep"
+                  :class="route.path.startsWith('/san-pham/phong-bep') ? 'active' : ''"
                   ><span>Phòng bếp <i class="ti-angle-right"></i></span
                 ></a>
                 <ul class="dropdown-menu">
                   <li>
-                    <a href="/product/phong-bep/ban-an" class="dropdown-item"
+                    <a href="/san-pham/phong-bep/ban-an" class="dropdown-item"
                       ><span>Bàn ăn</span></a
                     >
                   </li>
                   <li>
-                    <a href="/product/phong-bep/tu-bep" class="dropdown-item"
+                    <a href="/san-pham/phong-bep/tu-bep" class="dropdown-item"
                       ><span>Tủ bếp<picture></picture></span
                     ></a>
                   </li>
@@ -150,7 +150,7 @@ const currentRouteName = computed(() => route.name)
             <a
               class="nav-link"
               :class="currentRouteName == 'project' ? 'active' : ''"
-              href="/project"
+              href="/du-an"
               >Dự án</a
             >
           </li>
@@ -158,12 +158,23 @@ const currentRouteName = computed(() => route.name)
             <a
               class="nav-link"
               :class="currentRouteName == 'gallery' ? 'active' : ''"
-              href="/gallery"
+              href="/thu-vien"
               >Thư viện</a
             >
           </li>
-          <li class="nav-item"><a class="nav-link" href="/news">Tin tức</a></li>
-          <li class="nav-item"><a class="nav-link" href="contact.html">Liên hệ</a></li>
+          <li class="nav-item">
+            <a class="nav-link" href="/tin-tuc" :class="currentRouteName == 'news' ? 'active' : ''"
+              >Tin tức</a
+            >
+          </li>
+          <li class="nav-item">
+            <a
+              class="nav-link"
+              :class="currentRouteName == 'contacts' ? 'active' : ''"
+              href="/lien-he"
+              >Liên hệ</a
+            >
+          </li>
         </ul>
       </div>
     </div>
