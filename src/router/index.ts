@@ -70,7 +70,7 @@ const router = createRouter({
         {
           path: 'phong-khach',
           name: 'phongkhach',
-          component: ProductView,
+          component: ProductComponent,
           children: [
             {
               path: 'sofa',
@@ -92,7 +92,7 @@ const router = createRouter({
         {
           path: 'phong-bep',
           name: 'phongbep',
-          component: ProductView
+          component: ProductComponent
         }
       ]
     },
