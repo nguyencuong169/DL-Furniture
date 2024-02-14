@@ -43,7 +43,7 @@ const cateTitle = computed(() => {
         </div>
       </div>
     </div>
-    <Product />
+    <!-- <Product /> -->
     <router-view></router-view>
   </main>
 </template>

@@ -41,20 +41,16 @@
               <i class="star-rating"></i>
             </span>
             <div class="section-subtitle">D&L Furniture</div>
-            <div class="section-title">Junior Suite</div>
+            <div class="section-title">Giường óc chó</div>
           </div>
           <div class="col-md-8">
             <p class="mb-30">
-              Hotel non lorem ac erat suscipit bibendum nulla facilisi. Sedeuter nunc volutpat miss
-              sapien vel conseyen turpeutionyer masin libero sevenion vusetion viventa augue sit
-              amet hendrerit vestibulum. Duisteyerion venenatis lacus gravida eros ut turpis
-              interdum ornare.
+              Nét cuốn hút của các đường vân gỗ cùng sắc nâu sang trọng của gỗ óc chó chắc chắn sẽ khiến căn phòng tỏa sáng hơn bao giờ hết.
+              Không những vậy, các sản phẩm nội thất gỗ óc chó tự nhiên có sắc độ nâu vừa phải nên không khiến cho không gian bị ngộp hay bí bách.
             </p>
             <p class="mb-30">
-              Interdum et malesu they adamale fames ac anteipsu pimsine faucibus curabitur arcu site
-              feugiat in tortor in, volutpat sollicitudin libero. Hotel non lorem acer suscipit
-              bibendum vulla facilisi nedeuter nunc volutpa mollis sapien velet conseyer
-              turpeutionyer masin libero sempe mollis.
+              Màu sắc và chất liệu gỗ rất quan trọng trong việc tạo dựng phong cách cho các không gian.
+              Với chất gỗ mịn, thớ dày dặn cùng màu sắc không trùng lặp, gỗ óc chó tự nhiên cực phù hợp để trang trí cho các không gian mang phong cách thiết kế hiện đại.
             </p>
             <div class="row">
               <div class="col-md-6">

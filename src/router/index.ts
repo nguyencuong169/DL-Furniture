@@ -97,6 +97,11 @@ const router = createRouter({
       ]
     },
     {
+      path: '/product/detail/:id',
+      name: 'detail',
+      component: ProductDetailView
+    },
+    {
       // path: "*",
       path: '/:catchAll(.*)',
       name: 'NotFound',
