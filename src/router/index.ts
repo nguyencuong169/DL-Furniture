@@ -7,6 +7,7 @@ import ProjectView from '../views/ProjectView.vue'
 import ProductDetailView from '../views/ProductDetailView.vue'
 import NotFoundComponent from '../template/15_NotFoundComponent.vue'
 import ProductComponent from '../template/04_ProductComponent.vue'
+import NewsView from '../views/NewsView.vue'
 
 const router = createRouter({
   linkActiveClass: 'active',
@@ -39,6 +40,11 @@ const router = createRouter({
       path: '/project',
       name: 'project',
       component: ProjectView
+    },
+    {
+      path: '/news',
+      name: 'news',
+      component: NewsView
     },
     {
       path: '/product',
