@@ -68,7 +68,7 @@ const router = createRouter({
           ]
         },
         {
-          path: '/phong-khach',
+          path: 'phong-khach',
           name: 'phongkhach',
           component: ProductView,
           children: [
