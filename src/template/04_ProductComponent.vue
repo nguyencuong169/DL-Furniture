@@ -116,7 +116,7 @@ watch(
         </div>
         <div class="col-md-6">
           <div class="item">
-            <div class="position-re o-hidden"><img src="../assets/img/rooms/4.jpg" alt="" /></div>
+            <div class="position-re o-hidden"><img src="../assets/img/rooms/4.png" alt="" /></div>
             <span class="category"><a href="rooms2.html">Book</a></span>
             <div class="con">
               <h6><a href="san-pham/detail/1">30.000.000 VNĐ</a></h6>
@@ -142,7 +142,7 @@ watch(
         </div>
         <div class="col-md-6">
           <div class="item">
-            <div class="position-re o-hidden"><img src="../assets/img/rooms/7.jpg" alt="" /></div>
+            <div class="position-re o-hidden"><img src="../assets/img/rooms/7.png" alt="" /></div>
             <span class="category"><a href="rooms2.html">Book</a></span>
             <div class="con">
               <h6><a href="san-pham/detail/1">15.000.000</a></h6>

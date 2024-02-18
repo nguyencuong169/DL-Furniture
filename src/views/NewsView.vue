@@ -28,7 +28,7 @@
               <div class="col-md-12">
                 <div class="item">
                   <div class="post-img">
-                    <a href="post.html"> <img src="../assets/img/restaurant/2.jpg" alt="" /> </a>
+                    <a href="post.html"> <img src="../assets/img/restaurant/2.png" alt="" /> </a>
                     <div class="date">
                       <a href="post.html"> <span>Dec</span> <i>02</i> </a>
                     </div>
@@ -56,7 +56,7 @@
               <div class="col-md-12">
                 <div class="item">
                   <div class="post-img">
-                    <a href="post.html"> <img src="../assets/img/spa/3.jpg" alt="" /> </a>
+                    <a href="post.html"> <img src="../assets/img/spa/3.png" alt="" /> </a>
                     <div class="date">
                       <a href="post.html"> <span>Dec</span> <i>04</i> </a>
                     </div>
@@ -85,7 +85,7 @@
               <div class="col-md-12">
                 <div class="item">
                   <div class="post-img">
-                    <a href="post.html"> <img src="../assets/img/slider/7.jpg" alt="" /> </a>
+                    <a href="post.html"> <img src="../assets/img/slider/7.png" alt="" /> </a>
                     <div class="date">
                       <a href="post.html"> <span>Dec</span> <i>06</i> </a>
                     </div>
@@ -141,13 +141,13 @@
                   </div>
                   <ul class="recent">
                     <li>
-                      <div class="thum"><img src="../assets/img/restaurant/2.jpg" alt="" /></div>
+                      <div class="thum"><img src="../assets/img/restaurant/2.png" alt="" /></div>
                       <a href="post.html"
                         >Ngất ngây trước mẫu thiết kế nội thất biệt thự 100m2 ấn tượng</a
                       >
                     </li>
                     <li>
-                      <div class="thum"><img src="../assets/img/spa/3.jpg" alt="" /></div>
+                      <div class="thum"><img src="../assets/img/spa/3.png" alt="" /></div>
                       <a href="post.html">Mẫu thiết kế phòng ngủ đẹp như mơ</a>
                     </li>
                     <li>

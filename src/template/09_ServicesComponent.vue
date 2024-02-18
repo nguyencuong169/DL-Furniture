@@ -83,14 +83,14 @@
         </div>
         <div class="col-md-6 p-0 order1 animate-box" data-animate-effect="fadeInRight">
           <div class="img">
-            <a href="spa-wellness.html"><img src="@/assets/img/spa/3.jpg" alt="" /></a>
+            <a href="spa-wellness.html"><img src="@/assets/img/spa/3.png" alt="" /></a>
           </div>
         </div>
       </div>
       <div class="row">
         <div class="col-md-6 p-0 animate-box" data-animate-effect="fadeInLeft">
           <div class="img left">
-            <a href="spa-wellness.html"><img src="@/assets/img/spa/2.jpg" alt="" /></a>
+            <a href="spa-wellness.html"><img src="@/assets/img/spa/2.png" alt="" /></a>
           </div>
         </div>
         <div class="col-md-6 p-0 bg-cream valign animate-box" data-animate-effect="fadeInRight">
