@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { bookingUseStore } from '../stores/bookingstore'
 
-const bookingStore = bookingUseStore();
+const bookingStore = bookingUseStore()
 </script>
 
 <template>
@@ -43,10 +43,7 @@ const bookingStore = bookingUseStore();
                 <h4>Tư vấn thiết kế miễn phí</h4>
               </div>
               <div class="booking-inner clearfix">
-                <form
-                  action="https://duruthemes.com/demo/html/cappa/demo2-light/rooms2.html"
-                  class="form1 clearfix"
-                >
+                <form action="#" class="form1 clearfix">
                   <div class="row">
                     <div class="col-md-12">
                       <div class="input1_wrapper">

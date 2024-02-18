@@ -13,9 +13,9 @@ const state = reactive({
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        data-background="https://dl-furniture.netlify.app/assets/2-xOjvuLYK.jpg"
+        data-background="https://dl-furniture.netlify.app/assets/2-bjybkEMk.png "
       >
-        <img src="../assets/img/slider/2.jpg" v-show="false" />
+        <img src="../assets/img/slider/2.png" v-show="false" />
         <div class="v-middle caption">
           <div class="container">
             <div class="row">
@@ -43,9 +43,9 @@ const state = reactive({
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        data-background="https://dl-furniture.netlify.app/assets/3-DTrcElLx.jpg"
+        data-background="https://dl-furniture.netlify.app/assets/3-NYZIuBGH.png "
       >
-        <img src="../assets/img/slider/3.jpg" v-show="false" />
+        <img src="../assets/img/slider/3.png" v-show="false" />
         <div class="v-middle caption">
           <div class="container">
             <div class="row">
@@ -70,9 +70,9 @@ const state = reactive({
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        data-background="https://dl-furniture.netlify.app/assets/1-FQ5yJaaV.jpg"
+        data-background="https://dl-furniture.netlify.app/assets/1-2knvPmRN.png "
       >
-        <img src="../assets/img/slider/1.jpg" v-show="false" />
+        <img src="../assets/img/slider/1.png" v-show="false" />
         <div class="v-middle caption">
           <div class="container">
             <div class="row">
