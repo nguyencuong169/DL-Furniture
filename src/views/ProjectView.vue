@@ -45,19 +45,16 @@ const state = reactive({
                   <div class="col-md-4">
                     <ul>
                       <li><i class="flaticon-group"></i> 1-2 Persons</li>
-                      <li><i class="flaticon-wifi"></i> Free Wifi</li>
                     </ul>
                   </div>
                   <div class="col-md-4">
                     <ul>
                       <li><i class="flaticon-bed"></i> Twin Bed</li>
-                      <li><i class="flaticon-breakfast"></i> Breakfast</li>
                     </ul>
                   </div>
                   <div class="col-md-4">
                     <ul>
                       <li><i class="flaticon-clock-1"></i> 200 sqft room</li>
-                      <li><i class="flaticon-swimming"></i> Swimming Pool</li>
                     </ul>
                   </div>
                 </div>
@@ -86,19 +83,16 @@ const state = reactive({
                   <div class="col-md-4">
                     <ul>
                       <li><i class="flaticon-group"></i> 1-2 Persons</li>
-                      <li><i class="flaticon-wifi"></i> Free Wifi</li>
                     </ul>
                   </div>
                   <div class="col-md-4">
                     <ul>
                       <li><i class="flaticon-bed"></i> Twin Bed</li>
-                      <li><i class="flaticon-breakfast"></i> Breakfast</li>
                     </ul>
                   </div>
                   <div class="col-md-4">
                     <ul>
                       <li><i class="flaticon-clock-1"></i> 200 sqft Room</li>
-                      <li><i class="flaticon-swimming"></i> Swimming Pool</li>
                     </ul>
                   </div>
                 </div>
@@ -125,19 +119,16 @@ const state = reactive({
                   <div class="col-md-4">
                     <ul>
                       <li><i class="flaticon-group"></i> 2-3 Persons</li>
-                      <li><i class="flaticon-wifi"></i> Free Wifi</li>
                     </ul>
                   </div>
                   <div class="col-md-4">
                     <ul>
                       <li><i class="flaticon-bed"></i> Twin Bed</li>
-                      <li><i class="flaticon-breakfast"></i> Breakfast</li>
                     </ul>
                   </div>
                   <div class="col-md-4">
                     <ul>
                       <li><i class="flaticon-clock-1"></i> 200 sqft room</li>
-                      <li><i class="flaticon-swimming"></i> Swimming Pool</li>
                     </ul>
                   </div>
                 </div>
@@ -168,19 +159,16 @@ const state = reactive({
                   <div class="col-md-4">
                     <ul>
                       <li><i class="flaticon-group"></i> 2-4 Persons</li>
-                      <li><i class="flaticon-wifi"></i> Free Wifi</li>
                     </ul>
                   </div>
                   <div class="col-md-4">
                     <ul>
                       <li><i class="flaticon-bed"></i> Twin Bed</li>
-                      <li><i class="flaticon-breakfast"></i> Breakfast</li>
                     </ul>
                   </div>
                   <div class="col-md-4">
                     <ul>
                       <li><i class="flaticon-clock-1"></i> 200 sqft Room</li>
-                      <li><i class="flaticon-swimming"></i> Swimming Pool</li>
                     </ul>
                   </div>
                 </div>

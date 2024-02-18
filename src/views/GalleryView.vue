@@ -12,7 +12,7 @@
         <div class="row">
           <div class="col-md-12 text-left caption mt-90">
             <h5>Images & Videos</h5>
-            <h1>Our Gallery</h1>
+            <h1>Thư viện</h1>
           </div>
         </div>
       </div>
