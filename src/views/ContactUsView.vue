@@ -31,34 +31,32 @@ import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
           <div class="col-md-6 mb-60">
             <h3>D&L Furniture</h3>
             <p>
-              Hotel ut nisl quam nestibulum ac quam nec odio elementum sceisue the aucan ligula.
-              Orci varius natoque penatibus et magnis dis parturient monte nascete ridiculus mus
-              nellentesque habitant morbine.
+              CÔNG TY CỔ PHẦN KIẾN TRÚC NỘI THẤT DŨNG & LINH.
             </p>
             <div class="reservations mb-30">
               <div class="icon"><span class="flaticon-call"></span></div>
               <div class="text">
-                <p>Reservation</p>
-                <a href="tel:0945366622">(+84)945-366-622</a>
+                <p>Tư vấn thiết kế</p>
+                <a href="tel:0945366622">(+84) 961-109-897</a>
               </div>
             </div>
             <div class="reservations mb-30">
               <div class="icon"><span class="flaticon-envelope"></span></div>
               <div class="text">
-                <p>Email Info</p>
+                <p>Email</p>
                 <a href="mailto:info@dl-furniture.com">info@dl-furniture.com</a>
               </div>
             </div>
             <div class="reservations">
               <div class="icon"><span class="flaticon-location-pin"></span></div>
               <div class="text">
-                <p>Address</p>
+                <p>Địa chỉ</p>
                 Đường Cầu Liêu<br />Thạch Xá - Thạch Thất - Hà Nội
               </div>
             </div>
           </div>
           <div class="col-md-5 mb-30 offset-md-1">
-            <h3>Get in touch</h3>
+            <h3>Để lại lời nhắn của bạn</h3>
             <form method="post" class="contact__form" action="#">
               <!-- form message -->
               <div class="row">
