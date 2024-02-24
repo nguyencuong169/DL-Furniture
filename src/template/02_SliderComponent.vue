@@ -104,7 +104,7 @@ const state = reactive({
         <div class="icon d-flex justify-content-center align-items-center">
           <i class="flaticon-call"></i>
         </div>
-        <div class="call"><span>(+84) 945-366-622</span> <br />Tư vấn thiết kế</div>
+        <div class="call"><span>(+84) 961-109-897</span> <br />Tư vấn thiết kế</div>
       </a>
     </div>
   </header>

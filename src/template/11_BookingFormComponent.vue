@@ -30,7 +30,7 @@ const bookingStore = bookingUseStore()
               <div class="icon color-1"><span class="flaticon-call"></span></div>
               <div class="text">
                 <p class="color-1">Tư vấn thiết kế</p>
-                <a class="color-1" href="tel:0945366622">(+84) 945-366-622</a>
+                <a class="color-1" href="tel:0945366622">(+84) 961-109-897</a>
               </div>
             </div>
             <p><i class="ti-check"></i><small>Gọi cho chúng tôi để được tư vấn miễn phí.</small></p>

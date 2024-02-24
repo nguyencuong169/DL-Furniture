@@ -15,7 +15,7 @@
             <div class="icon"><span class="flaticon-call"></span></div>
             <div class="text">
               <p class="color-2">Tư vấn thiết kế miễn phí</p>
-              <a href="tel:0945366622">(+84) 945-366-622</a>
+              <a href="tel:0945366622">(+84) 961-109-897</a>
             </div>
           </div>
         </div>
