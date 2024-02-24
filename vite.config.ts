@@ -14,5 +14,5 @@ export default defineConfig({
     }
   },
   clearScreen: false,
-  base: '/dist'
+  base: '/'
 })
