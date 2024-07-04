@@ -30,7 +30,7 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "noImplicitAny": false
+    "noImplicitAny": false,
   },
   "include": ["./src/**/*"]
 }

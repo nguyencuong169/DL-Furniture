@@ -11,12 +11,15 @@
     "build-only": "vite build --base=./",
     "type-check": "vue-tsc --build --force",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "format": "prettier --write src/"
+    "format": "prettier --write src/",
+    "generate-client": "openapi-generator-cli generate -g typescript-axios -i D:/dl_backend/dl-furniture-api.json --additional-properties=withSeparateModelsAndApi=true,modelPackage=models,apiPackage=api,supportsES6=true --type-mappings=DateTime=Date -o ./src/generated/api-client"
   },
   "dependencies": {
     "@floating-ui/vue": "^1.0.6",
+    "@openapitools/openapi-generator-cli": "^2.5.2",
     "@popperjs/core": "^2.11.8",
     "connect-history-api-fallback": "^2.0.0",
+    "dayjs": "^1.11.11",
     "global": "^4.4.0",
     "isotope-layout": "^3.0.6",
     "jquery": "^3.7.1",

@@ -1,4 +1,21 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import NewsComponent from '../template/10_NewsComponent.vue'
+import { onMounted, reactive } from 'vue'
+import { NewsApi } from '../generated/api-client/api'
+import { News } from '../generated/api-client/models'
+import dayjs from 'dayjs'
+
+const state = reactive({
+  items: [] as News[],
+  page: 1
+})
+
+onMounted(async () => {
+  await new NewsApi().newsGetAll().then((res) => {
+    state.items = res.data as News[]
+  })
+})
+</script>
 
 <template>
   <main>
@@ -18,34 +35,30 @@
         </div>
       </div>
     </div>
-
     <!-- News 2 -->
     <section class="news2 section-padding">
       <div class="container">
         <div class="row">
           <div class="col-md-8">
             <div class="row">
-              <div class="col-md-12">
+              <div class="col-md-12" v-for="item in state.items">
                 <div class="item">
                   <div class="post-img">
                     <a href="post.html"> <img src="../assets/img/restaurant/2.png" alt="" /> </a>
                     <div class="date">
-                      <a href="post.html"> <span>Dec</span> <i>02</i> </a>
+                      <a href="post.html">
+                        <span>{{ dayjs(item.updatedDate).format('MMMM') }}</span>
+                        <i>{{ dayjs(item.updatedDate).format('MM') }}</i>
+                      </a>
                     </div>
                   </div>
                   <div class="post-cont">
                     <a href="news.html"><span class="tag">NHÀ ĐẸP</span></a>
                     <h5>
-                      <a href="post.html"
-                        >Đơn vị thi công thiết kế nội thất VINHOMES GRAND PARK uy tín nhất</a
-                      >
+                      <a href="post.html">{{ item.titles }}</a>
                     </h5>
                     <p>
-                      Vinhomes Grand Park không chỉ là một dự án đô thị đẳng cấp, mà còn là biểu
-                      tượng của sự tinh tế và sáng tạo trong việc thiết kế và thi công nội thất. Để
-                      đảm bảo rằng mỗi căn hộ và không gian tại dự án này đều đạt được sự hoàn hảo
-                      và đẳng cấp, các tiêu chuẩn thiết kế và thi công nội thất đã được thiết lập
-                      với sự tận tụy và chất lượng hàng đầu.
+                      {{ item.summary }}
                     </p>
                     <div class="butn-dark">
                       <a href="post.html"><span>Chi tiết</span></a>
@@ -53,61 +66,7 @@
                   </div>
                 </div>
               </div>
-              <div class="col-md-12">
-                <div class="item">
-                  <div class="post-img">
-                    <a href="post.html"> <img src="../assets/img/spa/3.png" alt="" /> </a>
-                    <div class="date">
-                      <a href="post.html"> <span>Dec</span> <i>04</i> </a>
-                    </div>
-                  </div>
-                  <div class="post-cont">
-                    <a href="news.html"><span class="tag">Thiết kế nội thất</span></a>
-                    <h5>
-                      <a href="post.html"
-                        ><strong>D&L Furniture</strong> – Thi công nội thất trọn gói chuyên
-                        nghiệp</a
-                      >
-                    </h5>
-                    <p>
-                      Những thiết kế nội thất nhà biệt thự 2 tầng đang nhận được sự quan tâm nhiều
-                      của các gia chủ trong những năm trở lại đây. Bởi sự sang trọng, trẻ trung,
-                      tiện nghi và tạo cảm giác thoải mái, ấm cúng cho gia đình. Không những vậy,
-                      thiết kế còn phù hợp với điều kiện tài chính của những người trẻ tuổi mới lập
-                      nghiệp...
-                    </p>
-                    <div class="butn-dark">
-                      <a href="post.html"><span>Chi tiết</span></a>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="col-md-12">
-                <div class="item">
-                  <div class="post-img">
-                    <a href="post.html"> <img src="../assets/img/slider/7.png" alt="" /> </a>
-                    <div class="date">
-                      <a href="post.html"> <span>Dec</span> <i>06</i> </a>
-                    </div>
-                  </div>
-                  <div class="post-cont">
-                    <a href="news.html"><span class="tag">Thiết kế nội thất</span></a>
-                    <h5>
-                      <a href="post.html">Thiết kế nội thất căn hộ chung cư 30m2 hiện đại đẹp</a>
-                    </h5>
-                    <p>
-                      Phong cách thiết kế nội thất hiện đại đề cao sự đơn giản, trẻ trung, cá tính
-                      và thuận tiện. Vì vậy những căn hộ có diện tích hạn chế khoảng 30m2 rất phù
-                      hợp với phong cách này. Bạn nên bố trí không gian nhà vệ sinh ở bên tay trái
-                      cửa vào, tiếp theo là phòng khách và trong cùng là phòng ngủ và phòng làm
-                      việc...
-                    </p>
-                    <div class="butn-dark">
-                      <a href="post.html"><span>Chi tiết</span></a>
-                    </div>
-                  </div>
-                </div>
-              </div>
+
               <div class="col-md-12">
                 <!-- Pagination -->
                 <ul class="news-pagination-wrap align-center mb-30 mt-30">
@@ -121,6 +80,9 @@
                     <a href="blog2.html#"><i class="ti-angle-right"></i></a>
                   </li>
                 </ul>
+                <div class="text-xs-center">
+                  <v-pagination v-model="state.page" :length="4" circle></v-pagination>
+                </div>
               </div>
             </div>
           </div>
