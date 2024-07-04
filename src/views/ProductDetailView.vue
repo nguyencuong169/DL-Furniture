@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  import PricingComponent from '../template/05_PricingComponent.vue' 
+import PricingComponent from '../template/05_PricingComponent.vue'
 </script>
 
 <template>
@@ -47,12 +47,15 @@
           </div>
           <div class="col-md-8">
             <p class="mb-30">
-              Nét cuốn hút của các đường vân gỗ cùng sắc nâu sang trọng của gỗ óc chó chắc chắn sẽ khiến căn phòng tỏa sáng hơn bao giờ hết.
-              Không những vậy, các sản phẩm nội thất gỗ óc chó tự nhiên có sắc độ nâu vừa phải nên không khiến cho không gian bị ngộp hay bí bách.
+              Nét cuốn hút của các đường vân gỗ cùng sắc nâu sang trọng của gỗ óc chó chắc chắn sẽ
+              khiến căn phòng tỏa sáng hơn bao giờ hết. Không những vậy, các sản phẩm nội thất gỗ óc
+              chó tự nhiên có sắc độ nâu vừa phải nên không khiến cho không gian bị ngộp hay bí
+              bách.
             </p>
             <p class="mb-30">
-              Màu sắc và chất liệu gỗ rất quan trọng trong việc tạo dựng phong cách cho các không gian.
-              Với chất gỗ mịn, thớ dày dặn cùng màu sắc không trùng lặp, gỗ óc chó tự nhiên cực phù hợp để trang trí cho các không gian mang phong cách thiết kế hiện đại.
+              Màu sắc và chất liệu gỗ rất quan trọng trong việc tạo dựng phong cách cho các không
+              gian. Với chất gỗ mịn, thớ dày dặn cùng màu sắc không trùng lặp, gỗ óc chó tự nhiên
+              cực phù hợp để trang trí cho các không gian mang phong cách thiết kế hiện đại.
             </p>
             <div class="row">
               <div class="col-md-6">

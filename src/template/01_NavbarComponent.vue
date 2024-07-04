@@ -147,10 +147,7 @@ const currentRouteName = computed(() => route.name)
             </ul>
           </li>
           <li class="nav-item">
-            <a
-              class="nav-link"
-              :class="currentRouteName == 'project' ? 'active' : ''"
-              href="/du-an"
+            <a class="nav-link" :class="currentRouteName == 'project' ? 'active' : ''" href="/du-an"
               >Dự án</a
             >
           </li>

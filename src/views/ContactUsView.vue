@@ -12,7 +12,7 @@ import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
     <div
       class="banner-header section-padding valign bg-img bg-fixed"
       data-overlay-dark="4"
-      data-background="https://dl-furniture.netlify.app/assets/1-FQ5yJaaV.jpg"
+      data-background="https://dl-furniture.netlify.app/assets/1-vdnilppx.jpg"
     >
       <div class="container">
         <div class="row">
@@ -30,9 +30,7 @@ import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
         <div class="row mb-90">
           <div class="col-md-6 mb-60">
             <h3>D&L Furniture</h3>
-            <p>
-              CÔNG TY CỔ PHẦN KIẾN TRÚC NỘI THẤT DŨNG & LINH.
-            </p>
+            <p>CÔNG TY CỔ PHẦN KIẾN TRÚC NỘI THẤT DŨNG & LINH.</p>
             <div class="reservations mb-30">
               <div class="icon"><span class="flaticon-call"></span></div>
               <div class="text">

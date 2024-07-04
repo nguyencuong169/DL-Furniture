@@ -4,9 +4,9 @@
   <section
     class="video-wrapper video section-padding bg-img bg-fixed"
     data-overlay-dark="3"
-    data-background="https://dl-furniture.netlify.app/assets/2-xOjvuLYK.jpg"
+    data-background="https://dl-furniture.netlify.app/assets/2-de6o-4tg.jpg"
   >
-  <img src="../assets/img/slider/2.jpg" v-show="false" />
+    <img src="../assets/img/slider/2.jpg" v-show="false" />
     <div class="container">
       <div class="row">
         <div class="col-md-8 offset-md-2 text-center">

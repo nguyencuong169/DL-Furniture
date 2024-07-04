@@ -4,7 +4,7 @@
   <section class="testimonials">
     <div
       class="background bg-img bg-fixed section-padding pb-0"
-      data-background="https://dl-furniture.netlify.app/assets/2-xOjvuLYK.jpg"
+      data-background="https://dl-furniture.netlify.app/assets/2-diybkv0c.jpg"
       data-overlay-dark="3"
     >
       <img src="../assets/img/slider/2.jpg" v-show="false" />

@@ -13,7 +13,37 @@ const state = reactive({
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        data-background="https://dl-furniture.netlify.app/assets/2-bjybkEMk.png "
+        data-background="https://dl-furniture.netlify.app/assets/1-b3ntw45g.jpg"
+      >
+        <img src="../assets/img/slider/1.png" v-show="false" />
+        <div class="v-middle caption">
+          <div class="container">
+            <div class="row">
+              <div class="col-md-10 offset-md-1">
+                <span>
+                  <i class="star-rating"></i>
+                  <i class="star-rating"></i>
+                  <i class="star-rating"></i>
+                  <i class="star-rating"></i>
+                  <i class="star-rating"></i>
+                </span>
+                <h4>Trải nghiệm sống đích thực</h4>
+                <h1>
+                  Không gian <br />
+                  tiện nghi đẳng cấp
+                </h1>
+                <div class="butn-light mt-30 mb-30">
+                  <a href="#" data-scroll-nav="1"><span>Khám phá ngay</span></a>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div
+        class="text-center item bg-img"
+        :data-overlay-dark="state.overlayDark"
+        data-background="https://dl-furniture.netlify.app/assets/2-bupjuqqy.png "
       >
         <img src="../assets/img/slider/2.png" v-show="false" />
         <div class="v-middle caption">
@@ -43,7 +73,7 @@ const state = reactive({
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        data-background="https://dl-furniture.netlify.app/assets/3-NYZIuBGH.png "
+        data-background="https://dl-furniture.netlify.app/assets/3-1hki4eyd.png"
       >
         <img src="../assets/img/slider/3.png" v-show="false" />
         <div class="v-middle caption">
@@ -59,36 +89,6 @@ const state = reactive({
                 </span>
                 <h4>Sựa lựa chọn tốt nhất</h4>
                 <h1>Biến ước mơ thành hiện thực</h1>
-                <div class="butn-light mt-30 mb-30">
-                  <a href="#" data-scroll-nav="1"><span>Khám phá ngay</span></a>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="text-center item bg-img"
-        :data-overlay-dark="state.overlayDark"
-        data-background="https://dl-furniture.netlify.app/assets/1-2knvPmRN.png "
-      >
-        <img src="../assets/img/slider/1.png" v-show="false" />
-        <div class="v-middle caption">
-          <div class="container">
-            <div class="row">
-              <div class="col-md-10 offset-md-1">
-                <span>
-                  <i class="star-rating"></i>
-                  <i class="star-rating"></i>
-                  <i class="star-rating"></i>
-                  <i class="star-rating"></i>
-                  <i class="star-rating"></i>
-                </span>
-                <h4>Trải nghiệm sống đích thực</h4>
-                <h1>
-                  Không gian <br />
-                  tiện nghi đẳng cấp
-                </h1>
                 <div class="butn-light mt-30 mb-30">
                   <a href="#" data-scroll-nav="1"><span>Khám phá ngay</span></a>
                 </div>

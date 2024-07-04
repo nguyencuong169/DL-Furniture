@@ -23,7 +23,7 @@ onMounted(async () => {
     <div
       class="banner-header section-padding valign bg-img bg-fixed"
       data-overlay-dark="4"
-      data-background="https://dl-furniture.netlify.app/assets/7-CbzaxWf1.jpg"
+      data-background="https://dl-furniture.netlify.app/assets/7-jvnrfz_x.jpg"
     >
       <img src="../assets/img/slider/7.jpg" v-show="false" />
       <div class="container">
