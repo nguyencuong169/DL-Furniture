@@ -1,4 +1,22 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { onMounted, reactive } from 'vue'
+import dayjs from 'dayjs'
+import { newsApi } from '../api/newsClient'
+import type { News } from '../generated/api-client/models'
+
+const state = reactive({
+  items: [] as News[]
+})
+
+onMounted(async () => {
+  try {
+    const res = await newsApi.newsGetAll()
+    state.items = (res.data ?? []).slice(0, 6) as News[]
+  } catch (error) {
+    console.error('Failed to load homepage news', error)
+  }
+})
+</script>
 
 <template>
   <section class="news section-padding bg-blck">
@@ -12,89 +30,21 @@
       <div class="row">
         <div class="col-md-12">
           <div class="owl-carousel owl-theme">
-            <div class="item">
+            <div class="item" v-for="item in state.items" :key="item.id">
               <div class="position-re o-hidden">
-                <img src="../assets/img/news/1.jpg" alt="" />
+                <img :src="item.newsImage || '/src/assets/img/news/1.jpg'" alt="" />
                 <div class="date">
-                  <a href="post.html"> <span>Dec</span> <i>02</i> </a>
+                  <a href="post.html">
+                    <span>{{ dayjs(item.updatedDate).format('MMM') }}</span>
+                    <i>{{ dayjs(item.updatedDate).format('DD') }}</i>
+                  </a>
                 </div>
               </div>
               <div class="con">
                 <span class="category">
-                  <a href="news.html">SHOWROOM</a>
+                  <a href="news.html">TIN TỨC</a>
                 </span>
-                <h5><a href="post.html">Showroom nội thất gỗ óc chó đẳng cấp tại Hà Nội</a></h5>
-              </div>
-            </div>
-            <div class="item">
-              <div class="position-re o-hidden">
-                <img src="@/assets/img/news/2.jpg" alt="" />
-                <div class="date">
-                  <a href="post.html"> <span>Dec</span> <i>04</i> </a>
-                </div>
-              </div>
-              <div class="con">
-                <span class="category">
-                  <a href="news.html">Spa</a>
-                </span>
-                <h5><a href="post.html">Benefits of Spa Treatments</a></h5>
-              </div>
-            </div>
-            <div class="item">
-              <div class="position-re o-hidden">
-                <img src="@/assets/img/news/3.jpg" alt="" />
-                <div class="date">
-                  <a href="post.html"> <span>Dec</span> <i>06</i> </a>
-                </div>
-              </div>
-              <div class="con">
-                <span class="category">
-                  <a href="news.html">Bathrooms</a>
-                </span>
-                <h5><a href="post.html">Hotel Bathroom Collections</a></h5>
-              </div>
-            </div>
-            <div class="item">
-              <div class="position-re o-hidden">
-                <img src="@/assets/img/news/4.jpg" alt="" />
-                <div class="date">
-                  <a href="post.html"> <span>Dec</span> <i>08</i> </a>
-                </div>
-              </div>
-              <div class="con">
-                <span class="category">
-                  <a href="news.html">Health</a>
-                </span>
-                <h5><a href="post.html">Weight Loss with Fitness Health Club</a></h5>
-              </div>
-            </div>
-
-            <div class="item">
-              <div class="position-re o-hidden">
-                <img src="@/assets/img/news/6.jpg" alt="" />
-                <div class="date">
-                  <a href="post.html"> <span>Dec</span> <i>08</i> </a>
-                </div>
-              </div>
-              <div class="con">
-                <span class="category">
-                  <a href="news.html">Design</a>
-                </span>
-                <h5><a href="post.html">Retro Lighting Design in The Hotels</a></h5>
-              </div>
-            </div>
-            <div class="item">
-              <div class="position-re o-hidden">
-                <img src="@/assets/img/news/5.jpg" alt="" />
-                <div class="date">
-                  <a href="post.html"> <span>Dec</span> <i>08</i> </a>
-                </div>
-              </div>
-              <div class="con">
-                <span class="category">
-                  <a href="news.html">Health</a>
-                </span>
-                <h5><a href="post.html">Benefits of Swimming for Your Health</a></h5>
+                <h5><a href="post.html">{{ item.titles }}</a></h5>
               </div>
             </div>
           </div>

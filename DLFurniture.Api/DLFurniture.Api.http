@@ -1,0 +1,6 @@
+@DLFurniture.Api_HostAddress = http://localhost:5287
+
+GET {{DLFurniture.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

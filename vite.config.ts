@@ -14,5 +14,10 @@ export default defineConfig({
     }
   },
   clearScreen: false,
-  base: '/'
+  base: '/',
+  server: {
+    watch: {
+      ignored: ['**/DLFurniture.Api/**', '**/node_modules/**']
+    }
+  }
 })

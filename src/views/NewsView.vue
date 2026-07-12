@@ -1,23 +1,158 @@
 <script setup lang="ts">
-import NewsComponent from '../template/10_NewsComponent.vue'
-import { onMounted, reactive } from 'vue'
-import { NewsApi } from '../generated/api-client/api'
-import { News } from '../generated/api-client/models'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import dayjs from 'dayjs'
+import type { News } from '../generated/api-client/models'
+import { getNewsPaged } from '../api/newsPagedClient'
+import { getNewsArchives, getNewsCategories, getNewsRelated, getNewsTags } from '../api/newsSidebarClient'
 
 const state = reactive({
   items: [] as News[],
-  page: 1
+  page: 1,
+  pageSize: 6,
+  totalPages: 0,
+  totalCount: 0
+})
+
+const sidebar = reactive({
+  categories: [] as Array<{ id: number; name: string; slug: string }>,
+  archives: [] as Array<{ year: number; month: number; monthLabel: string; count: number }>,
+  tags: [] as Array<{ name: string; count: number }>,
+  related: [] as News[]
+})
+
+const uiState = reactive({
+  showAllArchives: false,
+  showAllTags: false
+})
+
+const loadingRelated = ref(false)
+
+const loadPage = async (page: number) => {
+  try {
+    const res = await getNewsPaged(page, state.pageSize)
+    state.items = res.items
+    state.page = res.page
+    state.pageSize = res.pageSize
+    state.totalPages = res.totalPages
+    state.totalCount = res.totalCount
+  } catch (error) {
+    console.error('Failed to load news', error)
+  }
+}
+
+const loadSidebar = async () => {
+  const [categoriesRes, archivesRes, tagsRes] = await Promise.all([
+    getNewsCategories(),
+    getNewsArchives(),
+    getNewsTags()
+  ])
+  sidebar.categories = categoriesRes
+  sidebar.archives = archivesRes
+  sidebar.tags = tagsRes
+}
+
+const loadRelatedForCurrentPage = async () => {
+  if (!state.items.length) {
+    sidebar.related = []
+    return
+  }
+
+  loadingRelated.value = true
+  try {
+    // Related posts for the first item on current page
+    const first = state.items[0]
+    sidebar.related = await getNewsRelated(Number(first.id), 3)
+  } catch (e) {
+    console.error('Failed to load related news', e)
+  } finally {
+    loadingRelated.value = false
+  }
+}
+
+
+type PageButton = number | '...'
+
+const pageButtons = computed<PageButton[]>(() => {
+  const total = state.totalPages
+  if (!total || total <= 0) return []
+
+  const current = state.page
+  const windowSize = 2 // show 2 pages on each side of current
+
+  const set = new Set<number>()
+  set.add(1)
+  set.add(total)
+
+  for (let p = current - windowSize; p <= current + windowSize; p++) {
+    if (p >= 1 && p <= total) set.add(p)
+  }
+
+  const sorted = Array.from(set).sort((a, b) => a - b)
+  const result: PageButton[] = []
+
+  for (let i = 0; i < sorted.length; i++) {
+    const p = sorted[i]
+    const prev = sorted[i - 1]
+    if (i > 0 && prev !== undefined && p - prev > 1) {
+      result.push('...')
+    }
+    result.push(p)
+  }
+
+  return result
+})
+
+const numberedPages = computed(() => pageButtons.value.filter((p) => typeof p === 'number') as number[])
+
+const archivesByYear = computed(() => {
+  const map = new Map<number, { year: number; count: number }>()
+
+  // backend returns desc by year/month; normalize to safety
+  for (const a of sidebar.archives) {
+    const existing = map.get(a.year)
+    if (existing) existing.count += a.count
+    else map.set(a.year, { year: a.year, count: a.count })
+  }
+
+  return Array.from(map.values()).sort((x, y) => y.year - x.year)
+})
+
+type MonthArchive = { year: number; month: number; monthLabel: string; count: number }
+
+const displayArchives = computed(() => {
+  if (uiState.showAllArchives) return sidebar.archives as MonthArchive[]
+  // gộp theo năm (chỉ hiển thị year)
+  return archivesByYear.value.map((y) => ({ year: y.year, month: 0, monthLabel: '', count: y.count })) as any
+})
+
+const displayedTags = computed(() => {
+  const max = 12
+  if (uiState.showAllTags) return sidebar.tags
+  return sidebar.tags.slice(0, max)
 })
 
 onMounted(async () => {
-  await new NewsApi().newsGetAll().then((res) => {
-    state.items = res.data as News[]
-  })
+  await loadPage(1)
+  await loadSidebar()
+  await loadRelatedForCurrentPage()
 })
+
+watch(
+  () => state.items,
+  () => {
+    // refresh related when page items change
+    loadRelatedForCurrentPage()
+  },
+  { deep: false }
+)
 </script>
 
+
+
+
+
 <template>
+
   <main>
     <!-- Header Banner -->
     <div
@@ -41,8 +176,9 @@ onMounted(async () => {
         <div class="row">
           <div class="col-md-8">
             <div class="row">
-              <div class="col-md-12" v-for="item in state.items">
+              <div class="col-md-12" v-for="item in state.items" :key="item.id">
                 <div class="item">
+
                   <div class="post-img">
                     <a href="post.html"> <img src="../assets/img/restaurant/2.png" alt="" /> </a>
                     <div class="date">
@@ -67,23 +203,36 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <div class="col-md-12">
+              <div class="col-md-12" v-if="state.totalPages > 0">
                 <!-- Pagination -->
                 <ul class="news-pagination-wrap align-center mb-30 mt-30">
                   <li>
-                    <a href="blog2.html#"><i class="ti-angle-left"></i></a>
+                    <a href="#" :class="{ disabled: state.page <= 1 }" @click.prevent="state.page > 1 && loadPage(state.page - 1)">
+                      <i class="ti-angle-left"></i>
+                    </a>
                   </li>
-                  <li><a href="blog2.html#">1</a></li>
-                  <li><a href="blog2.html#" class="active">2</a></li>
-                  <li><a href="blog2.html#">3</a></li>
+
+                  <li
+                    v-for="(p, idx) in numberedPages"
+                    :key="`num-${p}-${idx}`"
+                    :class="{ active: p === state.page }"
+                  >
+                    <a href="#" @click.prevent="loadPage(p)">{{ p }}</a>
+                  </li>
+
+
+
+
+
                   <li>
-                    <a href="blog2.html#"><i class="ti-angle-right"></i></a>
+                    <a href="#" :class="{ disabled: state.page >= state.totalPages }" @click.prevent="state.page < state.totalPages && loadPage(state.page + 1)">
+                      <i class="ti-angle-right"></i>
+                    </a>
                   </li>
                 </ul>
-                <div class="text-xs-center">
-                  <v-pagination v-model="state.page" :length="4" circle></v-pagination>
-                </div>
               </div>
+
+
             </div>
           </div>
           <div class="col-md-4">
@@ -102,35 +251,50 @@ onMounted(async () => {
                     <h6>Bài viết liên quan</h6>
                   </div>
                   <ul class="recent">
-                    <li>
-                      <div class="thum"><img src="../assets/img/restaurant/2.png" alt="" /></div>
-                      <a href="post.html"
-                        >Ngất ngây trước mẫu thiết kế nội thất biệt thự 100m2 ấn tượng</a
-                      >
+                    <li v-if="loadingRelated && !sidebar.related.length">
+                      <a href="#">Đang tải...</a>
                     </li>
-                    <li>
-                      <div class="thum"><img src="../assets/img/spa/3.png" alt="" /></div>
-                      <a href="post.html">Mẫu thiết kế phòng ngủ đẹp như mơ</a>
-                    </li>
-                    <li>
-                      <div class="thum"><img src="../assets/img/slider/7.jpg" alt="" /></div>
-                      <a href="post.html"
-                        >Ý tưởng thiết kế nội thất căn hộ chung cư 45m2 tuyệt đẹp
-                      </a>
+                    <li v-for="r in sidebar.related" :key="r.id">
+                      <div class="thum">
+                        <img :src="r.newsImage || '../assets/img/restaurant/2.png'" alt="" />
+                      </div>
+                      <a href="post.html">{{ r.titles }}</a>
                     </li>
                   </ul>
                 </div>
               </div>
+
               <div class="col-md-12">
                 <div class="widget">
                   <div class="widget-title">
                     <h6>Archives</h6>
                   </div>
                   <ul>
-                    <li><a href="#">December 2022</a></li>
-                    <li><a href="#">November 2022</a></li>
-                    <li><a href="#">October 2022</a></li>
+                    <li v-for="a in displayArchives" :key="`${a.year}-${a.monthLabel || a.month}`">
+                      <a href="#">
+                        <span v-if="!uiState.showAllArchives">{{ a.year }}</span>
+                        <span v-else>{{ a.monthLabel }} {{ a.year }}</span>
+                      </a>
+                    </li>
                   </ul>
+
+                  <a
+                    v-if="sidebar.archives.length > 0 && !uiState.showAllArchives"
+                    href="javascript:void(0)"
+                    class="mt-10 d-inline-block"
+                    @click.prevent="uiState.showAllArchives = true"
+                  >
+                    Xem thêm
+                  </a>
+
+                  <a
+                    v-if="sidebar.archives.length > 0 && uiState.showAllArchives"
+                    href="javascript:void(0)"
+                    class="mt-10 d-inline-block"
+                    @click.prevent="uiState.showAllArchives = false"
+                  >
+                    Thu gọn
+                  </a>
                 </div>
               </div>
               <div class="col-md-12">
@@ -139,14 +303,8 @@ onMounted(async () => {
                     <h6>Categories</h6>
                   </div>
                   <ul>
-                    <li>
-                      <a href="news.html"><i class="ti-angle-right"></i>Restaurant</a>
-                    </li>
-                    <li>
-                      <a href="news.html"><i class="ti-angle-right"></i>Hotel Design</a>
-                    </li>
-                    <li>
-                      <a href="news.html"><i class="ti-angle-right"></i>Span Center</a>
+                    <li v-for="c in sidebar.categories" :key="c.id">
+                      <a href="news.html"><i class="ti-angle-right"></i>{{ c.name }}</a>
                     </li>
                   </ul>
                 </div>
@@ -157,14 +315,31 @@ onMounted(async () => {
                     <h6>Tags</h6>
                   </div>
                   <ul class="tags">
-                    <li><a href="#">Restaurant</a></li>
-                    <li><a href="#">Hotel</a></li>
-                    <li><a href="#">Spa</a></li>
-                    <li><a href="#">Health Club</a></li>
-                    <li><a href="#">Luxury Hotel</a></li>
+                    <li v-for="t in displayedTags" :key="t.name">
+                      <a href="#">{{ t.name }}</a>
+                    </li>
                   </ul>
+
+                  <a
+                    v-if="sidebar.tags.length > 0 && !uiState.showAllTags"
+                    href="#"
+                    class="mt-10 d-inline-block"
+                    @click.prevent="uiState.showAllTags = true"
+                  >
+                    Xem thêm
+                  </a>
+
+                  <a
+                    v-if="sidebar.tags.length > 0 && uiState.showAllTags"
+                    href="#"
+                    class="mt-10 d-inline-block"
+                    @click.prevent="uiState.showAllTags = false"
+                  >
+                    Thu gọn
+                  </a>
                 </div>
               </div>
+
             </div>
           </div>
         </div>
