@@ -28,3 +28,7 @@ coverage
 *.sw?
 
 *.tsbuildinfo
+/.vs/CopilotSnapshots/78281094A4031346B9F118861BF198AE
+/DLFurniture.Api/bin/Debug/net10.0
+/DLFurniture.Api/.vs
+/DLFurniture.Api/obj
