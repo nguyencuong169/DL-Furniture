@@ -154,6 +154,7 @@ watch(
 <template>
 
   <main>
+
     <!-- Header Banner -->
     <div
       class="banner-header section-padding valign bg-img bg-fixed"
@@ -267,7 +268,27 @@ watch(
               <div class="col-md-12">
                 <div class="widget">
                   <div class="widget-title">
-                    <h6>Archives</h6>
+                    <div class="d-flex align-items-center justify-content-between" style="gap: 15px; width: 100%;">
+                      <h6 class="mb-0">Archives</h6>
+
+
+                      <a
+                        v-if="sidebar.archives.length > 0 && !uiState.showAllArchives"
+                        href="javascript:void(0)"
+                        class="view-more"
+                        @click.prevent="uiState.showAllArchives = true"
+                      >
+                        Xem thêm
+                      </a>
+                      <a
+                        v-if="sidebar.archives.length > 0 && uiState.showAllArchives"
+                        href="javascript:void(0)"
+                        class="view-more"
+                        @click.prevent="uiState.showAllArchives = false"
+                      >
+                        Thu gọn
+                      </a>
+                    </div>
                   </div>
                   <ul>
                     <li v-for="a in displayArchives" :key="`${a.year}-${a.monthLabel || a.month}`">
@@ -277,24 +298,6 @@ watch(
                       </a>
                     </li>
                   </ul>
-
-                  <a
-                    v-if="sidebar.archives.length > 0 && !uiState.showAllArchives"
-                    href="javascript:void(0)"
-                    class="mt-10 d-inline-block"
-                    @click.prevent="uiState.showAllArchives = true"
-                  >
-                    Xem thêm
-                  </a>
-
-                  <a
-                    v-if="sidebar.archives.length > 0 && uiState.showAllArchives"
-                    href="javascript:void(0)"
-                    class="mt-10 d-inline-block"
-                    @click.prevent="uiState.showAllArchives = false"
-                  >
-                    Thu gọn
-                  </a>
                 </div>
               </div>
               <div class="col-md-12">
@@ -312,33 +315,34 @@ watch(
               <div class="col-md-12">
                 <div class="widget">
                   <div class="widget-title">
-                    <h6>Tags</h6>
+                    <div class="d-flex align-items-center justify-content-between" style="width: 100%;">
+                      <h6 class="mb-0">Tags</h6>
+                      <a
+                        v-if="sidebar.tags.length > 0 && !uiState.showAllTags"
+                        href="#"
+                        class="view-more"
+                        @click.prevent="uiState.showAllTags = true"
+                      >
+                        Xem thêm
+                      </a>
+                      <a
+                        v-if="sidebar.tags.length > 0 && uiState.showAllTags"
+                        href="#"
+                        class="view-more"
+                        @click.prevent="uiState.showAllTags = false"
+                      >
+                        Thu gọn
+                      </a>
+                    </div>
                   </div>
                   <ul class="tags">
                     <li v-for="t in displayedTags" :key="t.name">
                       <a href="#">{{ t.name }}</a>
                     </li>
                   </ul>
-
-                  <a
-                    v-if="sidebar.tags.length > 0 && !uiState.showAllTags"
-                    href="#"
-                    class="mt-10 d-inline-block"
-                    @click.prevent="uiState.showAllTags = true"
-                  >
-                    Xem thêm
-                  </a>
-
-                  <a
-                    v-if="sidebar.tags.length > 0 && uiState.showAllTags"
-                    href="#"
-                    class="mt-10 d-inline-block"
-                    @click.prevent="uiState.showAllTags = false"
-                  >
-                    Thu gọn
-                  </a>
                 </div>
               </div>
+
 
             </div>
           </div>

@@ -1196,7 +1196,7 @@ color: #aa8453;
 }
 
 .header .caption h4 {
-    font-family: 'Barlow Condensed', serif;;
+    font-family: 'Barlow Condensed', serif;
     font-size: 15px;
     font-weight: 400;
     text-transform: uppercase;
@@ -4504,11 +4504,17 @@ button.mfp-arrow {
 }
 .news2-sidebar .widget-title h6 {
     padding-bottom: 5px;
-    border-bottom: 1px solid #eee3d0;
+    border-bottom: none;
     font-size: 24px;
     line-height: 1.75em;
     margin-bottom: 15px;
     color: #222;
+}
+
+/* Make widget-title border-bottom span full width, including view-more/expand buttons */
+.news2-sidebar .widget-title {
+    border-bottom: 1px solid #eee3d0;
+    padding-bottom: 5px;
 }
 .news2-sidebar .search form {
     position: relative;
