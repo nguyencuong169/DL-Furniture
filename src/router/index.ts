@@ -8,6 +8,7 @@ import ProductDetailView from '../views/ProductDetailView.vue'
 import NotFoundComponent from '../template/15_NotFoundComponent.vue'
 import ProductComponent from '../template/04_ProductComponent.vue'
 import NewsView from '../views/NewsView.vue'
+import NewsDetailView from '../views/NewsDetailView.vue'
 import ContactUsView from '../views/ContactUsView.vue'
 
 const router = createRouter({
@@ -46,6 +47,11 @@ const router = createRouter({
       path: '/tin-tuc',
       name: 'news',
       component: NewsView
+    },
+    {
+      path: '/tin-tuc/:id(\\d+)',
+      name: 'news-detail',
+      component: NewsDetailView
     },
     {
       path: '/san-pham',

@@ -3,6 +3,7 @@ import { onMounted, reactive } from 'vue'
 import dayjs from 'dayjs'
 import { newsApi } from '../api/newsClient'
 import type { News } from '../generated/api-client/models'
+import { handleNewsImageError, resolveNewsImage } from '../utils/news'
 
 const state = reactive({
   items: [] as News[]
@@ -32,19 +33,27 @@ onMounted(async () => {
           <div class="owl-carousel owl-theme">
             <div class="item" v-for="item in state.items" :key="item.id">
               <div class="position-re o-hidden">
-                <img :src="item.newsImage || '/src/assets/img/news/1.jpg'" alt="" />
+                <img
+                  :src="resolveNewsImage(item.newsImage, item.id)"
+                  :alt="item.titles || 'Tin tức'"
+                  @error="handleNewsImageError($event, item.id)"
+                />
                 <div class="date">
-                  <a href="post.html">
+                  <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
                     <span>{{ dayjs(item.updatedDate).format('MMM') }}</span>
                     <i>{{ dayjs(item.updatedDate).format('DD') }}</i>
-                  </a>
+                  </RouterLink>
                 </div>
               </div>
               <div class="con">
                 <span class="category">
-                  <a href="news.html">TIN TỨC</a>
+                  <RouterLink :to="{ name: 'news' }">TIN TỨC</RouterLink>
                 </span>
-                <h5><a href="post.html">{{ item.titles }}</a></h5>
+                <h5>
+                  <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                    {{ item.titles }}
+                  </RouterLink>
+                </h5>
               </div>
             </div>
           </div>

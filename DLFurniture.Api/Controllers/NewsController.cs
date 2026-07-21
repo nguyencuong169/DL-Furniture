@@ -74,7 +74,7 @@ public class NewsController : ControllerBase
     {
         // Use raw SQL because EF model doesn't include news_categories.
         var items = await _context.Database
-            .SqlQueryRaw<CategoryDto>("SELECT id AS Id, name AS Name, slug AS Slug FROM news_categories WHERE is_active = 1")
+            .SqlQueryRaw<CategoryDto>("SELECT id AS Id, name AS Name, slug AS Slug FROM news_categories WHERE is_active = 1 ORDER BY display_order, name")
             .ToListAsync();
 
 
@@ -146,17 +146,11 @@ public class NewsController : ControllerBase
             .Select(x => x.ToLowerInvariant())
             .ToHashSet();
 
-        var query = _context.News
-            .Where(x => x.Id != id && !x.DelFlag && !x.Hidden);
+        take = Math.Clamp(take, 1, 12);
 
-        // Filter by category or shared tags (coarse match)
-        if (current.NewsCategoryId.HasValue)
-        {
-            query = query.Where(x => x.NewsCategoryId == current.NewsCategoryId || (x.Tags != null && x.Tags != ""));
-        }
-
-
-        var candidates = await query.ToListAsync();
+        var candidates = await _context.News
+            .Where(x => x.Id != id && !x.DelFlag && !x.Hidden)
+            .ToListAsync();
 
         static int TagOverlap(string? tags, HashSet<string> currentTags)
         {
@@ -178,11 +172,10 @@ public class NewsController : ControllerBase
 
                 TagOverlap = TagOverlap(x.Tags, currentTags)
             })
-            .Where(x => x.CategoryMatch == 1 || x.TagOverlap > 0)
             .OrderByDescending(x => x.CategoryMatch)
             .ThenByDescending(x => x.TagOverlap)
             .ThenByDescending(x => x.Item.UpdatedDate)
-            .Take(Math.Max(1, take))
+            .Take(take)
             .Select(x => x.Item)
             .ToList();
 
@@ -200,19 +193,60 @@ public class NewsController : ControllerBase
     }
 
     [HttpGet("paged")]
-    public async Task<ActionResult<PagedNewsResponse>> GetPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 6)
+    public async Task<ActionResult<PagedNewsResponse>> GetPaged(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 6,
+        [FromQuery] int? year = null,
+        [FromQuery] int? month = null,
+        [FromQuery] long? categoryId = null,
+        [FromQuery] string? tag = null,
+        [FromQuery] string? search = null)
     {
         if (page < 1) page = 1;
         if (pageSize < 1) pageSize = 6;
+        pageSize = Math.Min(pageSize, 50);
 
         var query = _context.News
             .Where(x => !x.DelFlag && !x.Hidden)
-            .OrderByDescending(x => x.UpdatedDate);
+            .AsQueryable();
+
+        if (year.HasValue)
+        {
+            query = query.Where(x => x.UpdatedDate.HasValue && x.UpdatedDate.Value.Year == year.Value);
+        }
+
+        if (month.HasValue)
+        {
+            query = query.Where(x => x.UpdatedDate.HasValue && x.UpdatedDate.Value.Month == month.Value);
+        }
+
+        if (categoryId.HasValue)
+        {
+            query = query.Where(x => x.NewsCategoryId == categoryId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(tag))
+        {
+            var normalizedTag = tag.Trim();
+            query = query.Where(x => x.Tags != null && ("," + x.Tags + ",").Contains("," + normalizedTag + ","));
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var pattern = $"%{search.Trim()}%";
+            query = query.Where(x =>
+                (x.Titles != null && EF.Functions.Like(x.Titles, pattern)) ||
+                (x.Summary != null && EF.Functions.Like(x.Summary, pattern)) ||
+                (x.Content != null && EF.Functions.Like(x.Content, pattern)));
+        }
 
         var totalCount = await query.CountAsync();
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+        if (totalPages > 0 && page > totalPages) page = totalPages;
 
         var items = await query
+            .OrderByDescending(x => x.UpdatedDate)
+            .ThenByDescending(x => x.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -260,6 +294,8 @@ public class NewsController : ControllerBase
         existing.Summary = model.Summary;
         existing.Content = model.Content;
         existing.NewsImage = model.NewsImage;
+        existing.NewsCategoryId = model.NewsCategoryId;
+        existing.Tags = model.Tags;
         existing.Hidden = model.Hidden;
         existing.DelFlag = model.DelFlag;
         existing.UpdatedUser = model.UpdatedUser ?? "admin";

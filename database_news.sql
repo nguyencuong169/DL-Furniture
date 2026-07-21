@@ -97,7 +97,12 @@ VALUES              (N'Hoàn thiện showroom gỗ óc chó tại Hà Nội'),
 (N'Hướng dẫn bảo quản gỗ óc chó cho gia đình'),
 (N'Sự kiện: Triển lãm nội thất gỗ óc chó 2026'),
 (N'Case study: Hoàn thiện showroom khách hàng A'),
-(N'Kinh nghiệm lựa chọn veneer gỗ óc chó');
+(N'Kinh nghiệm lựa chọn veneer gỗ óc chó'),
+(N'Xu hướng thiết kế bếp gỗ ấm áp năm 2026'),
+(N'Cầu thang gỗ trở thành điểm nhấn trong nhà phố'),
+(N'Không gian phòng ngủ tối giản với vật liệu tự nhiên'),
+(N'Nhà phố hẹp vẫn thoáng nhờ nội thất may đo'),
+(N'Bí quyết phối ánh sáng để tôn vẻ đẹp nội thất gỗ');
 
 DECLARE @summaries TABLE (
     txt NVARCHAR (1000));
@@ -107,7 +112,10 @@ VALUES                 (N'Bài viết mô tả quá trình hoàn thiện, lựa 
 (N'Tin tức khai trương chi nhánh mới với bộ sưu tập gỗ óc chó cao cấp.'),
 (N'Chia sẻ kỹ thuật xử lý bề mặt, sơn và bảo quản cho đồ gỗ óc chó.'),
 (N'Báo cáo tiến độ dự án hoàn thiện nội thất cho khách hàng.'),
-(N'Gợi ý phối màu và nội thất khi dùng gỗ óc chó trong không gian sống.');
+(N'Gợi ý phối màu và nội thất khi dùng gỗ óc chó trong không gian sống.'),
+(N'Khám phá cách kết hợp gỗ, ánh sáng và màu trung tính cho không gian hiện đại.'),
+(N'Những giải pháp nội thất may đo giúp tận dụng diện tích mà vẫn giữ sự thông thoáng.'),
+(N'Các nguyên tắc chọn vật liệu bền đẹp, dễ bảo dưỡng cho căn bếp và phòng sinh hoạt.');
 
 DECLARE @contents TABLE (
     txt NVARCHAR (MAX));
@@ -117,18 +125,20 @@ VALUES                (N'Chi tiết công trình: khảo sát, lựa chọn vậ
 (N'Bài phỏng vấn chủ dự án và đội thi công, mô tả các bước xử lý bề mặt và sơn hoàn thiện.'),
 (N'Hướng dẫn kỹ thuật: cách xử lý mối nối, chống cong vênh, lựa chọn keo và sơn phù hợp cho gỗ óc chó.'),
 (N'Bài viết chia sẻ kinh nghiệm thi công showroom, bố trí ánh sáng để tôn vân gỗ và tối ưu trải nghiệm khách hàng.'),
-(N'Thông tin sự kiện, chương trình khuyến mãi, và lịch trình tham quan showroom mới.');
+(N'Thông tin sự kiện, chương trình khuyến mãi, và lịch trình tham quan showroom mới.'),
+(N'Phân tích cách bố trí ánh sáng tự nhiên và đèn trang trí để làm nổi bật màu sắc, đường vân của đồ gỗ.'),
+(N'Gợi ý tổ chức khu bếp, hệ tủ và bề mặt làm việc theo thói quen sử dụng của gia đình Việt.'),
+(N'Giải pháp thiết kế cầu thang và đồ nội thất liền tường cho nhà phố có chiều ngang hạn chế.');
 
 DECLARE @images TABLE (
     url NVARCHAR (1024));
 
 INSERT  INTO @images (url)
-VALUES              (N'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1200&q=80'),
-(N'https://images.unsplash.com/photo-1524758631624-e2822e304c36?auto=format&fit=crop&w=1200&q=80'),
-(N'https://images.unsplash.com/photo-1519710164239-da123dc03ef4?auto=format&fit=crop&w=1200&q=80'),
-(N'https://images.unsplash.com/photo-1540574163026-643ea20ade25?auto=format&fit=crop&w=1200&q=80'),
-(N'https://images.unsplash.com/photo-1582582422129-3a1f1b8f1a2b?auto=format&fit=crop&w=1200&q=80'),
-(N'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1200&q=80');
+VALUES              (N'/src/assets/img/news/1.jpg'),
+(N'/src/assets/img/news/2.jpg'),
+(N'/src/assets/img/news/3.jpg'),
+(N'/src/assets/img/news/4.jpg'),
+(N'/src/assets/img/news/6.jpg');
 
 DECLARE @tagPool TABLE (
     tag NVARCHAR (200));
@@ -211,7 +221,7 @@ WHILE @currentMonthStart <= @endDate
                                                    WHERE    tag <> @tag1
                                                    ORDER BY NEWID());
                 DECLARE @tags AS NVARCHAR (MAX) = @tag1 + N',' + @tag2;
-                INSERT  INTO dbo.news (news_id, title, summary, [content], news_image, category_id, tags, hidden, del_flag, created_user, created_date, updated_user, updated_date)
+                INSERT  INTO dbo.news (news_id, title, summary, [content], news_image, news_category_id, tags, hidden, del_flag, created_user, created_date, updated_user, updated_date)
                 VALUES               (@newsId, @title, @summary, @content + N' (Bài viết tự động sinh để test phân trang và chi tiết.)', @image, @categoryId, @tags, 0, 0, N'auto', @created, N'auto', @created);
                 SET @k = @k + 1;
                 SET @inserted = @inserted + 1;
@@ -230,7 +240,7 @@ WHERE  created_date BETWEEN '2025-01-01' AND '2026-12-31';
 SELECT   TOP 20 id,
                 news_id,
                 title,
-                category_id,
+                news_category_id,
                 tags,
                 news_image,
                 created_date
