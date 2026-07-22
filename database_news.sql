@@ -2,58 +2,58 @@ BEGIN TRANSACTION;
 
 INSERT INTO dbo.news_categories (name, slug, display_order, is_active, created_at, updated_at)
 SELECT N'Tin tức gỗ óc chó',
-       N'news-wood-walnut',
+       N'go-oc-cho',
        1,
        1,
        SYSUTCDATETIME(),
        SYSUTCDATETIME()
 WHERE  NOT EXISTS (SELECT 1
                    FROM   dbo.news_categories
-                   WHERE  slug = N'news-wood-walnut');
+                   WHERE  slug = N'go-oc-cho');
 
 INSERT INTO dbo.news_categories (name, slug, display_order, is_active, created_at, updated_at)
 SELECT N'Khai trương',
-       N'news-opening',
+       N'khai-truong',
        2,
        1,
        SYSUTCDATETIME(),
        SYSUTCDATETIME()
 WHERE  NOT EXISTS (SELECT 1
                    FROM   dbo.news_categories
-                   WHERE  slug = N'news-opening');
+                   WHERE  slug = N'khai-truong');
 
 INSERT INTO dbo.news_categories (name, slug, display_order, is_active, created_at, updated_at)
 SELECT N'Hoàn thiện công trình',
-       N'news-completion',
+       N'hoan-thien-cong-trinh',
        3,
        1,
        SYSUTCDATETIME(),
        SYSUTCDATETIME()
 WHERE  NOT EXISTS (SELECT 1
                    FROM   dbo.news_categories
-                   WHERE  slug = N'news-completion');
+                   WHERE  slug = N'hoan-thien-cong-trinh');
 
 INSERT INTO dbo.news_categories (name, slug, display_order, is_active, created_at, updated_at)
 SELECT N'Chia sẻ chuyên môn',
-       N'news-sharing',
+       N'chia-se-chuyen-mon',
        4,
        1,
        SYSUTCDATETIME(),
        SYSUTCDATETIME()
 WHERE  NOT EXISTS (SELECT 1
                    FROM   dbo.news_categories
-                   WHERE  slug = N'news-sharing');
+                   WHERE  slug = N'chia-se-chuyen-mon');
 
 INSERT INTO dbo.news_categories (name, slug, display_order, is_active, created_at, updated_at)
 SELECT N'Sự kiện',
-       N'news-event',
+       N'su-kien',
        5,
        1,
        SYSUTCDATETIME(),
        SYSUTCDATETIME()
 WHERE  NOT EXISTS (SELECT 1
                    FROM   dbo.news_categories
-                   WHERE  slug = N'news-event');
+                   WHERE  slug = N'su-kien');
 
 COMMIT TRANSACTION;
 
@@ -66,23 +66,23 @@ BEGIN TRANSACTION; -- Lấy id các category đã seed
 
 DECLARE @nc_walnut AS BIGINT = (SELECT TOP 1 id
                                 FROM   dbo.news_categories
-                                WHERE  slug = N'news-wood-walnut');
+                                WHERE  slug = N'go-oc-cho');
 
 DECLARE @nc_opening AS BIGINT = (SELECT TOP 1 id
                                  FROM   dbo.news_categories
-                                 WHERE  slug = N'news-opening');
+                                 WHERE  slug = N'khai-truong');
 
 DECLARE @nc_completion AS BIGINT = (SELECT TOP 1 id
                                     FROM   dbo.news_categories
-                                    WHERE  slug = N'news-completion');
+                                    WHERE  slug = N'hoan-thien-cong-trinh');
 
 DECLARE @nc_sharing AS BIGINT = (SELECT TOP 1 id
                                  FROM   dbo.news_categories
-                                 WHERE  slug = N'news-sharing');
+                                 WHERE  slug = N'chia-se-chuyen-mon');
 
 DECLARE @nc_event AS BIGINT = (SELECT TOP 1 id
                                FROM   dbo.news_categories
-                               WHERE  slug = N'news-event'); -- Mẫu dữ liệu (Unicode)
+                               WHERE  slug = N'su-kien'); -- Mẫu dữ liệu (Unicode)
 
 DECLARE @titles TABLE (
     txt NVARCHAR (400));

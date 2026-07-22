@@ -47,6 +47,22 @@ BEGIN
 END
 GO
 
+-- News categories (separate from product/project categories)
+IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'news_categories')
+BEGIN
+    CREATE TABLE news_categories (
+      id BIGINT IDENTITY(1,1) PRIMARY KEY,
+      name NVARCHAR(255) NOT NULL,
+      slug NVARCHAR(255) NOT NULL UNIQUE,
+      display_order INT NOT NULL DEFAULT 0,
+      is_active BIT NOT NULL DEFAULT 1,
+      created_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME(),
+      updated_at DATETIME2 NOT NULL DEFAULT SYSUTCDATETIME()
+    );
+    PRINT 'Table news_categories created.';
+END
+GO
+
 -- Products
 IF NOT EXISTS (SELECT * FROM sys.tables WHERE name = 'products')
 BEGIN
@@ -97,12 +113,15 @@ BEGIN
       summary NVARCHAR(MAX) NULL,
       content NVARCHAR(MAX) NULL,
       news_image NVARCHAR(1024) NULL,
+      news_category_id BIGINT NULL,
+      tags NVARCHAR(2048) NULL,
       hidden BIT DEFAULT 0,
       del_flag BIT DEFAULT 0,
       created_user NVARCHAR(255) NULL,
       created_date DATETIME2 DEFAULT GETDATE(),
       updated_user NVARCHAR(255) NULL,
-      updated_date DATETIME2 DEFAULT GETDATE()
+      updated_date DATETIME2 DEFAULT GETDATE(),
+      CONSTRAINT FK_news_news_categories FOREIGN KEY (news_category_id) REFERENCES news_categories(id)
     );
     PRINT 'Table news created.';
 END
@@ -309,22 +328,33 @@ GO
 -- ========================================
 
 -- Insert news items
-INSERT INTO news (news_id, title, summary, content, news_image, hidden, del_flag, created_user, created_date, updated_user, updated_date)
+INSERT INTO news_categories (name, slug, display_order, is_active)
+SELECT source.name, source.slug, source.display_order, 1
+FROM (VALUES
+  (N'Tin tức gỗ óc chó', N'go-oc-cho', 1),
+  (N'Khai trương', N'khai-truong', 2),
+  (N'Hoàn thiện công trình', N'hoan-thien-cong-trinh', 3),
+  (N'Chia sẻ chuyên môn', N'chia-se-chuyen-mon', 4),
+  (N'Sự kiện', N'su-kien', 5)
+) AS source(name, slug, display_order)
+WHERE NOT EXISTS (SELECT 1 FROM news_categories WHERE slug = source.slug);
+
+INSERT INTO news (news_id, title, summary, content, news_image, news_category_id, tags, hidden, del_flag, created_user, created_date, updated_user, updated_date)
 VALUES 
   (N'news-001', N'Showroom nội thất gỗ óc chó đẳng cấp tại Hà Nội', 
    N'Không gian showroom hiện đại, phong cách và đẳng cấp dành cho khách hàng tìm kiếm giải pháp nội thất cao cấp.', 
    N'D&L Furniture mang đến showroom nội thất gỗ óc chó đẳng cấp với phong cách hiện đại, bền đẹp và tối ưu công năng.', 
-   N'/src/assets/img/news/1.jpg', 0, 0, N'admin', '2024-12-02', N'admin', '2024-12-02'),
+   N'/src/assets/img/news/1.jpg', (SELECT id FROM news_categories WHERE slug = N'khai-truong'), N'Showroom,Gỗ óc chó', 0, 0, N'admin', '2024-12-02', N'admin', '2024-12-02'),
   
   (N'news-002', N'Mẫu thiết kế phòng ngủ đẹp như mơ', 
    N'Phong cách hiện đại, tối ưu công năng cho không gian ngủ thư giãn và sang trọng.', 
    N'Mỗi chi tiết trong phòng ngủ được thiết kế để mang lại cảm giác thư giãn và đẳng cấp.', 
-   N'/src/assets/img/news/2.jpg', 0, 0, N'admin', '2024-12-04', N'admin', '2024-12-04'),
+   N'/src/assets/img/news/2.jpg', (SELECT id FROM news_categories WHERE slug = N'chia-se-chuyen-mon'), N'Phòng ngủ,Thiết kế', 0, 0, N'admin', '2024-12-04', N'admin', '2024-12-04'),
   
   (N'news-003', N'Hotel Bathroom Collections', 
    N'Thiết kế phòng tắm hiện đại, tinh tế và bền bỉ theo thời gian.', 
    N'Những bộ sưu tập phòng tắm cao cấp giúp nâng tầm trải nghiệm nghỉ dưỡng tại gia.', 
-   N'/src/assets/img/news/3.jpg', 0, 0, N'admin', '2024-12-06', N'admin', '2024-12-06');
+   N'/src/assets/img/news/3.jpg', (SELECT id FROM news_categories WHERE slug = N'chia-se-chuyen-mon'), N'Phòng tắm,Thiết kế', 0, 0, N'admin', '2024-12-06', N'admin', '2024-12-06');
 
 PRINT 'Seed data inserted successfully.';
 GO

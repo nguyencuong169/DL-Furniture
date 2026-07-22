@@ -5,6 +5,7 @@ export type CategoryDto = {
   id: number
   name: string
   slug: string
+  publishedCount: number
 }
 
 export type TagDto = {

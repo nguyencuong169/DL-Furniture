@@ -19,8 +19,7 @@ public class NewsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<NewsItem>>> GetAll()
     {
-        // Only return fields that exist in the current DB schema.
-        // If the DB hasn't been migrated with `tags`/`category_id`, projection avoids SQL errors.
+        // Keep the list payload explicit so it stays stable as the entity grows.
         var items = await _context.News
             .Where(x => !x.DelFlag && !x.Hidden)
             .OrderByDescending(x => x.UpdatedDate)
@@ -53,6 +52,7 @@ public class NewsController : ControllerBase
         public required long Id { get; set; }
         public required string Name { get; set; }
         public required string Slug { get; set; }
+        public required int PublishedCount { get; set; }
     }
 
     public class TagDto
@@ -72,11 +72,19 @@ public class NewsController : ControllerBase
     [HttpGet("categories")]
     public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories()
     {
-        // Use raw SQL because EF model doesn't include news_categories.
-        var items = await _context.Database
-            .SqlQueryRaw<CategoryDto>("SELECT id AS Id, name AS Name, slug AS Slug FROM news_categories WHERE is_active = 1 ORDER BY display_order, name")
+        var items = await _context.NewsCategories
+            .AsNoTracking()
+            .Where(category => category.IsActive)
+            .OrderBy(category => category.DisplayOrder)
+            .ThenBy(category => category.Name)
+            .Select(category => new CategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Slug = category.Slug,
+                PublishedCount = category.NewsItems.Count(news => !news.DelFlag && !news.Hidden)
+            })
             .ToListAsync();
-
 
         return Ok(items);
     }
@@ -273,6 +281,9 @@ public class NewsController : ControllerBase
     [HttpPost]
     public async Task<ActionResult<NewsItem>> Create([FromBody] NewsItem model)
     {
+        var categoryError = await ValidateCategoryAsync(model);
+        if (categoryError is not null) return BadRequest(new { message = categoryError });
+
         model.CreatedDate ??= DateTimeOffset.UtcNow;
         model.UpdatedDate ??= model.CreatedDate;
         model.CreatedUser ??= "admin";
@@ -289,6 +300,9 @@ public class NewsController : ControllerBase
     {
         var existing = await _context.News.FindAsync(id);
         if (existing is null) return NotFound();
+
+        var categoryError = await ValidateCategoryAsync(model);
+        if (categoryError is not null) return BadRequest(new { message = categoryError });
 
         existing.Titles = model.Titles;
         existing.Summary = model.Summary;
@@ -316,5 +330,20 @@ public class NewsController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    private async Task<string?> ValidateCategoryAsync(NewsItem model)
+    {
+        if (!model.NewsCategoryId.HasValue)
+        {
+            return !model.Hidden && !model.DelFlag
+                ? "Bài viết công khai phải thuộc một chuyên mục tin tức."
+                : null;
+        }
+
+        var categoryIsActive = await _context.NewsCategories
+            .AnyAsync(category => category.Id == model.NewsCategoryId.Value && category.IsActive);
+
+        return categoryIsActive ? null : "Chuyên mục tin tức không tồn tại hoặc đã ngừng sử dụng.";
     }
 }

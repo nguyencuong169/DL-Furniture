@@ -9,6 +9,16 @@ VALUES (1, N'Phòng Ngủ', N'phong-ngu', NULL, N'Danh mục phòng ngủ', 1, 1
        (3, N'Phòng Bếp', N'phong-bep', NULL, N'Danh mục phòng bếp', 3, 1);
 SET IDENTITY_INSERT categories OFF;
 
+-- News categories are intentionally separate from product/project categories.
+SET IDENTITY_INSERT news_categories ON;
+INSERT INTO news_categories (id, name, slug, display_order, is_active)
+VALUES (1, N'Tin tức gỗ óc chó', N'go-oc-cho', 1, 1),
+       (2, N'Khai trương', N'khai-truong', 2, 1),
+       (3, N'Hoàn thiện công trình', N'hoan-thien-cong-trinh', 3, 1),
+       (4, N'Chia sẻ chuyên môn', N'chia-se-chuyen-mon', 4, 1),
+       (5, N'Sự kiện', N'su-kien', 5, 1);
+SET IDENTITY_INSERT news_categories OFF;
+
 -- Products
 SET IDENTITY_INSERT products ON;
 INSERT INTO products (id, category_id, sku, slug, name, summary, description, price, currency, main_image, is_active, hidden)
@@ -27,9 +37,9 @@ VALUES (1, N'/src/assets/img/rooms/1.jpg', N'Giường G01', 1),
 
 -- News
 SET IDENTITY_INSERT news ON;
-INSERT INTO news (id, news_id, title, summary, content, news_image, category_id, tags, hidden, del_flag, created_user, created_date, updated_user, updated_date)
-VALUES (1, N'news-001', N'Showroom nội thất gỗ óc chó đẳng cấp tại Hà Nội', N'Showroom mới của D&L Furniture tại Hà Nội', N'Nội dung bài viết về showroom...', N'/src/assets/img/news/1.jpg', 2, N'Restaurant,Hotel', 0, 0, N'admin', GETDATE(), N'admin', GETDATE()),
-       (2, N'news-002', N'Mẫu thiết kế phòng ngủ đẹp như mơ', N'Ý tưởng thiết kế phòng ngủ', N'Nội dung bài viết về phòng ngủ...', N'/src/assets/img/news/2.jpg', 1, N'Spa,Hotel', 0, 0, N'editor', GETDATE(), N'editor', GETDATE());
+INSERT INTO news (id, news_id, title, summary, content, news_image, news_category_id, tags, hidden, del_flag, created_user, created_date, updated_user, updated_date)
+VALUES (1, N'news-001', N'Showroom nội thất gỗ óc chó đẳng cấp tại Hà Nội', N'Showroom mới của D&L Furniture tại Hà Nội', N'Nội dung bài viết về showroom...', N'/src/assets/img/news/1.jpg', 2, N'Showroom,Gỗ óc chó', 0, 0, N'admin', GETDATE(), N'admin', GETDATE()),
+       (2, N'news-002', N'Mẫu thiết kế phòng ngủ đẹp như mơ', N'Ý tưởng thiết kế phòng ngủ', N'Nội dung bài viết về phòng ngủ...', N'/src/assets/img/news/2.jpg', 4, N'Phòng ngủ,Thiết kế', 0, 0, N'editor', GETDATE(), N'editor', GETDATE());
 SET IDENTITY_INSERT news OFF;
 
 

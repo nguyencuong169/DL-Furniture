@@ -35,6 +35,8 @@ DROP TABLE IF EXISTS dbo.projects;
 
 DROP TABLE IF EXISTS dbo.news;
 
+DROP TABLE IF EXISTS dbo.news_categories;
+
 DROP TABLE IF EXISTS dbo.product_images;
 
 DROP TABLE IF EXISTS dbo.products;
@@ -58,6 +60,18 @@ CREATE TABLE dbo.categories (
     created_at    DATETIME2      DEFAULT GETDATE(),
     updated_at    DATETIME2      DEFAULT GETDATE(),
     CONSTRAINT FK_categories_parent FOREIGN KEY (parent_id) REFERENCES dbo.categories (id)
+); -- News categories (separate from product/project categories)
+
+CREATE TABLE dbo.news_categories (
+    id            BIGINT         IDENTITY (1, 1) PRIMARY KEY,
+    name          NVARCHAR (255) NOT NULL,
+    slug          NVARCHAR (255) NOT NULL UNIQUE,
+    display_order INT            NOT NULL DEFAULT 0,
+    is_active     BIT            NOT NULL DEFAULT 1,
+    created_at    DATETIME2      NOT NULL DEFAULT SYSUTCDATETIME(),
+    updated_at    DATETIME2      NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT CK_news_categories_name_not_blank CHECK (LEN(LTRIM(RTRIM(name))) > 0),
+    CONSTRAINT CK_news_categories_slug_not_blank CHECK (LEN(LTRIM(RTRIM(slug))) > 0)
 ); -- Products
 
 CREATE TABLE dbo.products (
@@ -96,7 +110,7 @@ CREATE TABLE dbo.news (
     summary      NVARCHAR (MAX)  NULL,
     content      NVARCHAR (MAX)  NULL,
     news_image   NVARCHAR (1024) NULL,
-    category_id  BIGINT          NULL,
+    news_category_id BIGINT      NULL,
     tags         NVARCHAR (MAX)  NULL,
     hidden       BIT             DEFAULT 0,
     del_flag     BIT             DEFAULT 0,
@@ -104,7 +118,7 @@ CREATE TABLE dbo.news (
     created_date DATETIME2       DEFAULT GETDATE(),
     updated_user NVARCHAR (255)  NULL,
     updated_date DATETIME2       DEFAULT GETDATE(),
-    CONSTRAINT FK_news_category FOREIGN KEY (category_id) REFERENCES dbo.categories (id)
+    CONSTRAINT FK_news_news_categories FOREIGN KEY (news_category_id) REFERENCES dbo.news_categories (id)
 ); -- Projects
 
 CREATE TABLE dbo.projects (
@@ -255,8 +269,9 @@ CREATE NONCLUSTERED INDEX IX_products_category_id
 CREATE NONCLUSTERED INDEX IX_product_images_product_id
     ON dbo.product_images(product_id);
 
-CREATE NONCLUSTERED INDEX IX_news_category_id
-    ON dbo.news(category_id);
+CREATE NONCLUSTERED INDEX IX_news_news_category_published
+    ON dbo.news(news_category_id, hidden, del_flag)
+    INCLUDE (updated_date);
 
 CREATE NONCLUSTERED INDEX IX_projects_category_id
     ON dbo.projects(category_id);

@@ -10,6 +10,7 @@ public class AppDbContext : DbContext
     }
 
     public DbSet<NewsItem> News { get; set; } = null!;
+    public DbSet<NewsCategory> NewsCategories { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -51,6 +52,12 @@ public class AppDbContext : DbContext
             .Property(n => n.NewsCategoryId)
             .HasColumnName("news_category_id");
 
+        modelBuilder.Entity<NewsItem>()
+            .HasOne(n => n.NewsCategory)
+            .WithMany(c => c.NewsItems)
+            .HasForeignKey(n => n.NewsCategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
+
 
         modelBuilder.Entity<NewsItem>()
             .Property(n => n.Tags)
@@ -85,5 +92,37 @@ public class AppDbContext : DbContext
         modelBuilder.Entity<NewsItem>()
             .Property(n => n.UpdatedDate)
             .HasColumnName("updated_date");
+
+        modelBuilder.Entity<NewsCategory>()
+            .ToTable("news_categories")
+            .HasKey(c => c.Id);
+
+        modelBuilder.Entity<NewsCategory>()
+            .Property(c => c.Id)
+            .HasColumnName("id");
+
+        modelBuilder.Entity<NewsCategory>()
+            .Property(c => c.Name)
+            .HasColumnName("name")
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<NewsCategory>()
+            .Property(c => c.Slug)
+            .HasColumnName("slug")
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<NewsCategory>()
+            .Property(c => c.DisplayOrder)
+            .HasColumnName("display_order")
+            .HasDefaultValue(0);
+
+        modelBuilder.Entity<NewsCategory>()
+            .Property(c => c.IsActive)
+            .HasColumnName("is_active")
+            .HasDefaultValue(true);
+
+        modelBuilder.Entity<NewsCategory>()
+            .HasIndex(c => c.Slug)
+            .IsUnique();
     }
 }

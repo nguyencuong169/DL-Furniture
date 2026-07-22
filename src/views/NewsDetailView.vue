@@ -11,14 +11,14 @@ import {
   getNewsRelated
 } from '../api/newsSidebarClient'
 import { getNewsDate, handleNewsImageError, resolveNewsImage, splitNewsTags } from '../utils/news'
-import type { ArchiveDto } from '../api/newsSidebarClient'
+import type { ArchiveDto, CategoryDto } from '../api/newsSidebarClient'
 import NewsArchives from '../components/NewsArchives.vue'
 
 const route = useRoute()
 const router = useRouter()
 const item = ref<NewsItem | null>(null)
 const related = ref<NewsItem[]>([])
-const categories = ref<Array<{ id: number; name: string; slug: string }>>([])
+const categories = ref<CategoryDto[]>([])
 const archives = ref<ArchiveDto[]>([])
 const loading = ref(true)
 const errorMessage = ref('')

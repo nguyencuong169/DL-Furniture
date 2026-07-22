@@ -12,6 +12,7 @@ import {
   getNewsRelated,
   getNewsTags
 } from '../api/newsSidebarClient'
+import type { CategoryDto } from '../api/newsSidebarClient'
 import { getNewsDate, handleNewsImageError, resolveNewsImage } from '../utils/news'
 import NewsArchives from '../components/NewsArchives.vue'
 
@@ -27,7 +28,7 @@ const state = reactive({
 })
 
 const sidebar = reactive({
-  categories: [] as Array<{ id: number; name: string; slug: string }>,
+  categories: [] as CategoryDto[],
   archives: [] as Array<{ year: number; month: number; monthLabel: string; count: number }>,
   tags: [] as Array<{ name: string; count: number }>,
   related: [] as NewsItem[]
@@ -49,6 +50,8 @@ const archiveFilter = reactive({
 const searchInput = ref('')
 const loading = ref(false)
 const loadingRelated = ref(false)
+const loadingCategories = ref(true)
+const categoryLoadError = ref(false)
 const loadError = ref('')
 let pageRequestId = 0
 let relatedRequestId = 0
@@ -137,8 +140,14 @@ const loadSidebar = async () => {
 
   const [categoriesResult, archivesResult, tagsResult] = results
 
-  if (categoriesResult.status === 'fulfilled') sidebar.categories = categoriesResult.value
-  else console.error('Failed to load news categories', categoriesResult.reason)
+  if (categoriesResult.status === 'fulfilled') {
+    sidebar.categories = categoriesResult.value
+    categoryLoadError.value = false
+  } else {
+    categoryLoadError.value = true
+    console.error('Failed to load news categories', categoriesResult.reason)
+  }
+  loadingCategories.value = false
 
   if (archivesResult.status === 'fulfilled') sidebar.archives = archivesResult.value
   else console.error('Failed to load news archives', archivesResult.reason)
@@ -172,6 +181,14 @@ const pageButtons = computed<PageButton[]>(() => {
 
 const displayedTags = computed(() => {
   return uiState.showAllTags ? sidebar.tags : sidebar.tags.slice(0, 12)
+})
+
+const totalPublishedCount = computed(() => {
+  return sidebar.categories.reduce((total, category) => total + category.publishedCount, 0)
+})
+
+const categoriesWithPosts = computed(() => {
+  return sidebar.categories.filter((category) => category.publishedCount > 0).length
 })
 
 const hasActiveFilters = computed(() => {
@@ -229,11 +246,14 @@ const setArchiveFilter = async (year: number, month: number) => {
 }
 
 const selectCategory = async (categoryId: number) => {
+  const category = sidebar.categories.find((item) => item.id === categoryId)
+  if (category?.publishedCount === 0) return
+
   const shouldClear = uiState.categoryId === categoryId && !archiveFilter.enabled
   resetFiltersWithoutLoading()
   searchInput.value = ''
   if (!shouldClear) uiState.categoryId = categoryId
-  updateRouteQuery(shouldClear ? {} : { category: categoryId })
+  updateRouteQuery(shouldClear ? {} : { category: category?.slug ?? categoryId })
   await loadPage(1)
 }
 
@@ -273,8 +293,8 @@ onMounted(async () => {
     Array.isArray(route.query.month) ? route.query.month[0] : route.query.month
   )
   const routeTag = Array.isArray(route.query.tag) ? route.query.tag[0] : route.query.tag
-  const routeCategory = Number(
-    Array.isArray(route.query.category) ? route.query.category[0] : route.query.category
+  const routeCategory = String(
+    (Array.isArray(route.query.category) ? route.query.category[0] : route.query.category) ?? ''
   )
   const routeSearch = Array.isArray(route.query.search) ? route.query.search[0] : route.query.search
 
@@ -297,11 +317,26 @@ onMounted(async () => {
     return
   }
 
-  if (Number.isInteger(routeCategory) && routeCategory > 0) {
-    uiState.categoryId = routeCategory
+  const routeCategoryNumber = Number(routeCategory)
+  const matchedCategory = sidebar.categories.find(
+    (category) =>
+      category.slug === routeCategory ||
+      (Number.isInteger(routeCategoryNumber) && category.id === routeCategoryNumber)
+  )
+
+  if (matchedCategory && matchedCategory.publishedCount > 0) {
+    uiState.categoryId = matchedCategory.id
     await loadPage(1)
     return
   }
+
+  if (routeCategory && categoryLoadError.value && Number.isInteger(routeCategoryNumber)) {
+    uiState.categoryId = routeCategoryNumber
+    await loadPage(1)
+    return
+  }
+
+  if (routeCategory) updateRouteQuery()
 
   if (routeSearch) {
     uiState.search = String(routeSearch)
@@ -494,19 +529,63 @@ onMounted(async () => {
               </div>
 
               <div class="col-md-12">
-                <div class="widget">
+                <div class="widget news-category-widget">
                   <div class="widget-title">
-                    <h6>Categories</h6>
+                    <h6>Chuyên mục</h6>
+                    <p v-if="totalPublishedCount">
+                      {{ totalPublishedCount }} bài viết trong {{ categoriesWithPosts }} chủ đề
+                    </p>
                   </div>
-                  <ul>
-                    <li v-for="category in sidebar.categories" :key="category.id">
-                      <a
-                        href="#"
-                        :class="{ active: uiState.categoryId === category.id }"
-                        @click.prevent="selectCategory(category.id)"
+
+                  <p v-if="loadingCategories" class="news-category-status">
+                    Đang tải chuyên mục...
+                  </p>
+                  <p v-else-if="categoryLoadError" class="news-category-status is-error">
+                    Chưa thể tải chuyên mục.
+                  </p>
+                  <p v-else-if="!sidebar.categories.length" class="news-category-status">
+                    Chưa có chuyên mục tin tức.
+                  </p>
+
+                  <ul v-else class="news-category-list">
+                    <li>
+                      <button
+                        type="button"
+                        class="news-category-link"
+                        :class="{ active: !hasActiveFilters }"
+                        :aria-pressed="!hasActiveFilters"
+                        @click="clearFilters"
                       >
-                        <i class="ti-angle-right"></i>{{ category.name }}
-                      </a>
+                        <span class="news-category-name">
+                          <i class="ti-layout-grid2" aria-hidden="true"></i>
+                          Tất cả bài viết
+                        </span>
+                        <span class="news-category-count">{{ totalPublishedCount }}</span>
+                      </button>
+                    </li>
+                    <li v-for="category in sidebar.categories" :key="category.id">
+                      <button
+                        type="button"
+                        class="news-category-link"
+                        :class="{
+                          active: uiState.categoryId === category.id,
+                          'is-empty': category.publishedCount === 0
+                        }"
+                        :disabled="category.publishedCount === 0"
+                        :aria-pressed="uiState.categoryId === category.id"
+                        :title="
+                          category.publishedCount === 0
+                            ? 'Chuyên mục chưa có bài viết công khai'
+                            : `${category.publishedCount} bài viết`
+                        "
+                        @click="selectCategory(category.id)"
+                      >
+                        <span class="news-category-name">
+                          <i class="ti-angle-right" aria-hidden="true"></i>
+                          {{ category.name }}
+                        </span>
+                        <span class="news-category-count">{{ category.publishedCount }}</span>
+                      </button>
                     </li>
                   </ul>
                 </div>
