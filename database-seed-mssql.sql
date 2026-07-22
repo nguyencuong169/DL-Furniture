@@ -47,13 +47,69 @@ SET IDENTITY_INSERT news OFF;
 SET IDENTITY_INSERT projects ON;
 INSERT INTO projects (id, title, subtitle, client_name, location, category_id, description, cover_image, status)
 VALUES (1, N'Thiết kế nội thất Saroma Villa', N'Villa cao cấp', N'Anh Tuấn', N'Thủ Thiêm', NULL, N'Thiết kế trọn gói Saroma Villa', N'/src/assets/img/slider/4.jpg', N'published'),
-       (2, N'Thiết kế nội thất biệt thự Vinhomes', N'Biệt thự Vinhomes Grand Park', N'Anh Cường', N'Quận 9', NULL, N'Thiết kế và thi công biệt thự', N'/src/assets/img/slider/3.jpg', N'published');
+       (2, N'Thiết kế nội thất biệt thự Vinhomes Grand Park', N'Biệt thự Vinhomes Grand Park', N'Anh Cường', N'Quận 9', NULL, N'Thiết kế và thi công biệt thự', N'/src/assets/img/slider/3.jpg', N'published');
 SET IDENTITY_INSERT projects OFF;
+
+INSERT INTO projects (title, subtitle, client_name, location, category_id, description, cover_image, status)
+VALUES (N'Thiết kế nội thất biệt thự KĐT Vĩnh Yên', N'Villa cao cấp', N'Chị Hằng', N'Vĩnh Yên', NULL, N'Thiết kế và thi công biệt thự KĐT Vĩnh Yên', N'/src/assets/img/slider/3.jpg', N'published'),
+       (N'Thiết kế nội thất căn hộ Vinhomes Metropolis', N'Căn hộ cao cấp', N'Chị Nguyệt', N'Liễu Giai', NULL, N'Thiết kế và thi công căn hộ Vinhomes Metropolis', N'/src/assets/img/slider/2.jpg', N'published');
 
 -- Project images
 INSERT INTO project_images (project_id, image_url, caption, sort_order)
 VALUES (1, N'/src/assets/img/slider/4.jpg', N'Saroma Villa', 1),
        (2, N'/src/assets/img/slider/3.jpg', N'Vinhomes Grand Park', 1);
+
+-- Gallery categories
+SET IDENTITY_INSERT gallery_categories ON;
+INSERT INTO gallery_categories (id, name, slug, display_order, is_active)
+VALUES (1, N'Phòng khách', N'phong-khach', 1, 1),
+       (2, N'Phòng bếp', N'phong-bep', 2, 1),
+       (3, N'Phòng ngủ', N'phong-ngu', 3, 1),
+       (4, N'Xưởng chế tác', N'xuong-che-tac', 4, 1),
+       (5, N'Dự án', N'du-an', 5, 1),
+       (6, N'Vật liệu', N'vat-lieu', 6, 1);
+SET IDENTITY_INSERT gallery_categories OFF;
+
+-- Gallery images and films
+SET IDENTITY_INSERT gallery_items ON;
+INSERT INTO gallery_items
+    (id, category_id, title, description, media_type, media_url, thumbnail_url, alt_text, provider, duration, is_featured, display_order, is_active)
+VALUES
+    (1, 1, N'Walnut Villa — Phòng khách nhiệt đới', N'Không gian sinh hoạt mở với sofa, bàn trà và ghế thư giãn chế tác từ gỗ óc chó.', N'image', N'/media/gallery/walnut-villa-living.webp', N'/media/gallery/walnut-villa-living.webp', N'Phòng khách biệt thự với bộ sofa gỗ óc chó và cửa kính nhìn ra vườn', N'local', NULL, 1, 1, 1),
+    (2, 2, N'Bếp mở trong ánh sáng tự nhiên', N'Hệ tủ bếp và bàn ăn đồng bộ, cân bằng giữa vân gỗ ấm và đá tự nhiên.', N'image', N'/media/gallery/walnut-villa-kitchen.webp', N'/media/gallery/walnut-villa-kitchen.webp', N'Bếp biệt thự với tủ gỗ óc chó, đảo đá và bàn ăn sáu ghế', N'local', NULL, 1, 2, 1),
+    (3, 3, N'Phòng ngủ Walnut Suite', N'Bảng màu trầm, hệ giường liền bàn và ánh sáng điểm tạo cảm giác riêng tư.', N'image', N'/media/gallery/walnut-suite.jpg', N'/media/gallery/walnut-suite.jpg', N'Phòng ngủ tông trầm với giường và bàn làm việc gỗ óc chó', N'local', NULL, 0, 3, 1),
+    (4, 4, N'Điểm chạm thủ công', N'Từng đường cong của ghế được hoàn thiện bằng tay để giữ trọn biểu cảm của gỗ.', N'image', N'/media/gallery/artisan-walnut-chair.webp', N'/media/gallery/artisan-walnut-chair.webp', N'Nghệ nhân bào thủ công một chi tiết ghế bằng gỗ óc chó', N'local', NULL, 0, 4, 1),
+    (5, 1, N'Sảnh nghỉ tĩnh lặng', N'Đường nét Á Đông tối giản kết hợp bề mặt gỗ tự nhiên và vật liệu đan.', N'image', N'/media/gallery/quiet-lounge.jpg', N'/media/gallery/quiet-lounge.jpg', N'Sảnh nghỉ tối giản với tủ console gỗ và mảng trang trí thủ công', N'local', NULL, 0, 5, 1),
+    (6, 2, N'Dining Hall — Ánh sáng và chất liệu', N'Không gian bàn ăn dài với nhịp vòm, ánh sáng ấm và bảng màu đất.', N'image', N'/media/gallery/arched-dining.jpg', N'/media/gallery/arched-dining.jpg', N'Không gian bàn ăn dài dưới trần vòm với đèn thủ công', N'local', NULL, 0, 6, 1),
+    (7, 4, N'The Art of Furniture Making', N'Một góc nhìn sâu vào quá trình biến vật liệu thô thành đồ nội thất có tuổi thọ lâu dài.', N'video', N'https://vimeo.com/573906036', N'/media/gallery/artisan-walnut-chair.webp', N'Video về nghệ thuật chế tác nội thất thủ công', N'vimeo', N'04:18', 1, 7, 1),
+    (8, 4, N'Nghệ thuật của kỹ thuật ghép mộng', N'Theo dõi cách người thợ kết nối thẩm mỹ, độ chính xác và độ bền trong từng mối ghép.', N'video', N'https://vimeo.com/174156297', N'/media/gallery/walnut-villa-kitchen.webp', N'Video về nghệ thuật ghép mộng trong nội thất gỗ', N'vimeo', N'02:42', 0, 8, 1),
+    (9, 5, N'Từ nhà thiết kế đến người hoàn thiện', N'Hành trình hợp tác giữa thiết kế, chế tác và hoàn thiện một món đồ nội thất độc bản.', N'video', N'https://vimeo.com/82229898', N'/media/gallery/walnut-villa-living.webp', N'Video về quy trình thiết kế và hoàn thiện nội thất', N'vimeo', N'06:34', 0, 9, 1),
+    (10, 6, N'Di sản của gỗ óc chó', N'Câu chuyện vật liệu, tỷ lệ và ngôn ngữ thiết kế làm nên sức sống bền bỉ của walnut.', N'video', N'https://vimeo.com/340431711', N'/media/gallery/walnut-suite.jpg', N'Video kể câu chuyện về nội thất gỗ óc chó', N'vimeo', N'03:56', 0, 10, 1);
+SET IDENTITY_INSERT gallery_items OFF;
+
+INSERT INTO gallery_items
+    (category_id, project_id, title, description, media_type, media_url, thumbnail_url, alt_text, provider, duration, is_featured, display_order, is_active)
+VALUES
+    (1, 1, N'Thư phòng Walnut Library', N'Hệ tủ sách cao kịch trần, bàn làm việc điêu khắc và ghế da trong ánh sáng dịu.', N'image', N'/media/gallery/walnut-home-library.webp', N'/media/gallery/walnut-home-library.webp', N'Thư phòng biệt thự với hệ tủ sách gỗ óc chó và bàn làm việc', N'local', NULL, 1, 11, 1),
+    (5, 1, N'Phòng tắm Walnut & Limestone', N'Gỗ óc chó, đá limestone và ánh sáng gián tiếp tạo nên nhịp nghỉ thư thái.', N'image', N'/media/gallery/walnut-stone-bathroom.webp', N'/media/gallery/walnut-stone-bathroom.webp', N'Phòng tắm cao cấp với tủ lavabo gỗ óc chó và bồn tắm đá', N'local', NULL, 1, 12, 1),
+    (4, NULL, N'Mối ghép lưu dấu bàn tay', N'Chi tiết mộng gỗ được căn chỉnh và hoàn thiện thủ công tại xưởng.', N'image', N'/media/gallery/walnut-joinery-detail.webp', N'/media/gallery/walnut-joinery-detail.webp', N'Đôi tay người thợ đang hoàn thiện mối ghép gỗ óc chó', N'local', NULL, 0, 13, 1),
+    (6, 3, N'Bức tường nghệ thuật trong ánh nắng sớm', N'Một khoảng chuyển tiếp được tiết chế bằng tranh sơn mài, bình gốm và gỗ tối màu.', N'image', N'/media/gallery/villa-art-wall.webp', N'/media/gallery/villa-art-wall.webp', N'Bức tường nghệ thuật và tủ gỗ trong không gian biệt thự', N'local', NULL, 0, 14, 1),
+    (3, 2, N'Phòng ngủ sắc đất', N'Bảng màu nâu đất, vải dệt thô và bề mặt gỗ tạo cảm giác ấm, sâu và yên tĩnh.', N'image', N'/media/gallery/villa-bedroom-earth.webp', N'/media/gallery/villa-bedroom-earth.webp', N'Phòng ngủ biệt thự mang bảng màu nâu đất', N'local', NULL, 0, 15, 1),
+    (3, 2, N'Bedroom Lounge — Khoảng nghỉ riêng', N'Khu ngồi thư giãn được nối liền với phòng ngủ bằng cùng một ngôn ngữ vật liệu.', N'image', N'/media/gallery/villa-bedroom-lounge.webp', N'/media/gallery/villa-bedroom-lounge.webp', N'Phòng ngủ có khu ghế nghỉ và cửa kính lớn', N'local', NULL, 0, 16, 1),
+    (3, 4, N'Góc làm việc trong phòng ngủ', N'Bàn viết gọn, ánh sáng tập trung và hệ tủ liền khối cho căn hộ đô thị.', N'image', N'/media/gallery/villa-bedroom-desk.webp', N'/media/gallery/villa-bedroom-desk.webp', N'Góc làm việc bằng gỗ trong phòng ngủ căn hộ', N'local', NULL, 0, 17, 1),
+    (2, 4, N'Bếp gỗ và mây đan', N'Các bề mặt cứng được làm mềm bằng cánh tủ mây đan và sắc gỗ tự nhiên.', N'image', N'/media/gallery/villa-kitchen-rattan.webp', N'/media/gallery/villa-kitchen-rattan.webp', N'Tủ bếp gỗ kết hợp cánh mây đan', N'local', NULL, 0, 18, 1),
+    (6, 4, N'Vanity Stone — Đá và gỗ', N'Bàn lavabo gỗ đặt trong lớp nền đá sáng, giữ tinh thần tối giản và sang trọng.', N'image', N'/media/gallery/villa-vanity-stone.webp', N'/media/gallery/villa-vanity-stone.webp', N'Bàn lavabo gỗ trong phòng tắm ốp đá sáng', N'local', NULL, 0, 19, 1),
+    (4, NULL, N'Thiết kế ghế như một tác phẩm', N'Từ phác thảo, tạo dáng đến bọc hoàn thiện một mẫu ghế có cá tính riêng.', N'video', N'https://vimeo.com/213826087', N'/media/gallery/villa-bedroom-lounge.webp', N'Video về thiết kế và chế tác ghế thủ công', N'vimeo', N'03:28', 0, 20, 1),
+    (4, NULL, N'Process — Nhịp điệu của người thợ', N'Một thước phim chậm về triết lý, độ chính xác và niềm vui trong nghề mộc.', N'video', N'https://vimeo.com/247657353', N'/media/gallery/walnut-joinery-detail.webp', N'Video ghi lại quy trình làm đồ gỗ thủ công', N'vimeo', N'05:12', 1, 21, 1),
+    (6, 2, N'Biểu tượng ghế trong không gian sống', N'Hình khối, vật liệu và tỷ lệ biến một chiếc ghế thành điểm nhấn của căn phòng.', N'video', N'https://vimeo.com/748153633', N'/media/gallery/walnut-home-library.webp', N'Video giới thiệu thiết kế ghế mang tính biểu tượng', N'vimeo', N'01:46', 0, 22, 1),
+    (5, 4, N'Không gian linh hoạt cho căn hộ đô thị', N'Cách tư duy nội thất thông minh giúp một diện tích gọn vẫn giàu trải nghiệm.', N'video', N'https://vimeo.com/383115350', N'/media/gallery/villa-bedroom-desk.webp', N'Video về giải pháp nội thất linh hoạt cho căn hộ', N'vimeo', N'03:08', 0, 23, 1);
+
+UPDATE gallery_items
+SET project_id = CASE id
+    WHEN 1 THEN 1 WHEN 2 THEN 1 WHEN 3 THEN 2 WHEN 5 THEN 3 WHEN 6 THEN 3 WHEN 9 THEN 1
+    ELSE project_id
+END
+WHERE id IN (1, 2, 3, 5, 6, 9);
 
 -- Services
 INSERT INTO services (title, description, image_url, display_order, is_active)

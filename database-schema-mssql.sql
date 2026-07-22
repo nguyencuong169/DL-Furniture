@@ -29,6 +29,10 @@ DROP TABLE IF EXISTS dbo.booking_requests;
 
 DROP TABLE IF EXISTS dbo.contact_messages;
 
+DROP TABLE IF EXISTS dbo.gallery_items;
+
+DROP TABLE IF EXISTS dbo.gallery_categories;
+
 DROP TABLE IF EXISTS dbo.project_images;
 
 DROP TABLE IF EXISTS dbo.projects;
@@ -144,7 +148,52 @@ CREATE TABLE dbo.project_images (
     sort_order INT             DEFAULT 0,
     created_at DATETIME2       DEFAULT GETDATE(),
     CONSTRAINT FK_project_images_project FOREIGN KEY (project_id) REFERENCES dbo.projects (id)
-); -- Contact messages
+); -- Gallery categories
+
+CREATE TABLE dbo.gallery_categories (
+    id            BIGINT         IDENTITY (1, 1) PRIMARY KEY,
+    name          NVARCHAR (255) NOT NULL,
+    slug          NVARCHAR (100) NOT NULL UNIQUE,
+    display_order INT            NOT NULL DEFAULT 0,
+    is_active     BIT            NOT NULL DEFAULT 1,
+    CONSTRAINT CK_gallery_categories_name_not_blank CHECK (LEN(LTRIM(RTRIM(name))) > 0),
+    CONSTRAINT CK_gallery_categories_slug_not_blank CHECK (LEN(LTRIM(RTRIM(slug))) > 0)
+); -- Gallery items
+
+CREATE TABLE dbo.gallery_items (
+    id            BIGINT          IDENTITY (1, 1) PRIMARY KEY,
+    category_id   BIGINT          NOT NULL,
+    project_id    BIGINT          NULL,
+    title         NVARCHAR (255)  NOT NULL,
+    description   NVARCHAR (MAX)  NULL,
+    media_type    NVARCHAR (20)   NOT NULL,
+    media_url     NVARCHAR (1024) NOT NULL,
+    thumbnail_url NVARCHAR (1024) NULL,
+    alt_text      NVARCHAR (500)  NULL,
+    provider      NVARCHAR (30)   NOT NULL DEFAULT N'local',
+    duration      NVARCHAR (20)   NULL,
+    is_featured   BIT             NOT NULL DEFAULT 0,
+    display_order INT             NOT NULL DEFAULT 0,
+    is_active     BIT             NOT NULL DEFAULT 1,
+    created_at    DATETIMEOFFSET  NOT NULL DEFAULT SYSUTCDATETIME(),
+    updated_at    DATETIMEOFFSET  NOT NULL DEFAULT SYSUTCDATETIME(),
+    CONSTRAINT FK_gallery_items_category FOREIGN KEY (category_id) REFERENCES dbo.gallery_categories (id),
+    CONSTRAINT FK_gallery_items_project FOREIGN KEY (project_id) REFERENCES dbo.projects (id) ON DELETE SET NULL,
+    CONSTRAINT CK_gallery_items_media_type CHECK (media_type IN (N'image', N'video')),
+    CONSTRAINT CK_gallery_items_provider CHECK (provider IN (N'local', N'youtube', N'vimeo'))
+);
+
+CREATE INDEX IX_gallery_items_active_type_order
+    ON dbo.gallery_items (is_active, media_type, display_order);
+
+CREATE INDEX IX_gallery_items_active_type_updated
+    ON dbo.gallery_items (is_active, media_type, updated_at DESC, id DESC)
+    INCLUDE (category_id);
+
+CREATE INDEX IX_gallery_items_project_id
+    ON dbo.gallery_items (project_id);
+
+-- Contact messages
 
 CREATE TABLE dbo.contact_messages (
     id         BIGINT         IDENTITY (1, 1) PRIMARY KEY,

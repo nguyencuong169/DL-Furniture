@@ -35,7 +35,7 @@ const state = reactive({
       <div class="container">
         <div class="row">
           <div class="col-md-12">
-            <div class="rooms2 mb-90 animate-box" data-animate-effect="fadeInUp">
+            <div id="project-1" class="rooms2 mb-90 animate-box" data-animate-effect="fadeInUp">
               <figure><img src="../assets/img/slider/4.jpg" alt="" class="img-fluid" /></figure>
               <div class="caption">
                 <h3>Anh Tuấn <span>/ Thủ Thiêm</span></h3>
@@ -71,7 +71,7 @@ const state = reactive({
                 </div>
               </div>
             </div>
-            <div class="rooms2 mb-90 left animate-box" data-animate-effect="fadeInUp">
+            <div id="project-2" class="rooms2 mb-90 left animate-box" data-animate-effect="fadeInUp">
               <figure><img src="../assets/img/slider/3.jpg" alt="" class="img-fluid" /></figure>
               <div class="caption">
                 <h3>Anh Cường <span>/ Quận 9</span></h3>
@@ -109,7 +109,7 @@ const state = reactive({
                 </div>
               </div>
             </div>
-            <div class="rooms2 mb-90 animate-box" data-animate-effect="fadeInUp">
+            <div id="project-3" class="rooms2 mb-90 animate-box" data-animate-effect="fadeInUp">
               <figure><img src="../assets/img/slider/3.jpg" alt="" class="img-fluid" /></figure>
               <div class="caption">
                 <h3>Chị Hằng <span>/ Vĩnh Yên</span></h3>
@@ -145,7 +145,7 @@ const state = reactive({
                 </div>
               </div>
             </div>
-            <div class="rooms2 left animate-box" data-animate-effect="fadeInUp">
+            <div id="project-4" class="rooms2 left animate-box" data-animate-effect="fadeInUp">
               <figure><img src="../assets/img/slider/2.jpg" alt="" class="img-fluid" /></figure>
               <div class="caption">
                 <h3>Chị Nguyệt <span>/ Liễu Giai</span></h3>
@@ -191,3 +191,14 @@ const state = reactive({
     </section>
   </main>
 </template>
+
+<style scoped>
+.rooms2[id] {
+  scroll-margin-top: 115px;
+}
+
+.rooms2[id]:target {
+  outline: 1px solid rgba(170, 132, 83, 0.55);
+  outline-offset: 12px;
+}
+</style>

@@ -50,3 +50,11 @@ npm run test:unit
 ```sh
 npm run lint
 ```
+
+## Gallery setup
+
+The gallery page at `/thu-vien` reads from `GET /api/gallery` and falls back to bundled sample media when the API is unavailable.
+
+For an existing SQL Server database, run `database-gallery-migration.sql` once. It creates and seeds `gallery_categories` and `gallery_items` and is safe to run again. For a fresh database, the same tables and data are included in `database-schema-mssql.sql` and `database-seed-mssql.sql`.
+
+Supported gallery query parameters are `type=image|video`, `category=<slug>`, `search=<text>`, `page`, and `pageSize`.

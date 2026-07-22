@@ -152,11 +152,11 @@ const currentRouteName = computed(() => route.name)
             >
           </li>
           <li class="nav-item">
-            <a
+            <RouterLink
               class="nav-link"
               :class="currentRouteName == 'gallery' ? 'active' : ''"
-              href="/thu-vien"
-              >Thư viện</a
+              to="/thu-vien"
+              >Thư viện</RouterLink
             >
           </li>
           <li class="nav-item">
