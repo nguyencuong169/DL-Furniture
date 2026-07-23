@@ -37,7 +37,7 @@ const loading = ref(false)
 const usingFallback = ref(false)
 const notice = ref('')
 const activeIndex = ref(-1)
-const filterSidebarOpen = ref(false)
+const filterSidebarOpen = ref(true)
 let originalBodyOverflow = ''
 let requestSerial = 0
 
@@ -56,7 +56,7 @@ const hasMoreImages = computed(() => imagePage.value < imageTotalPages.value)
 const hasMoreVideos = computed(() => videoPage.value < videoTotalPages.value)
 const canCollapseImages = computed(() => imagePage.value > 1 && !hasMoreImages.value)
 const canCollapseVideos = computed(() => videoPage.value > 1 && !hasMoreVideos.value)
-const isBodyLocked = computed(() => Boolean(activeItem.value) || filterSidebarOpen.value)
+const isBodyLocked = computed(() => Boolean(activeItem.value))
 const activeFilterCount = computed(
   () => Number(mediaType.value !== 'all') + Number(category.value !== 'all') + Number(Boolean(search.value))
 )
@@ -255,7 +255,6 @@ function selectCategory(value: string) {
 
 function submitSearch() {
   search.value = searchDraft.value.trim()
-  filterSidebarOpen.value = false
   void loadGallery()
 }
 
@@ -441,7 +440,7 @@ onBeforeUnmount(() => {
             <button
               v-else-if="canCollapseImages"
               type="button"
-              class="gallery-show-all"
+              class="butn-dark"
               :disabled="loading"
               @click="collapseSection('image')"
             >
@@ -527,7 +526,7 @@ onBeforeUnmount(() => {
             <button
               v-else-if="canCollapseVideos"
               type="button"
-              class="gallery-show-all"
+              class="butn-dark"
               :disabled="loading"
               @click="collapseSection('video')"
             >
@@ -558,23 +557,12 @@ onBeforeUnmount(() => {
     </section>
 
     <Teleport to="body">
-      <Transition name="gallery-filter-overlay">
-        <button
-          v-if="filterSidebarOpen"
-          type="button"
-          class="gallery-filter-backdrop"
-          aria-label="Đóng tìm kiếm và bộ lọc"
-          @click="closeFilterSidebar"
-        ></button>
-      </Transition>
-
       <Transition name="gallery-filter-panel">
         <aside
           v-if="filterSidebarOpen"
           id="gallery-filter-sidebar"
           class="gallery-filter-sidebar"
-          role="dialog"
-          aria-modal="true"
+          role="complementary"
           aria-labelledby="gallery-filter-title"
         >
           <div class="gallery-filter-header">
@@ -851,15 +839,6 @@ onBeforeUnmount(() => {
   width: 26px;
 }
 
-.gallery-filter-backdrop {
-  position: fixed;
-  z-index: 99990;
-  inset: 0;
-  border: 0;
-  background: rgba(15, 14, 12, 0.42);
-  cursor: default;
-}
-
 .gallery-filter-sidebar {
   position: fixed;
   z-index: 99991;
@@ -1034,16 +1013,6 @@ onBeforeUnmount(() => {
   letter-spacing: 1.6px;
   text-transform: uppercase;
   cursor: pointer;
-}
-
-.gallery-filter-overlay-enter-active,
-.gallery-filter-overlay-leave-active {
-  transition: opacity 0.35s ease;
-}
-
-.gallery-filter-overlay-enter-from,
-.gallery-filter-overlay-leave-to {
-  opacity: 0;
 }
 
 .gallery-filter-panel-enter-active,
