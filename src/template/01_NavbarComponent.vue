@@ -1,9 +1,27 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { computed } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 const route = useRoute()
 const currentRouteName = computed(() => route.name)
+const navbarToggler = ref<HTMLButtonElement | null>(null)
+const navbarCollapse = ref<HTMLElement | null>(null)
+
+const closeMobileMenu = () => {
+  if (!navbarCollapse.value?.classList.contains('show')) return
+  navbarToggler.value?.click()
+}
+
+const handleNavbarClick = (event: MouseEvent) => {
+  const link = (event.target as HTMLElement | null)?.closest('a')
+  if (!link || link.classList.contains('dropdown-toggle')) return
+  closeMobileMenu()
+}
+
+watch(
+  () => route.fullPath,
+  () => closeMobileMenu()
+)
 </script>
 
 <template>
@@ -20,6 +38,7 @@ const currentRouteName = computed(() => route.name)
       </div>
       <!-- Button -->
       <button
+        ref="navbarToggler"
         class="navbar-toggler"
         type="button"
         data-bs-toggle="collapse"
@@ -31,8 +50,8 @@ const currentRouteName = computed(() => route.name)
         <span class="navbar-toggler-icon"><i class="ti-menu"></i></span>
       </button>
       <!-- Menu -->
-      <div class="collapse navbar-collapse" id="navbar">
-        <ul class="navbar-nav ms-auto">
+      <div id="navbar" ref="navbarCollapse" class="collapse navbar-collapse">
+        <ul class="navbar-nav ms-auto" @click="handleNavbarClick">
           <li class="nav-item">
             <a
               :class="currentRouteName == 'home' || currentRouteName == '' ? 'active' : ''"

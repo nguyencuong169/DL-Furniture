@@ -12,6 +12,8 @@ import type {
 
 const IMAGE_PAGE_SIZE = 10
 const VIDEO_PAGE_SIZE = 4
+const FILTER_SIDEBAR_SESSION_KEY = 'gallery-filter-sidebar-open'
+const FILTER_SIDEBAR_DOCK_QUERY = '(min-width: 1440px)'
 
 type SectionResult = {
   response: GalleryResponse
@@ -37,7 +39,28 @@ const loading = ref(false)
 const usingFallback = ref(false)
 const notice = ref('')
 const activeIndex = ref(-1)
-const filterSidebarOpen = ref(true)
+const filterSidebarDockMedia =
+  typeof window === 'undefined' ? null : window.matchMedia(FILTER_SIDEBAR_DOCK_QUERY)
+
+function readFilterSidebarPreference() {
+  if (typeof window === 'undefined') return null
+
+  try {
+    const savedPreference = window.sessionStorage.getItem(FILTER_SIDEBAR_SESSION_KEY)
+    if (savedPreference === 'true') return true
+    if (savedPreference === 'false') return false
+  } catch {
+    // Continue with the responsive default when session storage is unavailable.
+  }
+
+  return null
+}
+
+const savedFilterSidebarPreference = readFilterSidebarPreference()
+let hasFilterSidebarPreference = savedFilterSidebarPreference !== null
+const filterSidebarOpen = ref(
+  savedFilterSidebarPreference ?? filterSidebarDockMedia?.matches ?? false
+)
 let originalBodyOverflow = ''
 let requestSerial = 0
 
@@ -266,12 +289,27 @@ function clearFilters() {
   void loadGallery()
 }
 
+function rememberFilterSidebarState(isOpen: boolean) {
+  hasFilterSidebarPreference = true
+
+  try {
+    window.sessionStorage.setItem(FILTER_SIDEBAR_SESSION_KEY, String(isOpen))
+  } catch {
+    // The panel remains functional even when session storage is unavailable.
+  }
+}
+
+function setFilterSidebarOpen(isOpen: boolean) {
+  filterSidebarOpen.value = isOpen
+  rememberFilterSidebarState(isOpen)
+}
+
 function toggleFilterSidebar() {
-  filterSidebarOpen.value = !filterSidebarOpen.value
+  setFilterSidebarOpen(!filterSidebarOpen.value)
 }
 
 function closeFilterSidebar() {
-  filterSidebarOpen.value = false
+  setFilterSidebarOpen(false)
 }
 
 function openItem(itemId: number) {
@@ -304,6 +342,10 @@ function handleKeydown(event: KeyboardEvent) {
   if (event.key === 'ArrowRight') showNext()
 }
 
+function handleFilterSidebarBreakpoint(event: MediaQueryListEvent) {
+  if (!hasFilterSidebarPreference) filterSidebarOpen.value = event.matches
+}
+
 watch(isBodyLocked, (locked, wasLocked) => {
   if (locked && !wasLocked) {
     originalBodyOverflow = document.body.style.overflow
@@ -313,13 +355,26 @@ watch(isBodyLocked, (locked, wasLocked) => {
   }
 })
 
+watch(
+  filterSidebarOpen,
+  (isOpen) => {
+    if (typeof document === 'undefined') return
+    document.body.classList.add('gallery-filter-layout')
+    document.body.classList.toggle('gallery-filter-docked-open', isOpen)
+  },
+  { immediate: true }
+)
+
 onMounted(() => {
   window.addEventListener('keydown', handleKeydown)
+  filterSidebarDockMedia?.addEventListener('change', handleFilterSidebarBreakpoint)
   void loadGallery()
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleKeydown)
+  filterSidebarDockMedia?.removeEventListener('change', handleFilterSidebarBreakpoint)
+  document.body.classList.remove('gallery-filter-layout', 'gallery-filter-docked-open')
   document.body.style.overflow = originalBodyOverflow
 })
 </script>
@@ -1372,6 +1427,33 @@ onBeforeUnmount(() => {
 </style>
 
 <style>
+@media (min-width: 1440px) {
+  body.gallery-filter-layout #app > .navbar {
+    transition:
+      width 0.42s cubic-bezier(0.77, 0, 0.18, 1),
+      transform 0.5s;
+  }
+
+  body.gallery-filter-layout #app > main,
+  body.gallery-filter-layout #app > .footer {
+    transition: width 0.42s cubic-bezier(0.77, 0, 0.18, 1);
+  }
+
+  body.gallery-filter-layout #app > main .container {
+    transition: width 0.42s cubic-bezier(0.77, 0, 0.18, 1);
+  }
+
+  body.gallery-filter-docked-open #app > .navbar,
+  body.gallery-filter-docked-open #app > main,
+  body.gallery-filter-docked-open #app > .footer {
+    width: calc(100% - 410px);
+  }
+
+  body.gallery-filter-docked-open #app > main .container {
+    width: calc(100% - 64px);
+  }
+}
+
 .gallery-viewer {
   position: fixed;
   z-index: 99999;
