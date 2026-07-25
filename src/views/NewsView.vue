@@ -1,8 +1,9 @@
 <script setup lang="ts">
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 import 'dayjs/locale/vi'
+import newsBanner from '../assets/img/slider/7.jpg'
 import type { NewsItem } from '../types/news'
 import type { NewsPageFilters } from '../api/newsPagedClient'
 import { getNewsPaged, getNewsPagedByArchiveMonth } from '../api/newsPagedClient'
@@ -15,6 +16,7 @@ import {
 import type { CategoryDto } from '../api/newsSidebarClient'
 import { getNewsDate, handleNewsImageError, resolveNewsImage } from '../utils/news'
 import NewsArchives from '../components/NewsArchives.vue'
+import NewsRelatedList from '../components/NewsRelatedList.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -48,11 +50,20 @@ const archiveFilter = reactive({
 })
 
 const searchInput = ref('')
-const loading = ref(false)
+const loading = ref(true)
 const loadingRelated = ref(false)
 const loadingCategories = ref(true)
 const categoryLoadError = ref(false)
+const sidebarLoadError = ref(false)
 const loadError = ref('')
+const mobileFiltersOpen = ref(false)
+const isMobileLayout = ref(false)
+const mobileFilterToggle = ref<HTMLButtonElement | null>(null)
+const mobileFilterClose = ref<HTMLButtonElement | null>(null)
+const mobileFilterMedia =
+  typeof window === 'undefined' ? null : window.matchMedia('(max-width: 991px)')
+let originalBodyOverflow = ''
+let routeSyncReady = false
 let pageRequestId = 0
 let relatedRequestId = 0
 
@@ -136,6 +147,9 @@ const loadPage = async (page: number) => {
 }
 
 const loadSidebar = async () => {
+  loadingCategories.value = true
+  categoryLoadError.value = false
+  sidebarLoadError.value = false
   const results = await Promise.allSettled([getNewsCategories(), getNewsArchives(), getNewsTags()])
 
   const [categoriesResult, archivesResult, tagsResult] = results
@@ -145,15 +159,22 @@ const loadSidebar = async () => {
     categoryLoadError.value = false
   } else {
     categoryLoadError.value = true
+    sidebarLoadError.value = true
     console.error('Failed to load news categories', categoriesResult.reason)
   }
   loadingCategories.value = false
 
   if (archivesResult.status === 'fulfilled') sidebar.archives = archivesResult.value
-  else console.error('Failed to load news archives', archivesResult.reason)
+  else {
+    sidebarLoadError.value = true
+    console.error('Failed to load news archives', archivesResult.reason)
+  }
 
   if (tagsResult.status === 'fulfilled') sidebar.tags = tagsResult.value
-  else console.error('Failed to load news tags', tagsResult.reason)
+  else {
+    sidebarLoadError.value = true
+    console.error('Failed to load news tags', tagsResult.reason)
+  }
 }
 
 type PageButton = number | '...'
@@ -195,6 +216,8 @@ const hasActiveFilters = computed(() => {
   return archiveFilter.enabled || Boolean(uiState.categoryId || uiState.tag || uiState.search)
 })
 
+const activeFilterCount = computed(() => (hasActiveFilters.value ? 1 : 0))
+
 const activeFilterLabel = computed(() => {
   if (uiState.search) return `Kết quả tìm kiếm: “${uiState.search}”`
 
@@ -224,79 +247,53 @@ const resetFiltersWithoutLoading = () => {
   uiState.search = ''
 }
 
-const updateRouteQuery = (query: Record<string, string | number> = {}) => {
-  void router.replace({ name: 'news', query })
+const queryValue = (value: unknown) => (Array.isArray(value) ? value[0] : value)
+
+const restoreBodyScroll = () => {
+  if (typeof document === 'undefined') return
+  document.body.style.overflow = originalBodyOverflow
 }
 
-const clearFilters = async () => {
-  resetFiltersWithoutLoading()
-  searchInput.value = ''
-  updateRouteQuery()
-  await loadPage(1)
+const openMobileFilters = async () => {
+  mobileFiltersOpen.value = true
+  await nextTick()
+  mobileFilterClose.value?.focus()
 }
 
-const setArchiveFilter = async (year: number, month: number) => {
-  resetFiltersWithoutLoading()
-  searchInput.value = ''
-  archiveFilter.enabled = true
-  archiveFilter.year = year
-  archiveFilter.month = month
-  updateRouteQuery({ year, month })
-  await loadPage(1)
-}
-
-const selectCategory = async (categoryId: number) => {
-  const category = sidebar.categories.find((item) => item.id === categoryId)
-  if (category?.publishedCount === 0) return
-
-  const shouldClear = uiState.categoryId === categoryId && !archiveFilter.enabled
-  resetFiltersWithoutLoading()
-  searchInput.value = ''
-  if (!shouldClear) uiState.categoryId = categoryId
-  updateRouteQuery(shouldClear ? {} : { category: category?.slug ?? categoryId })
-  await loadPage(1)
-}
-
-const selectTag = async (tag: string) => {
-  const shouldClear = uiState.tag === tag && !archiveFilter.enabled
-  resetFiltersWithoutLoading()
-  searchInput.value = ''
-  if (!shouldClear) uiState.tag = tag
-  updateRouteQuery(shouldClear ? {} : { tag })
-  await loadPage(1)
-}
-
-const submitSearch = async () => {
-  const search = searchInput.value.trim()
-  if (!search) {
-    await clearFilters()
-    return
+const closeMobileFilters = async (returnFocus = false) => {
+  mobileFiltersOpen.value = false
+  if (returnFocus) {
+    await nextTick()
+    mobileFilterToggle.value?.focus()
   }
+}
 
+const handleMobileFilterMediaChange = (event: MediaQueryListEvent) => {
+  isMobileLayout.value = event.matches
+  if (!event.matches) void closeMobileFilters()
+}
+
+const handleNewsKeydown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && mobileFiltersOpen.value) void closeMobileFilters(true)
+}
+
+const scrollToResults = () => {
+  document
+    .querySelector('#news-results')
+    ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+}
+
+const applyRouteFilters = async () => {
   resetFiltersWithoutLoading()
-  uiState.search = search
-  updateRouteQuery({ search })
-  await loadPage(1)
-}
+  searchInput.value = ''
 
-const goToPage = async (page: number) => {
-  if (page < 1 || page > state.totalPages || page === state.page) return
-  await loadPage(page)
-  document.querySelector('.news2')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
-
-onMounted(async () => {
-  await loadSidebar()
-
-  const routeYear = Number(Array.isArray(route.query.year) ? route.query.year[0] : route.query.year)
-  const routeMonth = Number(
-    Array.isArray(route.query.month) ? route.query.month[0] : route.query.month
-  )
-  const routeTag = Array.isArray(route.query.tag) ? route.query.tag[0] : route.query.tag
-  const routeCategory = String(
-    (Array.isArray(route.query.category) ? route.query.category[0] : route.query.category) ?? ''
-  )
-  const routeSearch = Array.isArray(route.query.search) ? route.query.search[0] : route.query.search
+  const routeYear = Number(queryValue(route.query.year))
+  const routeMonth = Number(queryValue(route.query.month))
+  const routeTag = queryValue(route.query.tag)
+  const routeCategory = String(queryValue(route.query.category) ?? '')
+  const routeSearch = queryValue(route.query.search)
+  const requestedPage = Number(queryValue(route.query.page))
+  const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1
 
   if (
     Number.isInteger(routeYear) &&
@@ -307,43 +304,123 @@ onMounted(async () => {
     archiveFilter.enabled = true
     archiveFilter.year = routeYear
     archiveFilter.month = routeMonth
-    await loadPage(1)
-    return
-  }
-
-  if (routeTag) {
+  } else if (routeTag) {
     uiState.tag = String(routeTag)
-    await loadPage(1)
-    return
-  }
+  } else if (routeCategory) {
+    const routeCategoryNumber = Number(routeCategory)
+    const matchedCategory = sidebar.categories.find(
+      (category) =>
+        category.slug === routeCategory ||
+        (Number.isInteger(routeCategoryNumber) && category.id === routeCategoryNumber)
+    )
 
-  const routeCategoryNumber = Number(routeCategory)
-  const matchedCategory = sidebar.categories.find(
-    (category) =>
-      category.slug === routeCategory ||
-      (Number.isInteger(routeCategoryNumber) && category.id === routeCategoryNumber)
-  )
-
-  if (matchedCategory && matchedCategory.publishedCount > 0) {
-    uiState.categoryId = matchedCategory.id
-    await loadPage(1)
-    return
-  }
-
-  if (routeCategory && categoryLoadError.value && Number.isInteger(routeCategoryNumber)) {
-    uiState.categoryId = routeCategoryNumber
-    await loadPage(1)
-    return
-  }
-
-  if (routeCategory) updateRouteQuery()
-
-  if (routeSearch) {
+    if (matchedCategory?.publishedCount) {
+      uiState.categoryId = matchedCategory.id
+    } else if (categoryLoadError.value && Number.isInteger(routeCategoryNumber)) {
+      uiState.categoryId = routeCategoryNumber
+    }
+  } else if (routeSearch) {
     uiState.search = String(routeSearch)
     searchInput.value = uiState.search
   }
 
-  await loadPage(1)
+  await loadPage(page)
+}
+
+const updateRouteQuery = async (query: Record<string, string | number> = {}) => {
+  await closeMobileFilters()
+  await router.push({ name: 'news', query })
+}
+
+const clearFilters = async () => {
+  await updateRouteQuery()
+}
+
+const setArchiveFilter = async (year: number, month: number) => {
+  await updateRouteQuery({ year, month })
+}
+
+const selectCategory = async (categoryId: number) => {
+  const category = sidebar.categories.find((item) => item.id === categoryId)
+  if (category?.publishedCount === 0) return
+
+  const shouldClear = uiState.categoryId === categoryId && !archiveFilter.enabled
+  await updateRouteQuery(shouldClear ? {} : { category: category?.slug ?? categoryId })
+}
+
+const selectTag = async (tag: string) => {
+  const shouldClear = uiState.tag === tag && !archiveFilter.enabled
+  await updateRouteQuery(shouldClear ? {} : { tag })
+}
+
+const submitSearch = async () => {
+  const search = searchInput.value.trim()
+  if (!search) {
+    await clearFilters()
+    return
+  }
+
+  await updateRouteQuery({ search })
+}
+
+const clearSearchInput = async () => {
+  searchInput.value = ''
+  if (uiState.search) await clearFilters()
+}
+
+const retryPage = async () => {
+  await loadPage(state.page || 1)
+}
+
+const retrySidebar = async () => {
+  await loadSidebar()
+}
+
+const goToPage = async (page: number) => {
+  if (page < 1 || page > state.totalPages || page === state.page) return
+  const query = { ...route.query } as Record<string, string | number>
+  if (page > 1) query.page = page
+  else delete query.page
+  await router.push({ name: 'news', query })
+}
+
+watch(
+  () => route.fullPath,
+  async () => {
+    if (!routeSyncReady) return
+    await applyRouteFilters()
+    await nextTick()
+    scrollToResults()
+  }
+)
+
+watch(mobileFiltersOpen, async (isOpen) => {
+  if (typeof document === 'undefined') return
+
+  if (isOpen && isMobileLayout.value) {
+    originalBodyOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+  } else {
+    restoreBodyScroll()
+  }
+})
+
+onMounted(async () => {
+  isMobileLayout.value = mobileFilterMedia?.matches ?? false
+  mobileFilterMedia?.addEventListener('change', handleMobileFilterMediaChange)
+  window.addEventListener('keydown', handleNewsKeydown)
+
+  const sidebarPromise = loadSidebar()
+  if (queryValue(route.query.category)) await sidebarPromise
+
+  await Promise.all([sidebarPromise, applyRouteFilters()])
+  routeSyncReady = true
+})
+
+onBeforeUnmount(() => {
+  mobileFilterMedia?.removeEventListener('change', handleMobileFilterMediaChange)
+  window.removeEventListener('keydown', handleNewsKeydown)
+  restoreBodyScroll()
 })
 </script>
 
@@ -353,9 +430,8 @@ onMounted(async () => {
     <div
       class="banner-header section-padding valign bg-img bg-fixed"
       data-overlay-dark="4"
-      data-background="https://dl-furniture.netlify.app/assets/7-jvnrfz_x.jpg"
+      :style="{ backgroundImage: `url(${newsBanner})` }"
     >
-      <img src="../assets/img/slider/7.jpg" v-show="false" alt="" />
       <div class="container">
         <div class="row">
           <div class="col-md-12 text-left caption mt-90">
@@ -367,111 +443,209 @@ onMounted(async () => {
     </div>
 
     <!-- News 2 -->
-    <section class="news2 section-padding">
+    <section id="news-results" class="news2 section-padding">
       <div class="container">
         <div class="row">
-          <div class="col-md-8">
+          <div class="col-md-8 news-content-column">
+            <button
+              ref="mobileFilterToggle"
+              type="button"
+              class="news-filter-toggle-mobile"
+              aria-controls="news-filter-panel"
+              :aria-expanded="mobileFiltersOpen"
+              @click="openMobileFilters"
+            >
+              <i class="ti-filter" aria-hidden="true"></i>
+              <span>Tìm kiếm &amp; bộ lọc</span>
+              <strong v-if="activeFilterCount">{{ activeFilterCount }}</strong>
+            </button>
+
             <div v-if="hasActiveFilters" class="news-archives-filter-bar">
-              <span class="news-archives-filter-label">{{ activeFilterLabel }}</span>
-              <a href="#" class="news-archives-filter-clear" @click.prevent="clearFilters">
+              <span class="news-archives-filter-label">
+                <i class="ti-filter" aria-hidden="true"></i>
+                {{ activeFilterLabel }}
+              </span>
+              <button type="button" class="news-archives-filter-clear" @click="clearFilters">
                 Xóa bộ lọc
-              </a>
+              </button>
             </div>
 
-            <div class="row">
-              <div v-if="loadError" class="col-md-12">
-                <p>{{ loadError }}</p>
-              </div>
-              <div v-else-if="loading && !state.items.length" class="col-md-12">
-                <p>Đang tải tin tức...</p>
-              </div>
-              <div v-else-if="!state.items.length" class="col-md-12">
-                <p>Không tìm thấy bài viết phù hợp.</p>
+            <div
+              class="news-results-shell"
+              :class="{ 'is-refreshing': loading && state.items.length }"
+              :aria-busy="loading"
+            >
+              <div v-if="loading && state.items.length" class="news-refresh-indicator">
+                <span aria-hidden="true"></span>
+                Đang cập nhật
               </div>
 
-              <div v-for="item in state.items" :key="item.id" class="col-md-12">
-                <div class="item">
-                  <div class="post-img">
-                    <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
-                      <img
-                        :src="resolveNewsImage(item.newsImage, item.id)"
-                        :alt="item.titles || 'Tin tức'"
-                        @error="handleNewsImageError($event, item.id)"
-                      />
-                    </RouterLink>
-                    <div class="date">
-                      <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
-                        <span>{{ formatNewsDate(item, 'MMM') }}</span>
-                        <i>{{ formatNewsDate(item, 'DD') }}</i>
-                      </RouterLink>
-                    </div>
+              <div v-if="loadError" class="news-state news-state--error" role="alert">
+                <span class="news-state-icon"><i class="ti-alert" aria-hidden="true"></i></span>
+                <h3>Chưa thể tải tin tức</h3>
+                <p>{{ loadError }}</p>
+                <button type="button" class="news-state-action" @click="retryPage">
+                  Thử tải lại
+                </button>
+              </div>
+
+              <div v-else-if="loading && !state.items.length" class="news-skeleton-list">
+                <article v-for="placeholder in 3" :key="placeholder" class="news-card-skeleton">
+                  <div class="news-skeleton-image"></div>
+                  <div class="news-skeleton-copy">
+                    <span></span><strong></strong><i></i><i></i>
                   </div>
-                  <div class="post-cont">
-                    <a
-                      href="#"
-                      @click.prevent="item.newsCategoryId && selectCategory(item.newsCategoryId)"
-                    >
-                      <span class="tag">{{ categoryName(item) }}</span>
-                    </a>
-                    <h5>
+                </article>
+              </div>
+
+              <div v-else-if="!state.items.length" class="news-state news-state--empty">
+                <span class="news-state-icon"><i class="ti-search" aria-hidden="true"></i></span>
+                <h3>Không tìm thấy bài viết phù hợp</h3>
+                <p>Hãy thử từ khóa hoặc nhóm nội dung khác.</p>
+                <button
+                  v-if="hasActiveFilters"
+                  type="button"
+                  class="news-state-action"
+                  @click="clearFilters"
+                >
+                  Xóa bộ lọc
+                </button>
+              </div>
+
+              <div v-else class="row news-card-list">
+                <div
+                  v-for="(item, index) in state.items"
+                  :key="item.id"
+                  class="col-md-12"
+                >
+                  <article class="item">
+                    <div class="post-img">
                       <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
-                        {{ item.titles }}
+                        <img
+                          :src="resolveNewsImage(item.newsImage, item.id)"
+                          :alt="item.titles || 'Tin tức'"
+                          :loading="index === 0 ? 'eager' : 'lazy'"
+                          decoding="async"
+                          @error="handleNewsImageError($event, item.id)"
+                        />
                       </RouterLink>
-                    </h5>
-                    <p>{{ item.summary }}</p>
-                    <div class="butn-dark">
-                      <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
-                        <span>Chi tiết</span>
-                      </RouterLink>
+                      <div class="date">
+                        <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                          <span>{{ formatNewsDate(item, 'MMM') }}</span>
+                          <i>{{ formatNewsDate(item, 'DD') }}</i>
+                        </RouterLink>
+                      </div>
                     </div>
-                  </div>
+                    <div class="post-cont">
+                      <button
+                        type="button"
+                        class="news-card-category"
+                        @click="item.newsCategoryId && selectCategory(item.newsCategoryId)"
+                      >
+                        <span class="tag">{{ categoryName(item) }}</span>
+                      </button>
+                      <h5>
+                        <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                          {{ item.titles }}
+                        </RouterLink>
+                      </h5>
+                      <p>{{ item.summary }}</p>
+                      <div class="butn-dark">
+                        <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                          <span>Chi tiết</span>
+                        </RouterLink>
+                      </div>
+                    </div>
+                  </article>
+                </div>
+
+                <div v-if="state.totalPages > 1" class="col-md-12">
+                  <nav aria-label="Phân trang tin tức">
+                    <ul class="news-pagination-wrap align-center mb-30 mt-30">
+                      <li>
+                        <button
+                          type="button"
+                          :disabled="state.page <= 1 || loading"
+                          aria-label="Trang trước"
+                          @click="goToPage(state.page - 1)"
+                        >
+                          <i class="ti-angle-left" aria-hidden="true"></i>
+                        </button>
+                      </li>
+
+                      <li v-for="(page, pageIndex) in pageButtons" :key="`${page}-${pageIndex}`">
+                        <span v-if="page === '...'" class="news-pagination-ellipsis">...</span>
+                        <button
+                          v-else
+                          type="button"
+                          :class="{ active: page === state.page }"
+                          :aria-current="page === state.page ? 'page' : undefined"
+                          :disabled="loading"
+                          @click="goToPage(page)"
+                        >
+                          {{ page }}
+                        </button>
+                      </li>
+
+                      <li>
+                        <button
+                          type="button"
+                          :disabled="state.page >= state.totalPages || loading"
+                          aria-label="Trang sau"
+                          @click="goToPage(state.page + 1)"
+                        >
+                          <i class="ti-angle-right" aria-hidden="true"></i>
+                        </button>
+                      </li>
+                    </ul>
+                  </nav>
                 </div>
               </div>
+            </div>
 
-              <div v-if="state.totalPages > 0" class="col-md-12">
-                <ul class="news-pagination-wrap align-center mb-30 mt-30" aria-label="Phân trang">
-                  <li>
-                    <a
-                      href="#"
-                      :class="{ disabled: state.page <= 1 }"
-                      :aria-disabled="state.page <= 1"
-                      aria-label="Trang trước"
-                      @click.prevent="goToPage(state.page - 1)"
-                    >
-                      <i class="ti-angle-left"></i>
-                    </a>
-                  </li>
-
-                  <li v-for="(page, index) in pageButtons" :key="`${page}-${index}`">
-                    <a v-if="page === '...'" href="#" tabindex="-1" @click.prevent>...</a>
-                    <a
-                      v-else
-                      href="#"
-                      :class="{ active: page === state.page }"
-                      :aria-current="page === state.page ? 'page' : undefined"
-                      @click.prevent="goToPage(page)"
-                    >
-                      {{ page }}
-                    </a>
-                  </li>
-
-                  <li>
-                    <a
-                      href="#"
-                      :class="{ disabled: state.page >= state.totalPages }"
-                      :aria-disabled="state.page >= state.totalPages"
-                      aria-label="Trang sau"
-                      @click.prevent="goToPage(state.page + 1)"
-                    >
-                      <i class="ti-angle-right"></i>
-                    </a>
-                  </li>
-                </ul>
-              </div>
+            <div
+              v-if="loadingRelated || sidebar.related.length"
+              class="news2-sidebar news-mobile-related"
+            >
+              <NewsRelatedList :items="sidebar.related" :loading="loadingRelated" />
             </div>
           </div>
 
-          <div class="col-md-4">
+          <Transition name="news-filter-backdrop">
+            <button
+              v-if="mobileFiltersOpen && isMobileLayout"
+              type="button"
+              class="news-filter-backdrop"
+              aria-label="Đóng tìm kiếm và bộ lọc"
+              @click="closeMobileFilters(true)"
+            ></button>
+          </Transition>
+
+          <aside
+            id="news-filter-panel"
+            class="col-md-4 news-sidebar-column"
+            :class="{ 'is-open': mobileFiltersOpen }"
+            :role="isMobileLayout ? 'dialog' : undefined"
+            :aria-modal="isMobileLayout ? mobileFiltersOpen : undefined"
+            :aria-hidden="isMobileLayout && !mobileFiltersOpen"
+            aria-labelledby="news-filter-title"
+          >
+            <div class="news-sidebar-mobile-header">
+              <div>
+                <span>Bài viết D&amp;L</span>
+                <h2 id="news-filter-title">Tìm kiếm &amp; bộ lọc</h2>
+              </div>
+              <button
+                ref="mobileFilterClose"
+                type="button"
+                class="news-sidebar-mobile-close"
+                aria-label="Đóng tìm kiếm và bộ lọc"
+                @click="closeMobileFilters(true)"
+              >
+                <i></i><i></i>
+              </button>
+            </div>
+
             <div class="news2-sidebar row">
               <div class="col-md-12">
                 <div class="widget search">
@@ -482,43 +656,32 @@ onMounted(async () => {
                       name="search"
                       placeholder="Tìm kiếm bài viết..."
                       aria-label="Tìm kiếm bài viết"
+                      @keydown.enter.prevent="submitSearch"
                     />
-                    <button type="submit" aria-label="Tìm kiếm">
+                    <button
+                      v-if="searchInput"
+                      type="button"
+                      class="news-search-clear"
+                      aria-label="Xóa nội dung tìm kiếm"
+                      @click="clearSearchInput"
+                    >
+                      <i class="ti-close" aria-hidden="true"></i>
+                    </button>
+                    <button class="news-search-submit" type="submit" aria-label="Tìm kiếm">
                       <i class="ti-search" aria-hidden="true"></i>
                     </button>
                   </form>
                 </div>
               </div>
 
-              <div class="col-md-12">
-                <div class="widget">
-                  <div class="widget-title">
-                    <h6>Bài viết liên quan</h6>
-                  </div>
-                  <ul class="recent">
-                    <li v-if="loadingRelated && !sidebar.related.length">
-                      <a href="#" @click.prevent>Đang tải...</a>
-                    </li>
-                    <li v-else-if="!sidebar.related.length">
-                      <a href="#" @click.prevent>Chưa có bài viết liên quan.</a>
-                    </li>
-                    <li v-for="related in sidebar.related" :key="related.id">
-                      <div class="thum">
-                        <img
-                          :src="resolveNewsImage(related.newsImage, related.id)"
-                          :alt="related.titles || 'Tin tức liên quan'"
-                          @error="handleNewsImageError($event, related.id)"
-                        />
-                      </div>
-                      <RouterLink :to="{ name: 'news-detail', params: { id: related.id } }">
-                        {{ related.titles }}
-                      </RouterLink>
-                    </li>
-                  </ul>
-                </div>
+              <div
+                v-if="loadingRelated || sidebar.related.length"
+                class="col-md-12 news-related-desktop"
+              >
+                <NewsRelatedList :items="sidebar.related" :loading="loadingRelated" />
               </div>
 
-              <div class="col-md-12">
+              <div v-if="sidebar.archives.length" class="col-md-12">
                 <NewsArchives
                   :archives="sidebar.archives"
                   :active-year="archiveFilter.year"
@@ -542,6 +705,7 @@ onMounted(async () => {
                   </p>
                   <p v-else-if="categoryLoadError" class="news-category-status is-error">
                     Chưa thể tải chuyên mục.
+                    <button type="button" @click="retrySidebar">Thử lại</button>
                   </p>
                   <p v-else-if="!sidebar.categories.length" class="news-category-status">
                     Chưa có chuyên mục tin tức.
@@ -591,40 +755,47 @@ onMounted(async () => {
                 </div>
               </div>
 
-              <div class="col-md-12">
+              <div v-if="sidebar.tags.length" class="col-md-12">
                 <div class="widget">
                   <div class="widget-title">
                     <div
                       class="d-flex align-items-center justify-content-between"
                       style="width: 100%"
                     >
-                      <h6 class="mb-0">Tags</h6>
-                      <a
+                      <h6 class="mb-0">Thẻ nội dung</h6>
+                      <button
                         v-if="sidebar.tags.length > 12"
-                        href="#"
+                        type="button"
                         class="view-more"
-                        @click.prevent="uiState.showAllTags = !uiState.showAllTags"
+                        @click="uiState.showAllTags = !uiState.showAllTags"
                       >
                         {{ uiState.showAllTags ? 'Thu gọn' : 'Xem thêm' }}
-                      </a>
+                      </button>
                     </div>
                   </div>
                   <ul class="tags">
                     <li v-for="tag in displayedTags" :key="tag.name">
-                      <a
-                        href="#"
+                      <button
+                        type="button"
                         :class="{ active: uiState.tag === tag.name }"
                         :title="`${tag.count} bài viết`"
-                        @click.prevent="selectTag(tag.name)"
+                        @click="selectTag(tag.name)"
                       >
                         {{ tag.name }}
-                      </a>
+                      </button>
                     </li>
                   </ul>
                 </div>
               </div>
+
+              <div v-if="sidebarLoadError" class="col-md-12 news-sidebar-retry">
+                <button type="button" @click="retrySidebar">
+                  <i class="ti-reload" aria-hidden="true"></i>
+                  Tải lại dữ liệu bộ lọc
+                </button>
+              </div>
             </div>
-          </div>
+          </aside>
         </div>
       </div>
     </section>
