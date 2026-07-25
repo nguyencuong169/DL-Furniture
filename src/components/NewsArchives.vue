@@ -21,9 +21,12 @@ const emit = defineEmits<{
 
 const viewingYear = ref<number | null>(null)
 const isYearMenuOpen = ref(false)
+const isMonthsExpanded = ref(false)
+const isCompactViewport = ref(false)
 const highlightedYear = ref<number | null>(null)
 const yearSelectRoot = ref<HTMLElement | null>(null)
 const yearSelectTrigger = ref<HTMLButtonElement | null>(null)
+let compactViewportQuery: MediaQueryList | null = null
 
 const years = computed(() => {
   const totals = new Map<number, number>()
@@ -53,6 +56,21 @@ const months = computed(() => {
       fullLabel: new Intl.DateTimeFormat('vi-VN', { month: 'long' }).format(date)
     }
   })
+})
+
+const timelineMonths = computed(() => {
+  return months.value
+    .filter((item) => item.count > 0)
+    .sort((first, second) => second.month - first.month)
+})
+
+const collapsedMonthLimit = computed(() => (isCompactViewport.value ? 4 : 6))
+const visibleTimelineMonths = computed(() => {
+  if (isMonthsExpanded.value) return timelineMonths.value
+  return timelineMonths.value.slice(0, collapsedMonthLimit.value)
+})
+const hiddenMonthCount = computed(() => {
+  return Math.max(0, timelineMonths.value.length - collapsedMonthLimit.value)
 })
 
 const currentYearIndex = computed(() => {
@@ -136,17 +154,20 @@ const handleYearOptionKeydown = (event: KeyboardEvent, year: number) => {
 }
 
 const selectYear = (year: number) => {
+  isMonthsExpanded.value = false
   viewingYear.value = year
   closeYearMenu(true)
 }
 
 const viewNewerYear = () => {
   closeYearMenu()
+  isMonthsExpanded.value = false
   if (canViewNewerYear.value) viewingYear.value = years.value[currentYearIndex.value - 1].year
 }
 
 const viewOlderYear = () => {
   closeYearMenu()
+  isMonthsExpanded.value = false
   if (canViewOlderYear.value) viewingYear.value = years.value[currentYearIndex.value + 1].year
 }
 
@@ -154,12 +175,34 @@ const selectMonth = (month: number) => {
   if (viewingYear.value) emit('select', viewingYear.value, month)
 }
 
+const clearArchiveSelection = () => {
+  isMonthsExpanded.value = false
+  emit('clear')
+}
+
+const toggleMonthExpansion = () => {
+  isMonthsExpanded.value = !isMonthsExpanded.value
+}
+
 const handleOutsidePointerDown = (event: PointerEvent) => {
   if (!yearSelectRoot.value?.contains(event.target as Node)) closeYearMenu()
 }
 
-onMounted(() => document.addEventListener('pointerdown', handleOutsidePointerDown))
-onBeforeUnmount(() => document.removeEventListener('pointerdown', handleOutsidePointerDown))
+const handleCompactViewportChange = (event: MediaQueryListEvent) => {
+  isCompactViewport.value = event.matches
+}
+
+onMounted(() => {
+  document.addEventListener('pointerdown', handleOutsidePointerDown)
+  compactViewportQuery = window.matchMedia('(max-width: 575px)')
+  isCompactViewport.value = compactViewportQuery.matches
+  compactViewportQuery.addEventListener('change', handleCompactViewportChange)
+})
+
+onBeforeUnmount(() => {
+  document.removeEventListener('pointerdown', handleOutsidePointerDown)
+  compactViewportQuery?.removeEventListener('change', handleCompactViewportChange)
+})
 
 watch(
   [() => props.archives, () => props.activeYear],
@@ -177,6 +220,25 @@ watch(
   },
   { immediate: true, deep: true }
 )
+
+watch(
+  [() => props.activeYear, () => props.activeMonth, viewingYear, collapsedMonthLimit, timelineMonths],
+  () => {
+    if (
+      props.activeYear !== viewingYear.value ||
+      !props.activeMonth ||
+      isMonthsExpanded.value
+    ) {
+      return
+    }
+
+    const activeIndex = timelineMonths.value.findIndex(
+      (item) => item.month === props.activeMonth
+    )
+    if (activeIndex >= collapsedMonthLimit.value) isMonthsExpanded.value = true
+  },
+  { immediate: true }
+)
 </script>
 
 <template>
@@ -190,7 +252,7 @@ watch(
         type="button"
         class="news-archives-latest"
         :class="{ active: !activeYear || !activeMonth }"
-        @click="emit('clear')"
+        @click="clearArchiveSelection"
       >
         <i class="ti-reload" aria-hidden="true"></i>
         <span>Mới nhất</span>
@@ -271,34 +333,53 @@ watch(
         </button>
       </div>
 
-      <div class="news-archives-calendar-grid">
+      <div
+        v-if="timelineMonths.length"
+        id="news-archives-month-list"
+        class="news-archives-timeline"
+      >
         <button
-          v-for="item in months"
+          v-for="item in visibleTimelineMonths"
           :key="item.month"
           type="button"
-          class="news-archives-calendar-cell"
+          class="news-archives-timeline-item"
           :class="{
-            'is-empty': item.count <= 0,
             'is-active': activeYear === viewingYear && activeMonth === item.month
           }"
-          :disabled="item.count <= 0"
           :aria-pressed="activeYear === viewingYear && activeMonth === item.month"
           :aria-label="`${item.fullLabel} ${viewingYear}, ${item.count} bài viết`"
           :title="`${item.fullLabel} ${viewingYear}: ${item.count} bài viết`"
           @click="selectMonth(item.month)"
         >
-          <span class="news-archives-calendar-month">
-            <span class="news-archives-calendar-month-full">{{ item.shortLabel }}</span>
-            <span class="news-archives-calendar-month-compact" aria-hidden="true">
-              T{{ item.month }}
+          <span class="news-archives-timeline-month">{{ item.shortLabel }}</span>
+          <span class="news-archives-timeline-meta">
+            <span class="news-archives-timeline-count">
+              <strong>{{ item.count }}</strong>
+              <small>bài</small>
             </span>
-          </span>
-          <span class="news-archives-calendar-count">
-            <strong>{{ item.count }}</strong>
-            <small>bài</small>
+            <i class="ti-arrow-right" aria-hidden="true"></i>
           </span>
         </button>
       </div>
+
+      <p v-else class="news-archives-empty">Chưa có bài viết trong năm này.</p>
+
+      <button
+        v-if="timelineMonths.length > collapsedMonthLimit"
+        type="button"
+        class="news-archives-timeline-toggle"
+        aria-controls="news-archives-month-list"
+        :aria-expanded="isMonthsExpanded"
+        @click="toggleMonthExpansion"
+      >
+        <span>
+          {{ isMonthsExpanded ? 'Thu gọn' : `Xem thêm ${hiddenMonthCount} tháng` }}
+        </span>
+        <i
+          :class="isMonthsExpanded ? 'ti-minus' : 'ti-plus'"
+          aria-hidden="true"
+        ></i>
+      </button>
     </template>
 
     <p v-else class="news-archives-empty">Chưa có dữ liệu lưu trữ.</p>
