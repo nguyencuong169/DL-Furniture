@@ -1,16 +1,31 @@
 <script setup lang="ts">
 import { bookingUseStore } from '../stores/bookingstore'
 import image1 from '../assets/img/1.jpg'
+import { computed } from 'vue'
+import { resolveNewsImage } from '../utils/news'
 
 const bookingStore = bookingUseStore()
+
+const props = withDefaults(
+  defineProps<{
+    backgroundImage?: string
+  }>(),
+  {
+    backgroundImage: image1
+  }
+)
+
+const bannerStyle = computed(() => ({
+  backgroundImage: `url(${props.backgroundImage || image1})`
+}))
 </script>
 
 <template>
   <section class="testimonials" v-show="bookingStore.isDisplay">
     <div
       class="background bg-img bg-fixed section-padding pb-0"
-      :data-background="image1"
       data-overlay-dark="2"
+      :style="bannerStyle"
     >
       <div class="container">
         <div class="row">

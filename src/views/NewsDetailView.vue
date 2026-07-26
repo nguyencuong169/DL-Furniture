@@ -553,7 +553,7 @@ watch(
       </section>
 
       <NewsComponent v-if="related.length" :items="related" title="Tin tức liên quan" />
-      <BookingFormComponent />
+      <BookingFormComponent :background-image="resolveNewsImage(item.newsImage, item.id)" />
     </template>
   </main>
 </template>
