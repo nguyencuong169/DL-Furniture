@@ -1288,7 +1288,7 @@ onBeforeUnmount(() => {
 .gallery-section-actions p {
   margin: 0;
   color: #888;
-  font-size: 12px;
+  /* font-size: 12px; */
 }
 
 .gallery-section-actions > div {

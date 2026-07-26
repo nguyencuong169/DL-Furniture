@@ -14,6 +14,8 @@ import {
 import { getNewsDate, handleNewsImageError, resolveNewsImage, splitNewsTags } from '../utils/news'
 import type { ArchiveDto, CategoryDto } from '../api/newsSidebarClient'
 import NewsArchives from '../components/NewsArchives.vue'
+import NewsComponent from '../template/10_NewsComponent.vue'
+import BookingFormComponent from '../template/11_BookingFormComponent.vue'
 
 const ROUTE_NAME_NEWS = 'news'
 const DEFAULT_RELATED_COUNT = 4
@@ -27,7 +29,6 @@ const archives = ref<ArchiveDto[]>([])
 const loading = ref(true)
 const errorMessage = ref('')
 const readProgress = ref(0)
-const showBackToTop = ref(false)
 
 let requestId = 0
 let scrollListenerAttached = false
@@ -205,7 +206,6 @@ const handleScroll = () => {
   if (docHeight > 0) {
     readProgress.value = Math.min(Math.round((scrollTop / docHeight) * 100), 100)
   }
-  showBackToTop.value = scrollTop > 500
 }
 
 const scrollToTop = () => {
@@ -251,7 +251,6 @@ watch(
   (value) => {
     const id = Number(value)
     readProgress.value = 0
-    showBackToTop.value = false
     if (Number.isInteger(id) && id > 0) loadArticle(id)
     else {
       loading.value = false
@@ -541,21 +540,10 @@ watch(
           </div>
         </div>
       </section>
-    </template>
 
-    <!-- ───── Back to Top Button ───── -->
-    <Transition name="nd-backtop">
-      <button
-        v-if="showBackToTop"
-        type="button"
-        class="nd-back-to-top"
-        aria-label="Lên đầu trang"
-        title="Lên đầu trang"
-        @click="scrollToTop"
-      >
-        <i class="ti-angle-up"></i>
-      </button>
-    </Transition>
+      <NewsComponent />
+      <BookingFormComponent />
+    </template>
   </main>
 </template>
 
