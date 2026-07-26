@@ -1,11 +1,14 @@
-- [x] Review current Archives section in `src/views/NewsView.vue` and identify code paths to remove
-- [x] Implement new Archives UI: horizontal year tabs (scrollable) + month list 1..12 with counts
-- [x] Wire interactions:
-  - [x] Click year => set selected year and fetch immediately (month=1)
-  - [x] Click month => fetch by that year/month and reset pagination
-- [x] Remove old archives modes (heatmap + theo năm + calendar) and related state
-- [ ] Sanity check: pagination reflects API totalPages for selected month
-- [x] Run front-end typecheck/build (if scripts exist) or start dev server
+# TODO: Polish NewsDetailView.vue
 
+## Steps
 
-
+- [x] Step 1: Explore repo and understand current implementation
+- [x] Step 2: Create comprehensive plan and get user approval
+- [x] Step 3: Enhanced Article Header / Metadata Section (author, view count, dates)
+- [x] Step 4: Rich Content Rendering with `v-html` and comprehensive article styles
+- [x] Step 5: Article Footer Section (tags, category, share buttons, navigation)
+- [x] Step 6: Enhanced Author / Source Box
+- [x] Step 7: Related Articles Redesign (grid layout)
+- [x] Step 8: Reading Progress Bar & Back-to-Top Button
+- [x] Step 9: Improved Loading & Error States (skeleton, retry)
+- [x] Step 10: Final review and testing
