@@ -339,22 +339,8 @@ FROM (VALUES
 ) AS source(name, slug, display_order)
 WHERE NOT EXISTS (SELECT 1 FROM news_categories WHERE slug = source.slug);
 
-INSERT INTO news (news_id, title, summary, content, news_image, news_category_id, tags, hidden, del_flag, created_user, created_date, updated_user, updated_date)
-VALUES 
-  (N'news-001', N'Showroom nội thất gỗ óc chó đẳng cấp tại Hà Nội', 
-   N'Không gian showroom hiện đại, phong cách và đẳng cấp dành cho khách hàng tìm kiếm giải pháp nội thất cao cấp.', 
-   N'D&L Furniture mang đến showroom nội thất gỗ óc chó đẳng cấp với phong cách hiện đại, bền đẹp và tối ưu công năng.', 
-   N'/src/assets/img/news/1.jpg', (SELECT id FROM news_categories WHERE slug = N'khai-truong'), N'Showroom,Gỗ óc chó', 0, 0, N'admin', '2024-12-02', N'admin', '2024-12-02'),
-  
-  (N'news-002', N'Mẫu thiết kế phòng ngủ đẹp như mơ', 
-   N'Phong cách hiện đại, tối ưu công năng cho không gian ngủ thư giãn và sang trọng.', 
-   N'Mỗi chi tiết trong phòng ngủ được thiết kế để mang lại cảm giác thư giãn và đẳng cấp.', 
-   N'/src/assets/img/news/2.jpg', (SELECT id FROM news_categories WHERE slug = N'chia-se-chuyen-mon'), N'Phòng ngủ,Thiết kế', 0, 0, N'admin', '2024-12-04', N'admin', '2024-12-04'),
-  
-  (N'news-003', N'Hotel Bathroom Collections', 
-   N'Thiết kế phòng tắm hiện đại, tinh tế và bền bỉ theo thời gian.', 
-   N'Những bộ sưu tập phòng tắm cao cấp giúp nâng tầm trải nghiệm nghỉ dưỡng tại gia.', 
-   N'/src/assets/img/news/3.jpg', (SELECT id FROM news_categories WHERE slug = N'chia-se-chuyen-mon'), N'Phòng tắm,Thiết kế', 0, 0, N'admin', '2024-12-06', N'admin', '2024-12-06');
+-- Bộ 30 bài viết nội thất gỗ óc chó được quản lý trong `database_news.sql`.
+-- Chạy script đó sau khi tạo schema để có dữ liệu tin tức nhất quán và có thể chạy lại an toàn.
 
 PRINT 'Seed data inserted successfully.';
 GO

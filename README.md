@@ -58,3 +58,14 @@ The gallery page at `/thu-vien` reads from `GET /api/gallery` and falls back to 
 For an existing SQL Server database, run `database-gallery-migration.sql` once. It creates and seeds `gallery_categories` and `gallery_items` and is safe to run again. For a fresh database, the same tables and data are included in `database-schema-mssql.sql` and `database-seed-mssql.sql`.
 
 Supported gallery query parameters are `type=image|video`, `category=<slug>`, `search=<text>`, `page`, and `pageSize`.
+
+## News data setup
+
+The `/tin-tuc` page uses the curated walnut-interior dataset in `database_news.sql`.
+Run the script after creating the SQL Server schema and base seed. It safely replaces
+only project-owned seed rows (`GEN-*`, `WALNUT-*`, `news-001`, and `news-002`) and
+inserts 30 articles across the five news categories.
+
+```powershell
+sqlcmd -S <server> -d <database> -U <user> -P <password> -f 65001 -b -i database_news.sql
+```

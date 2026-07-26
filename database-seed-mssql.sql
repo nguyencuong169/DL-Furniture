@@ -35,12 +35,8 @@ VALUES (1, N'/src/assets/img/rooms/1.jpg', N'Giường G01', 1),
        (3, N'/src/assets/img/rooms/3.jpg', N'Giường G03', 1),
        (4, N'/src/assets/img/rooms/7.png', N'Tủ T01', 1);
 
--- News
-SET IDENTITY_INSERT news ON;
-INSERT INTO news (id, news_id, title, summary, content, news_image, news_category_id, tags, hidden, del_flag, created_user, created_date, updated_user, updated_date)
-VALUES (1, N'news-001', N'Showroom nội thất gỗ óc chó đẳng cấp tại Hà Nội', N'Showroom mới của D&L Furniture tại Hà Nội', N'Nội dung bài viết về showroom...', N'/src/assets/img/news/1.jpg', 2, N'Showroom,Gỗ óc chó', 0, 0, N'admin', GETDATE(), N'admin', GETDATE()),
-       (2, N'news-002', N'Mẫu thiết kế phòng ngủ đẹp như mơ', N'Ý tưởng thiết kế phòng ngủ', N'Nội dung bài viết về phòng ngủ...', N'/src/assets/img/news/2.jpg', 4, N'Phòng ngủ,Thiết kế', 0, 0, N'editor', GETDATE(), N'editor', GETDATE());
-SET IDENTITY_INSERT news OFF;
+-- Curated news content is maintained in `database_news.sql`.
+-- Run that idempotent script after this base seed to insert the 30 walnut-interior articles.
 
 
 -- Projects
