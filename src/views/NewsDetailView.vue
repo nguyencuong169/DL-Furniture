@@ -18,7 +18,7 @@ import NewsComponent from '../template/10_NewsComponent.vue'
 import BookingFormComponent from '../template/11_BookingFormComponent.vue'
 
 const ROUTE_NAME_NEWS = 'news'
-const DEFAULT_RELATED_COUNT = 4
+const DEFAULT_RELATED_COUNT = 6
 
 const route = useRoute()
 const router = useRouter()
@@ -29,6 +29,7 @@ const archives = ref<ArchiveDto[]>([])
 const loading = ref(true)
 const errorMessage = ref('')
 const readProgress = ref(0)
+const showBackToTop = ref(false)
 
 let requestId = 0
 let scrollListenerAttached = false
@@ -116,6 +117,13 @@ const shareUrl = computed(() => {
 
 const articleContent = computed(() => {
   return item.value?.content || item.value?.summary || ''
+})
+
+const categoriesTotal = computed(() => {
+  return categories.value.reduce(
+    (total, category) => total + ((category as any).publishedCount ?? 0),
+    0
+  )
 })
 
 // ───── Load article ─────
@@ -206,6 +214,7 @@ const handleScroll = () => {
   if (docHeight > 0) {
     readProgress.value = Math.min(Math.round((scrollTop / docHeight) * 100), 100)
   }
+  showBackToTop.value = scrollTop > 500
 }
 
 const scrollToTop = () => {
@@ -476,38 +485,40 @@ watch(
             <!-- ─── Right Column: Sidebar ─── -->
             <div class="col-md-4">
               <div class="news2-sidebar row">
-                <!-- Related Articles -->
+                <!-- Categories -->
                 <div class="col-md-12">
-                  <div class="widget nd-related-widget">
+                  <div class="widget news-category-widget">
                     <div class="widget-title">
-                      <h6>Bài viết liên quan</h6>
+                      <h6>Chuyên mục</h6>
+                      <p v-if="categories.length">{{ categoriesTotal }} bài viết</p>
                     </div>
-                    <ul v-if="related.length" class="recent nd-related-list">
-                      <li v-for="relatedItem in related" :key="relatedItem.id">
-                        <div class="thum">
-                          <img
-                            :src="resolveNewsImage(relatedItem.newsImage, relatedItem.id)"
-                            :alt="relatedItem.titles || 'Tin tức liên quan'"
-                            loading="lazy"
-                            @error="handleNewsImageError($event, relatedItem.id)"
-                          />
-                        </div>
-                        <RouterLink
-                          class="nd-related-link"
-                          :to="{ name: 'news-detail', params: { id: relatedItem.id } }"
-                        >
-                          <span class="nd-related-title">{{ relatedItem.titles }}</span>
-                          <span class="nd-related-date">
-                            {{
-                              getNewsDate(relatedItem)
-                                ? dayjs(getNewsDate(relatedItem)).locale('vi').format('DD/MM/YYYY')
-                                : ''
-                            }}
+                    <ul class="news-category-list">
+                      <li>
+                        <button type="button" class="news-category-link" @click="goToCategoryNews">
+                          <span class="news-category-name">
+                            <i class="ti-layout-grid2" aria-hidden="true"></i>
+                            Tất cả bài viết
                           </span>
-                        </RouterLink>
+                        </button>
+                      </li>
+                      <li v-for="category in categories" :key="category.id">
+                        <button
+                          type="button"
+                          class="news-category-link"
+                          :class="{ active: item?.newsCategoryId === category.id }"
+                          :aria-pressed="item?.newsCategoryId === category.id"
+                          @click="goToCategoryNews"
+                        >
+                          <span class="news-category-name">
+                            <i class="ti-angle-right" aria-hidden="true"></i>
+                            {{ category.name }}
+                          </span>
+                          <span class="news-category-count">{{
+                            (category as any).publishedCount ?? 0
+                          }}</span>
+                        </button>
                       </li>
                     </ul>
-                    <p v-else class="nd-related-empty">Chưa có bài viết liên quan.</p>
                   </div>
                 </div>
 
@@ -541,7 +552,7 @@ watch(
         </div>
       </section>
 
-      <NewsComponent />
+      <NewsComponent v-if="related.length" :items="related" title="Tin tức liên quan" />
       <BookingFormComponent />
     </template>
   </main>
@@ -1056,16 +1067,6 @@ watch(
   gap: 12px;
 }
 
-.nd-tags-label {
-  flex: 0 0 auto;
-  padding-top: 3px;
-  color: #5a5248;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
 .nd-category-btn {
   display: inline-flex;
   align-items: center;
@@ -1215,79 +1216,6 @@ watch(
   gap: 12px;
   margin-top: 30px;
   padding-top: 16px;
-}
-
-/* ─── Sidebar Related ─── */
-.nd-related-widget .widget-title h6 {
-  margin-bottom: 0;
-}
-
-.nd-related-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.nd-related-list li {
-  display: flex;
-  gap: 14px;
-  padding: 12px 0;
-  border-bottom: 1px solid #e8dece;
-}
-
-.nd-related-list li:last-child {
-  border-bottom: 0;
-}
-
-.nd-related-list .thum {
-  flex: 0 0 80px;
-  width: 80px;
-  height: 60px;
-  background: #eeeae4;
-}
-
-.nd-related-list .thum img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.nd-related-link {
-  display: flex;
-  min-width: 0;
-  flex-direction: column;
-  gap: 4px;
-  text-decoration: none;
-}
-
-.nd-related-title {
-  display: -webkit-box;
-  overflow: hidden;
-  color: #222;
-  font-family: 'Gilda Display', serif;
-  font-size: 15px;
-  line-height: 1.35;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  transition: color 0.2s ease;
-}
-
-.nd-related-link:hover .nd-related-title {
-  color: #aa8453;
-}
-
-.nd-related-date {
-  color: #8a8177;
-  font-family: 'Barlow', sans-serif;
-  font-size: 12px;
-}
-
-.nd-related-empty {
-  margin: 0;
-  padding: 14px 0;
-  color: #8a8177;
-  font-size: 14px;
 }
 
 .nd-sidebar-tags {

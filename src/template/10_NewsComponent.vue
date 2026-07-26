@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import dayjs from 'dayjs'
 import { newsApi } from '../api/newsClient'
 import type { News } from '../generated/api-client/models'
@@ -17,6 +17,19 @@ interface OwlJQuery {
     owlCarousel?: unknown
   }
 }
+
+const props = withDefaults(
+  defineProps<{
+    title?: string
+    subtitle?: string
+    items?: News[]
+  }>(),
+  {
+    title: 'Tin tức nội thất',
+    subtitle: 'D&L Furniture News',
+    items: undefined
+  }
+)
 
 const state = reactive({
   items: [] as News[]
@@ -42,8 +55,6 @@ const destroyCarousel = () => {
 const initializeCarousel = async () => {
   await nextTick()
 
-  // The legacy scripts load after the Vue entry module. Wait briefly for Owl
-  // instead of letting the homepage fall back to six full-width stacked cards.
   let jquery = getJQuery()
   for (let attempt = 0; attempt < 10 && !jquery?.fn?.owlCarousel; attempt += 1) {
     await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()))
@@ -88,17 +99,36 @@ const initializeCarousel = async () => {
   })
 }
 
-onMounted(async () => {
+const loadItems = async () => {
+  if (props.items) {
+    state.items = props.items.slice(0, 6)
+    await initializeCarousel()
+    return
+  }
+
   try {
     const res = await newsApi.newsGetAll()
-
     if (!isComponentActive) return
-
     state.items = (res.data ?? []).slice(0, 6) as News[]
     await initializeCarousel()
   } catch (error) {
-    console.error('Failed to load homepage news', error)
+    console.error('Failed to load news', error)
   }
+}
+
+watch(
+  () => props.items,
+  () => {
+    if (props.items) {
+      destroyCarousel()
+      void loadItems()
+    }
+  },
+  { deep: true }
+)
+
+onMounted(async () => {
+  await loadItems()
 })
 
 onBeforeUnmount(() => {
@@ -112,8 +142,12 @@ onBeforeUnmount(() => {
     <div class="container">
       <div class="row">
         <div class="col-md-12">
-          <div class="section-subtitle"><span>D&L Furniture News</span></div>
-          <div class="section-title"><span>Tin tức nội thất</span></div>
+          <div class="section-subtitle">
+            <span>{{ subtitle ? subtitle : 'D&L Furniture News' }}</span>
+          </div>
+          <div class="section-title">
+            <span>{{ title }}</span>
+          </div>
         </div>
       </div>
       <div class="row">
