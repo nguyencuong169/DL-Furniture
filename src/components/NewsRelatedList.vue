@@ -41,3 +41,104 @@ defineProps<{
     </ul>
   </div>
 </template>
+
+<style scoped>
+.visually-hidden {
+  position: absolute !important;
+  overflow: hidden;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  margin: -1px !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+}
+
+.news-related-link {
+  display: flex !important;
+  align-items: center;
+  gap: 15px;
+  margin-left: 0 !important;
+}
+
+.recent .thum {
+  display: block;
+  flex: 0 0 90px;
+  float: none;
+  width: 90px;
+  height: 68px;
+  background: #eeeae4;
+}
+
+.recent .thum img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+
+.news-related-link:hover .thum img {
+  transform: scale(1.04);
+}
+
+.news-related-title {
+  display: -webkit-box;
+  min-width: 0;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.news-related-loading {
+  display: flex !important;
+  align-items: center;
+  gap: 15px;
+}
+
+.news-related-loading-image {
+  flex: 0 0 90px;
+  width: 90px;
+  height: 68px;
+}
+
+.news-related-loading-lines {
+  display: grid;
+  flex: 1;
+  gap: 10px;
+}
+
+.news-related-loading-image,
+.news-related-loading-lines i {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: #eeeae4;
+}
+
+.news-related-loading-image::after,
+.news-related-loading-lines i::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72), transparent);
+  transform: translateX(-100%);
+  animation: news-related-shimmer 1.35s infinite;
+}
+
+.news-related-loading-lines i {
+  width: 100%;
+  height: 11px;
+}
+
+.news-related-loading-lines i:last-child {
+  width: 70%;
+}
+
+@keyframes news-related-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+</style>

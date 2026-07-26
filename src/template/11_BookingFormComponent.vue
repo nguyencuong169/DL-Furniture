@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { bookingUseStore } from '../stores/bookingstore'
+import image1 from '../assets/img/1.jpg'
 
 const bookingStore = bookingUseStore()
 </script>
@@ -8,7 +9,7 @@ const bookingStore = bookingUseStore()
   <section class="testimonials" v-show="bookingStore.isDisplay">
     <div
       class="background bg-img bg-fixed section-padding pb-0"
-      data-background="https://dl-furniture.netlify.app/assets/7-jvnrfz_x.jpg"
+      :data-background="image1"
       data-overlay-dark="2"
     >
       <div class="container">

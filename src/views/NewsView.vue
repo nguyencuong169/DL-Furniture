@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 import 'dayjs/locale/vi'
@@ -17,6 +17,12 @@ import type { CategoryDto } from '../api/newsSidebarClient'
 import { getNewsDate, handleNewsImageError, resolveNewsImage } from '../utils/news'
 import NewsArchives from '../components/NewsArchives.vue'
 import NewsRelatedList from '../components/NewsRelatedList.vue'
+import BookingFormComponent from '../template/11_BookingFormComponent.vue'
+import ClientsComponent from '../template/12_ClientsComponent.vue'
+
+const NEWS_VIEW_MODE_STORAGE_KEY = 'news-view-mode'
+
+type NewsViewMode = 'grid' | 'list'
 
 const route = useRoute()
 const router = useRouter()
@@ -56,13 +62,18 @@ const loadingCategories = ref(true)
 const categoryLoadError = ref(false)
 const sidebarLoadError = ref(false)
 const loadError = ref('')
-const mobileFiltersOpen = ref(false)
-const isMobileLayout = ref(false)
-const mobileFilterToggle = ref<HTMLButtonElement | null>(null)
-const mobileFilterClose = ref<HTMLButtonElement | null>(null)
-const mobileFilterMedia =
-  typeof window === 'undefined' ? null : window.matchMedia('(max-width: 991px)')
-let originalBodyOverflow = ''
+
+const readViewModePreference = (): NewsViewMode => {
+  if (typeof window === 'undefined') return 'grid'
+
+  try {
+    return window.localStorage.getItem(NEWS_VIEW_MODE_STORAGE_KEY) === 'list' ? 'list' : 'grid'
+  } catch {
+    return 'grid'
+  }
+}
+
+const viewMode = ref<NewsViewMode>(readViewModePreference())
 let routeSyncReady = false
 let pageRequestId = 0
 let relatedRequestId = 0
@@ -216,7 +227,11 @@ const hasActiveFilters = computed(() => {
   return archiveFilter.enabled || Boolean(uiState.categoryId || uiState.tag || uiState.search)
 })
 
-const activeFilterCount = computed(() => (hasActiveFilters.value ? 1 : 0))
+const resultLabel = computed(() => {
+  if (loading.value && !state.items.length) return 'Đang tải bài viết...'
+  if (!state.totalCount) return 'Chưa có bài viết phù hợp'
+  return `${state.totalCount} bài viết`
+})
 
 const activeFilterLabel = computed(() => {
   if (uiState.search) return `Kết quả tìm kiếm: “${uiState.search}”`
@@ -249,38 +264,19 @@ const resetFiltersWithoutLoading = () => {
 
 const queryValue = (value: unknown) => (Array.isArray(value) ? value[0] : value)
 
-const restoreBodyScroll = () => {
-  if (typeof document === 'undefined') return
-  document.body.style.overflow = originalBodyOverflow
-}
+const setViewMode = (mode: NewsViewMode) => {
+  if (viewMode.value === mode) return
+  viewMode.value = mode
 
-const openMobileFilters = async () => {
-  mobileFiltersOpen.value = true
-  await nextTick()
-  mobileFilterClose.value?.focus()
-}
-
-const closeMobileFilters = async (returnFocus = false) => {
-  mobileFiltersOpen.value = false
-  if (returnFocus) {
-    await nextTick()
-    mobileFilterToggle.value?.focus()
+  try {
+    window.localStorage.setItem(NEWS_VIEW_MODE_STORAGE_KEY, mode)
+  } catch {
+    // Keep the selected view for the current page when local storage is unavailable.
   }
 }
 
-const handleMobileFilterMediaChange = (event: MediaQueryListEvent) => {
-  isMobileLayout.value = event.matches
-  if (!event.matches) void closeMobileFilters()
-}
-
-const handleNewsKeydown = (event: KeyboardEvent) => {
-  if (event.key === 'Escape' && mobileFiltersOpen.value) void closeMobileFilters(true)
-}
-
 const scrollToResults = () => {
-  document
-    .querySelector('#news-results')
-    ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  document.querySelector('#news-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
 
 const applyRouteFilters = async () => {
@@ -328,7 +324,6 @@ const applyRouteFilters = async () => {
 }
 
 const updateRouteQuery = async (query: Record<string, string | number> = {}) => {
-  await closeMobileFilters()
   await router.push({ name: 'news', query })
 }
 
@@ -384,6 +379,14 @@ const goToPage = async (page: number) => {
   await router.push({ name: 'news', query })
 }
 
+const paginationHref = (page: number) => {
+  const safePage = Math.min(Math.max(page, 1), Math.max(state.totalPages, 1))
+  const query = { ...route.query } as Record<string, string | number>
+  if (safePage > 1) query.page = safePage
+  else delete query.page
+  return router.resolve({ name: 'news', query }).href
+}
+
 watch(
   () => route.fullPath,
   async () => {
@@ -394,72 +397,78 @@ watch(
   }
 )
 
-watch(mobileFiltersOpen, async (isOpen) => {
-  if (typeof document === 'undefined') return
-
-  if (isOpen && isMobileLayout.value) {
-    originalBodyOverflow = document.body.style.overflow
-    document.body.style.overflow = 'hidden'
-  } else {
-    restoreBodyScroll()
-  }
-})
-
 onMounted(async () => {
-  isMobileLayout.value = mobileFilterMedia?.matches ?? false
-  mobileFilterMedia?.addEventListener('change', handleMobileFilterMediaChange)
-  window.addEventListener('keydown', handleNewsKeydown)
-
   const sidebarPromise = loadSidebar()
   if (queryValue(route.query.category)) await sidebarPromise
 
   await Promise.all([sidebarPromise, applyRouteFilters()])
   routeSyncReady = true
 })
-
-onBeforeUnmount(() => {
-  mobileFilterMedia?.removeEventListener('change', handleMobileFilterMediaChange)
-  window.removeEventListener('keydown', handleNewsKeydown)
-  restoreBodyScroll()
-})
 </script>
 
 <template>
-  <main>
+  <main class="news-page">
     <!-- Header Banner -->
-    <div
-      class="banner-header section-padding valign bg-img bg-fixed"
+    <header
+      class="banner-header news-hero section-padding valign bg-img bg-fixed"
       data-overlay-dark="4"
       :style="{ backgroundImage: `url(${newsBanner})` }"
     >
-      <div class="container">
+      <div class="container news-hero-inner">
         <div class="row">
-          <div class="col-md-12 text-left caption mt-90">
+          <div class="col-md-12 text-left caption news-hero-copy">
             <h5>D&amp;L Furniture</h5>
             <h1>Tin tức nội thất</h1>
           </div>
         </div>
+
+        <div class="news-hero-toolbar">
+          <div class="news-hero-meta" aria-live="polite">
+            <span>{{ resultLabel }}</span>
+            <strong v-if="hasActiveFilters">{{ activeFilterLabel }}</strong>
+            <span v-else>Góc nhìn, câu chuyện và cảm hứng không gian sống</span>
+          </div>
+
+          <div class="news-hero-actions">
+            <div class="news-view-switcher" role="group" aria-label="Chế độ hiển thị bài viết">
+              <button
+                type="button"
+                :class="{ active: viewMode === 'grid' }"
+                :aria-pressed="viewMode === 'grid'"
+                title="Hiển thị dạng lưới"
+                @click="setViewMode('grid')"
+              >
+                <i class="ti-layout-grid3-alt" aria-hidden="true"></i>
+                <span class="visually-hidden">Dạng lưới</span>
+              </button>
+              <button
+                type="button"
+                :class="{ active: viewMode === 'list' }"
+                :aria-pressed="viewMode === 'list'"
+                title="Hiển thị dạng danh sách"
+                @click="setViewMode('list')"
+              >
+                <i class="ti-view-list-alt" aria-hidden="true"></i>
+                <span class="visually-hidden">Dạng danh sách</span>
+              </button>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
+    </header>
 
     <!-- News 2 -->
-    <section id="news-results" class="news2 section-padding">
+    <section
+      id="news-results"
+      :class="
+        viewMode === 'grid'
+          ? 'news news-grid-view section-padding bg-blck'
+          : 'news2 news-list-view section-padding'
+      "
+    >
       <div class="container">
         <div class="row">
-          <div class="col-md-8 news-content-column">
-            <button
-              ref="mobileFilterToggle"
-              type="button"
-              class="news-filter-toggle-mobile"
-              aria-controls="news-filter-panel"
-              :aria-expanded="mobileFiltersOpen"
-              @click="openMobileFilters"
-            >
-              <i class="ti-filter" aria-hidden="true"></i>
-              <span>Tìm kiếm &amp; bộ lọc</span>
-              <strong v-if="activeFilterCount">{{ activeFilterCount }}</strong>
-            </button>
-
+          <div class="news-content-column" :class="viewMode === 'grid' ? 'col-md-12' : 'col-md-8'">
             <div v-if="hasActiveFilters" class="news-archives-filter-bar">
               <span class="news-archives-filter-label">
                 <i class="ti-filter" aria-hidden="true"></i>
@@ -472,7 +481,10 @@ onBeforeUnmount(() => {
 
             <div
               class="news-results-shell"
-              :class="{ 'is-refreshing': loading && state.items.length }"
+              :class="[
+                `news-results-shell--${viewMode}`,
+                { 'is-refreshing': loading && state.items.length }
+              ]"
               :aria-busy="loading"
             >
               <div v-if="loading && state.items.length" class="news-refresh-indicator">
@@ -489,12 +501,18 @@ onBeforeUnmount(() => {
                 </button>
               </div>
 
-              <div v-else-if="loading && !state.items.length" class="news-skeleton-list">
-                <article v-for="placeholder in 3" :key="placeholder" class="news-card-skeleton">
+              <div
+                v-else-if="loading && !state.items.length"
+                class="news-skeleton-list"
+                :class="`news-skeleton-list--${viewMode}`"
+              >
+                <article
+                  v-for="placeholder in viewMode === 'grid' ? 6 : 3"
+                  :key="placeholder"
+                  class="news-card-skeleton"
+                >
                   <div class="news-skeleton-image"></div>
-                  <div class="news-skeleton-copy">
-                    <span></span><strong></strong><i></i><i></i>
-                  </div>
+                  <div class="news-skeleton-copy"><span></span><strong></strong><i></i><i></i></div>
                 </article>
               </div>
 
@@ -512,140 +530,152 @@ onBeforeUnmount(() => {
                 </button>
               </div>
 
-              <div v-else class="row news-card-list">
-                <div
-                  v-for="(item, index) in state.items"
-                  :key="item.id"
-                  class="col-md-12"
-                >
-                  <article class="item">
-                    <div class="post-img">
-                      <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
-                        <img
-                          :src="resolveNewsImage(item.newsImage, item.id)"
-                          :alt="item.titles || 'Tin tức'"
-                          :loading="index === 0 ? 'eager' : 'lazy'"
-                          decoding="async"
-                          @error="handleNewsImageError($event, item.id)"
-                        />
-                      </RouterLink>
-                      <div class="date">
-                        <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
-                          <span>{{ formatNewsDate(item, 'MMM') }}</span>
-                          <i>{{ formatNewsDate(item, 'DD') }}</i>
-                        </RouterLink>
-                      </div>
+              <template v-else>
+                <div v-if="viewMode === 'grid'" class="news news-grid-view">
+                  <div class="row news-card-list news-card-list--grid">
+                    <div
+                      v-for="(item, index) in state.items"
+                      :key="item.id"
+                      class="col-md-4 mb-30 news-card-column"
+                    >
+                      <article class="item">
+                        <div class="position-re o-hidden">
+                          <RouterLink
+                            class="news-grid-image-link"
+                            :to="{ name: 'news-detail', params: { id: item.id } }"
+                          >
+                            <img
+                              :src="resolveNewsImage(item.newsImage, item.id)"
+                              :alt="item.titles || 'Tin tức'"
+                              :loading="index === 0 ? 'eager' : 'lazy'"
+                              decoding="async"
+                              @error="handleNewsImageError($event, item.id)"
+                            />
+                          </RouterLink>
+                          <div class="date">
+                            <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                              <span>{{ formatNewsDate(item, 'MMM') }}</span>
+                              <i>{{ formatNewsDate(item, 'DD') }}</i>
+                            </RouterLink>
+                          </div>
+                        </div>
+                        <div class="con">
+                          <span class="category">
+                            <button
+                              type="button"
+                              class="news-grid-category"
+                              @click="item.newsCategoryId && selectCategory(item.newsCategoryId)"
+                            >
+                              {{ categoryName(item) }}
+                            </button>
+                          </span>
+                          <h5>
+                            <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                              {{ item.titles }}
+                            </RouterLink>
+                          </h5>
+                        </div>
+                      </article>
                     </div>
-                    <div class="post-cont">
-                      <button
-                        type="button"
-                        class="news-card-category"
-                        @click="item.newsCategoryId && selectCategory(item.newsCategoryId)"
-                      >
-                        <span class="tag">{{ categoryName(item) }}</span>
-                      </button>
-                      <h5>
+                  </div>
+                </div>
+
+                <div v-else class="row">
+                  <div
+                    v-for="(item, index) in state.items"
+                    :key="item.id"
+                    class="col-md-12 news-card-column"
+                  >
+                    <article class="item">
+                      <div class="post-img">
                         <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
-                          {{ item.titles }}
+                          <img
+                            :src="resolveNewsImage(item.newsImage, item.id)"
+                            :alt="item.titles || 'Tin tức'"
+                            :loading="index === 0 ? 'eager' : 'lazy'"
+                            decoding="async"
+                            @error="handleNewsImageError($event, item.id)"
+                          />
                         </RouterLink>
-                      </h5>
-                      <p>{{ item.summary }}</p>
-                      <div class="butn-dark">
-                        <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
-                          <span>Chi tiết</span>
-                        </RouterLink>
+                        <div class="date">
+                          <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                            <span>{{ formatNewsDate(item, 'MMM') }}</span>
+                            <i>{{ formatNewsDate(item, 'DD') }}</i>
+                          </RouterLink>
+                        </div>
                       </div>
-                    </div>
-                  </article>
+                      <div class="post-cont">
+                        <button
+                          type="button"
+                          class="news-card-category"
+                          @click="item.newsCategoryId && selectCategory(item.newsCategoryId)"
+                        >
+                          <span class="tag">{{ categoryName(item) }}</span>
+                        </button>
+                        <h5>
+                          <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                            {{ item.titles }}
+                          </RouterLink>
+                        </h5>
+                        <p>{{ item.summary }}</p>
+                        <div class="butn-dark">
+                          <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                            <span>Chi tiết</span>
+                          </RouterLink>
+                        </div>
+                      </div>
+                    </article>
+                  </div>
                 </div>
 
                 <div v-if="state.totalPages > 1" class="col-md-12">
                   <nav aria-label="Phân trang tin tức">
                     <ul class="news-pagination-wrap align-center mb-30 mt-30">
                       <li>
-                        <button
-                          type="button"
-                          :disabled="state.page <= 1 || loading"
+                        <a
+                          :href="paginationHref(state.page - 1)"
+                          :class="{ 'is-disabled': state.page <= 1 || loading }"
+                          :aria-disabled="state.page <= 1 || loading"
                           aria-label="Trang trước"
-                          @click="goToPage(state.page - 1)"
+                          @click.prevent="goToPage(state.page - 1)"
                         >
                           <i class="ti-angle-left" aria-hidden="true"></i>
-                        </button>
+                        </a>
                       </li>
 
                       <li v-for="(page, pageIndex) in pageButtons" :key="`${page}-${pageIndex}`">
                         <span v-if="page === '...'" class="news-pagination-ellipsis">...</span>
-                        <button
+                        <a
                           v-else
-                          type="button"
-                          :class="{ active: page === state.page }"
+                          :href="paginationHref(page)"
+                          :class="{ active: page === state.page, 'is-disabled': loading }"
                           :aria-current="page === state.page ? 'page' : undefined"
-                          :disabled="loading"
-                          @click="goToPage(page)"
+                          :aria-disabled="loading"
+                          @click.prevent="goToPage(page)"
                         >
                           {{ page }}
-                        </button>
+                        </a>
                       </li>
 
                       <li>
-                        <button
-                          type="button"
-                          :disabled="state.page >= state.totalPages || loading"
+                        <a
+                          :href="paginationHref(state.page + 1)"
+                          :class="{ 'is-disabled': state.page >= state.totalPages || loading }"
+                          :aria-disabled="state.page >= state.totalPages || loading"
                           aria-label="Trang sau"
-                          @click="goToPage(state.page + 1)"
+                          @click.prevent="goToPage(state.page + 1)"
                         >
                           <i class="ti-angle-right" aria-hidden="true"></i>
-                        </button>
+                        </a>
                       </li>
                     </ul>
                   </nav>
                 </div>
-              </div>
-            </div>
-
-            <div
-              v-if="loadingRelated || sidebar.related.length"
-              class="news2-sidebar news-mobile-related"
-            >
-              <NewsRelatedList :items="sidebar.related" :loading="loadingRelated" />
+              </template>
             </div>
           </div>
 
-          <Transition name="news-filter-backdrop">
-            <button
-              v-if="mobileFiltersOpen && isMobileLayout"
-              type="button"
-              class="news-filter-backdrop"
-              aria-label="Đóng tìm kiếm và bộ lọc"
-              @click="closeMobileFilters(true)"
-            ></button>
-          </Transition>
-
-          <aside
-            id="news-filter-panel"
-            class="col-md-4 news-sidebar-column"
-            :class="{ 'is-open': mobileFiltersOpen }"
-            :role="isMobileLayout ? 'dialog' : undefined"
-            :aria-modal="isMobileLayout ? mobileFiltersOpen : undefined"
-            :aria-hidden="isMobileLayout && !mobileFiltersOpen"
-            aria-labelledby="news-filter-title"
-          >
-            <div class="news-sidebar-mobile-header">
-              <div>
-                <span>Bài viết D&amp;L</span>
-                <h2 id="news-filter-title">Tìm kiếm &amp; bộ lọc</h2>
-              </div>
-              <button
-                ref="mobileFilterClose"
-                type="button"
-                class="news-sidebar-mobile-close"
-                aria-label="Đóng tìm kiếm và bộ lọc"
-                @click="closeMobileFilters(true)"
-              >
-                <i></i><i></i>
-              </button>
-            </div>
-
+          <aside v-if="viewMode === 'list'" class="col-md-4 news-sidebar-column">
             <div class="news2-sidebar row">
               <div class="col-md-12">
                 <div class="widget search">
@@ -799,5 +829,586 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </section>
+
+    <BookingFormComponent v-if="viewMode === 'grid'" />
+    <ClientsComponent v-if="viewMode === 'grid'" />
   </main>
 </template>
+
+<style scoped>
+.visually-hidden {
+  position: absolute !important;
+  overflow: hidden;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  margin: -1px !important;
+  clip: rect(0, 0, 0, 0) !important;
+  white-space: nowrap !important;
+}
+
+#news-results {
+  scroll-margin-top: 90px;
+}
+
+.news-state-action:focus-visible,
+.news-card-category:focus-visible,
+.news-sidebar-retry button:focus-visible,
+.news-category-status button:focus-visible,
+.news2-sidebar ul.tags li button:focus-visible {
+  outline: 2px solid #aa8453;
+  outline-offset: 3px;
+}
+
+.news-archives-filter-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.news-archives-filter-label i {
+  flex: 0 0 auto;
+  color: #aa8453;
+  font-size: 12px;
+}
+
+.news-archives-filter-clear {
+  padding: 4px 0;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+}
+
+.news-results-shell {
+  position: relative;
+  min-height: 220px;
+}
+
+.news-card-list {
+  transition: opacity 0.2s ease;
+}
+
+.news-results-shell.is-refreshing .news-card-list {
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+.news-refresh-indicator {
+  position: absolute;
+  z-index: 3;
+  top: 14px;
+  right: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 8px 24px rgba(34, 34, 34, 0.08);
+  color: #666;
+  font-size: 12px;
+}
+
+.news-refresh-indicator span {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(170, 132, 83, 0.25);
+  border-top-color: #aa8453;
+  border-radius: 50%;
+  animation: news-spin 0.8s linear infinite;
+}
+
+@keyframes news-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.news-state {
+  display: flex;
+  min-height: 420px;
+  padding: 70px 40px;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: #f8f5f0;
+  text-align: center;
+}
+
+.news-state-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  margin-bottom: 22px;
+  border: 1px solid rgba(170, 132, 83, 0.35);
+  border-radius: 50%;
+  color: #aa8453;
+  font-size: 23px;
+}
+
+.news-state h3 {
+  margin-bottom: 10px;
+  color: #222;
+  font-size: 28px;
+}
+
+.news-state p {
+  max-width: 430px;
+  margin-bottom: 24px;
+}
+
+.news-state-action {
+  min-height: 44px;
+  padding: 11px 24px;
+  border: 1px solid #aa8453;
+  background: #aa8453;
+  color: #fff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.news-state-action:hover {
+  background: transparent;
+  color: #aa8453;
+}
+
+.news-skeleton-list {
+  display: grid;
+  gap: 36px;
+}
+
+.news-card-skeleton {
+  overflow: hidden;
+}
+
+.news-skeleton-image,
+.news-skeleton-copy span,
+.news-skeleton-copy strong,
+.news-skeleton-copy i {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: #eeeae4;
+}
+
+.news-skeleton-image::after,
+.news-skeleton-copy span::after,
+.news-skeleton-copy strong::after,
+.news-skeleton-copy i::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.72), transparent);
+  transform: translateX(-100%);
+  animation: news-shimmer 1.35s infinite;
+}
+
+@keyframes news-shimmer {
+  to {
+    transform: translateX(100%);
+  }
+}
+
+.news-skeleton-image {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+
+.news-skeleton-copy {
+  display: grid;
+  gap: 12px;
+  padding: 28px 0 4px;
+}
+
+.news-skeleton-copy span {
+  width: 22%;
+  height: 12px;
+}
+
+.news-skeleton-copy strong {
+  width: 72%;
+  height: 29px;
+}
+
+.news-skeleton-copy i {
+  width: 100%;
+  height: 12px;
+}
+
+.news-skeleton-copy i:last-child {
+  width: 78%;
+}
+
+.news2 .post-img {
+  background: #eeeae4;
+}
+
+.news2 .post-img::after {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 40%;
+  content: '';
+  background: linear-gradient(to top, rgba(15, 13, 10, 0.46), transparent);
+  pointer-events: none;
+}
+
+.news2 .post-img img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.news2 .post-img .date {
+  z-index: 1;
+  background: rgba(22, 19, 15, 0.18);
+  backdrop-filter: blur(3px);
+}
+
+.news2 .post-cont p {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.news-card-category {
+  display: inline-block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-align: left;
+  cursor: pointer;
+}
+
+.news-card-category:hover .tag {
+  color: #7f603b;
+}
+
+.news2-sidebar .search form input {
+  min-height: 44px;
+  padding-right: 82px;
+}
+
+.news2-sidebar .search form .news-search-clear {
+  right: 40px;
+  color: #8a8177;
+}
+
+.news2-sidebar .search form .news-search-submit {
+  right: 0;
+  color: #aa8453;
+}
+
+.news2-sidebar .search form button {
+  min-width: 40px;
+  min-height: 44px;
+}
+
+.news2-sidebar .search form button:focus-visible {
+  outline: 2px solid #aa8453;
+  outline-offset: -2px;
+}
+
+.news-category-status button {
+  padding: 0;
+  border: 0;
+  border-bottom: 1px solid currentcolor;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+.news2-sidebar .widget-title .view-more {
+  padding: 5px 0;
+  border: 0;
+  background: transparent;
+  color: #666;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.news2-sidebar .widget-title .view-more:hover {
+  color: #aa8453;
+}
+
+.news2-sidebar .tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.news2-sidebar .tags li {
+  float: none;
+  padding: 0;
+  border: 0;
+  margin: 0 !important;
+  background: transparent;
+}
+
+.news2-sidebar ul.tags li button {
+  display: block;
+  padding: 8px 16px;
+  border: 1px solid #fff;
+  background: #fff;
+  color: #666;
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.news2-sidebar ul.tags li button:hover,
+.news2-sidebar ul.tags li button.active {
+  border-color: #aa8453;
+  background: #aa8453;
+  color: #fff;
+}
+
+.news-sidebar-retry {
+  margin-bottom: 30px;
+}
+
+.news-sidebar-retry button {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid rgba(170, 132, 83, 0.45);
+  background: transparent;
+  color: #8b5e4a;
+  cursor: pointer;
+}
+
+.news-hero {
+  min-height: 540px;
+  padding: 0;
+  background-position: center;
+}
+
+.news-hero-inner {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  min-height: 540px;
+  flex-direction: column;
+  justify-content: center;
+  padding-top: 90px;
+  padding-bottom: 130px;
+}
+
+.news-hero-copy {
+  margin: 0;
+}
+
+.news-hero .caption h1 {
+  font-size: 60px;
+  line-height: 1.1;
+}
+
+.news-hero-toolbar {
+  position: absolute;
+  right: 15px;
+  bottom: 24px;
+  left: 15px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  min-height: 58px;
+  padding: 8px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.28);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+}
+
+.news-hero-meta {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 2px;
+  color: rgba(255, 255, 255, 0.58);
+  /* font-size: 11px; */
+  line-height: 1.5;
+}
+
+.news-hero-meta strong {
+  display: block;
+  overflow: hidden;
+  max-width: 520px;
+  color: #d8b98d;
+  font-weight: 400;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.news-hero-actions,
+.news-view-switcher {
+  display: inline-flex;
+  align-items: center;
+}
+
+.news-hero-actions {
+  flex: 0 0 auto;
+}
+
+.news-view-switcher {
+  gap: 4px;
+}
+
+.news-view-switcher button {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border: 1px solid transparent;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.52);
+  place-items: center;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.news-view-switcher button i {
+  margin: 0;
+  font-size: 15px;
+}
+
+.news-view-switcher button:hover {
+  color: #fff;
+}
+
+.news-view-switcher button.active {
+  border-color: rgba(216, 185, 141, 0.68);
+  background: rgba(170, 132, 83, 0.28);
+  color: #fff;
+}
+
+.news-view-switcher button:focus-visible {
+  outline: 2px solid #d8b98d;
+  outline-offset: 3px;
+}
+
+.news-card-list--list {
+  max-width: 1000px;
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.news-card-list--grid {
+  row-gap: 0;
+}
+
+.news-grid-image-link {
+  display: block;
+}
+
+.news-grid-view .item img {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+}
+
+.news-grid-view .item .con .category .news-grid-category {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: #666;
+  font: inherit;
+  letter-spacing: inherit;
+  text-transform: inherit;
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+
+.news-grid-view .item .con .category .news-grid-category:hover {
+  color: #222;
+}
+
+.news-grid-view .item .con .category .news-grid-category:focus-visible {
+  outline: 2px solid #aa8453;
+  outline-offset: 3px;
+}
+
+.news-results-shell--list .news-refresh-indicator {
+  right: max(14px, calc((100% - 1000px) / 2 + 14px));
+}
+
+.news-skeleton-list--list {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.news-skeleton-list--grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 36px 30px;
+}
+
+.news-skeleton-list--grid .news-skeleton-image {
+  aspect-ratio: 4 / 3;
+}
+
+.news-skeleton-list--grid .news-skeleton-copy {
+  width: calc(100% - 32px);
+  min-height: 214px;
+  margin: -30px auto 0;
+  padding: 27px 24px 24px;
+  background: #fff;
+}
+
+.news-pagination-wrap {
+  display: block;
+  padding: 0;
+  margin: 0;
+  text-align: center;
+}
+
+.news-pagination-wrap li {
+  display: inline-block;
+  margin: 0 5px;
+}
+
+.news-pagination-wrap a {
+  cursor: pointer;
+}
+
+.news-pagination-wrap a.is-disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+
+.news-pagination-ellipsis {
+  display: inline-block;
+  width: 40px;
+  height: 40px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: #666;
+  font-family: 'Barlow', sans-serif;
+  font-size: 16px;
+  line-height: 37px;
+  text-align: center;
+}
+</style>

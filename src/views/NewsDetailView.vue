@@ -12,7 +12,7 @@ import {
 } from '../api/newsSidebarClient'
 import { getNewsDate, handleNewsImageError, resolveNewsImage, splitNewsTags } from '../utils/news'
 import type { ArchiveDto, CategoryDto } from '../api/newsSidebarClient'
-import NewsArchives from '../components/NewsArchives.vue'
+// import NewsArchives from '../components/NewsArchives.vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -173,11 +173,11 @@ watch(
                 </div>
 
                 <div class="col-md-12">
-                  <NewsArchives
+                  <!-- <NewsArchives
                     :archives="archives"
                     @select="openArchive"
                     @clear="openLatestNews"
-                  />
+                  /> -->
                 </div>
 
                 <div v-if="tags.length" class="col-md-12">

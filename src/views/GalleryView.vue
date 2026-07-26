@@ -65,9 +65,7 @@ let originalBodyOverflow = ''
 let requestSerial = 0
 
 const items = computed(() => [...imageItems.value, ...videoItems.value])
-const activeItem = computed(() =>
-  activeIndex.value >= 0 ? items.value[activeIndex.value] : null
-)
+const activeItem = computed(() => (activeIndex.value >= 0 ? items.value[activeIndex.value] : null))
 const isInitialLoading = computed(() => loading.value && items.value.length === 0)
 const showImageSection = computed(
   () => mediaType.value !== 'video' && (isInitialLoading.value || imageItems.value.length > 0)
@@ -81,7 +79,10 @@ const canCollapseImages = computed(() => imagePage.value > 1 && !hasMoreImages.v
 const canCollapseVideos = computed(() => videoPage.value > 1 && !hasMoreVideos.value)
 const isBodyLocked = computed(() => Boolean(activeItem.value))
 const activeFilterCount = computed(
-  () => Number(mediaType.value !== 'all') + Number(category.value !== 'all') + Number(Boolean(search.value))
+  () =>
+    Number(mediaType.value !== 'all') +
+    Number(category.value !== 'all') +
+    Number(Boolean(search.value))
 )
 const resultLabel = computed(() => {
   if (loading.value && items.value.length === 0) return 'Đang tải bộ sưu tập...'
@@ -258,7 +259,9 @@ async function collapseSection(type: GalleryMediaType) {
     applySharedResponse(result)
     totalCount.value = imageTotalCount.value + videoTotalCount.value
     applyFallbackState(usingFallback.value || result.fallback)
-    document.querySelector(`#gallery-${type}s`)?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    document
+      .querySelector(`#gallery-${type}s`)
+      ?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   } finally {
     if (requestId === requestSerial) loading.value = false
   }
@@ -546,7 +549,10 @@ onBeforeUnmount(() => {
                 </span>
                 <span class="gallery-hover" aria-hidden="true">
                   <span class="gallery-hover-copy">
-                    <span>{{ item.categoryName }}<template v-if="item.duration"> · {{ item.duration }}</template></span>
+                    <span
+                      >{{ item.categoryName
+                      }}<template v-if="item.duration"> · {{ item.duration }}</template></span
+                    >
                     <strong>{{ item.title }}</strong>
                   </span>
                 </span>
@@ -696,7 +702,8 @@ onBeforeUnmount(() => {
                   :class="{ active: category === item.slug }"
                   @click="selectCategory(item.slug)"
                 >
-                  <span>{{ item.name }}</span><strong>{{ item.itemCount }}</strong>
+                  <span>{{ item.name }}</span
+                  ><strong>{{ item.itemCount }}</strong>
                 </button>
               </div>
             </div>
@@ -829,7 +836,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   gap: 2px;
   color: rgba(255, 255, 255, 0.58);
-  font-size: 11px;
+  /* font-size: 11px; */
 }
 
 .gallery-notice {
@@ -846,7 +853,7 @@ onBeforeUnmount(() => {
   background: transparent;
   color: #fff;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
+  /* font-size: 12px; */
   letter-spacing: 2px;
   text-transform: uppercase;
   cursor: pointer;
