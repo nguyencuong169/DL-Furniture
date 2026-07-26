@@ -10,6 +10,7 @@ public class NewsItem
     public string? Summary { get; set; }
     public string? Content { get; set; }
     public string? NewsImage { get; set; }
+    public long ViewCount { get; set; }
 
     // Sidebar fields
     /// <summary>

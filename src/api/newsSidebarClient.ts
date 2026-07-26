@@ -20,6 +20,10 @@ export type ArchiveDto = {
   count: number
 }
 
+export type NewsViewCountDto = {
+  viewCount: number
+}
+
 const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'https://localhost:44328'
 
 export async function getNewsCategories() {
@@ -49,5 +53,10 @@ export async function getNewsRelated(newsId: number, take = 3) {
 
 export async function getNewsById(newsId: number) {
   const res = await axios.get<NewsItem>(`${apiBaseUrl}/api/news/${newsId}`)
+  return res.data
+}
+
+export async function recordNewsView(newsId: number) {
+  const res = await axios.post<NewsViewCountDto>(`${apiBaseUrl}/api/news/${newsId}/views`)
   return res.data
 }

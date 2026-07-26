@@ -8,7 +8,8 @@ import {
   getNewsArchives,
   getNewsById,
   getNewsCategories,
-  getNewsRelated
+  getNewsRelated,
+  recordNewsView
 } from '../api/newsSidebarClient'
 import { getNewsDate, handleNewsImageError, resolveNewsImage, splitNewsTags } from '../utils/news'
 import type { ArchiveDto, CategoryDto } from '../api/newsSidebarClient'
@@ -23,6 +24,33 @@ const archives = ref<ArchiveDto[]>([])
 const loading = ref(true)
 const errorMessage = ref('')
 let requestId = 0
+const trackedArticleIds = new Set<number>()
+const newsViewSessionKey = (id: number) => `dl-furniture:news:viewed:${id}`
+
+const trackArticleViewOnce = async (id: number) => {
+  if (trackedArticleIds.has(id)) return
+
+  const sessionKey = newsViewSessionKey(id)
+
+  try {
+    if (sessionStorage.getItem(sessionKey)) {
+      trackedArticleIds.add(id)
+      return
+    }
+
+    sessionStorage.setItem(sessionKey, '1')
+  } catch {
+    // Keep an in-memory fallback when sessionStorage is unavailable.
+  }
+
+  trackedArticleIds.add(id)
+
+  try {
+    await recordNewsView(id)
+  } catch (error) {
+    console.warn('Failed to record news article view', error)
+  }
+}
 
 const categoryName = computed(() => {
   return (
@@ -58,6 +86,7 @@ const loadArticle = async (id: number) => {
     if (currentRequest !== requestId) return
 
     item.value = article
+    void trackArticleViewOnce(article.id)
     categories.value = categoryItems
     archives.value = archiveItems
     related.value = await getNewsRelated(id, 3).catch(() => [])

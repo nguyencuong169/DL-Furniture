@@ -31,6 +31,7 @@ public class NewsController : ControllerBase
                 Summary = x.Summary,
                 Content = x.Content,
                 NewsImage = x.NewsImage,
+                ViewCount = x.ViewCount,
                 Hidden = x.Hidden,
                 DelFlag = x.DelFlag,
                 CreatedUser = x.CreatedUser,
@@ -200,6 +201,11 @@ public class NewsController : ControllerBase
         public required int TotalPages { get; set; }
     }
 
+    public class ViewCountResponse
+    {
+        public required long ViewCount { get; set; }
+    }
+
     [HttpGet("paged")]
     public async Task<ActionResult<PagedNewsResponse>> GetPaged(
         [FromQuery] int page = 1,
@@ -278,6 +284,27 @@ public class NewsController : ControllerBase
         return item is null ? NotFound() : Ok(item);
     }
 
+    [HttpPost("{id:long}/views")]
+    public async Task<ActionResult<ViewCountResponse>> IncrementViewCount(long id)
+    {
+        var updatedRows = await _context.News
+            .Where(x => x.Id == id && !x.DelFlag && !x.Hidden)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(x => x.ViewCount, x => x.ViewCount + 1));
+
+        if (updatedRows == 0)
+        {
+            return NotFound();
+        }
+
+        var viewCount = await _context.News
+            .Where(x => x.Id == id)
+            .Select(x => x.ViewCount)
+            .SingleAsync();
+
+        return Ok(new ViewCountResponse { ViewCount = viewCount });
+    }
+
     [HttpPost]
     public async Task<ActionResult<NewsItem>> Create([FromBody] NewsItem model)
     {
@@ -288,6 +315,7 @@ public class NewsController : ControllerBase
         model.UpdatedDate ??= model.CreatedDate;
         model.CreatedUser ??= "admin";
         model.UpdatedUser ??= "admin";
+        model.ViewCount = 0;
 
         _context.News.Add(model);
         await _context.SaveChangesAsync();

@@ -21,6 +21,7 @@ import BookingFormComponent from '../template/11_BookingFormComponent.vue'
 import ClientsComponent from '../template/12_ClientsComponent.vue'
 
 const NEWS_VIEW_MODE_STORAGE_KEY = 'news-view-mode'
+const POPULAR_VIEW_THRESHOLD = 300
 
 type NewsViewMode = 'grid' | 'list'
 
@@ -87,6 +88,55 @@ const categoryName = (item: NewsItem) => {
 const formatNewsDate = (item: NewsItem, format: string) => {
   const date = getNewsDate(item)
   return date ? dayjs(date).locale('vi').format(format) : ''
+}
+
+const getNewsViewCount = (item: NewsItem) => {
+  const viewCount = Number(item.viewCount ?? 0)
+  return Number.isFinite(viewCount) && viewCount > 0 ? Math.floor(viewCount) : 0
+}
+
+const popularNewsId = computed(() => {
+  let popularId = ''
+  let highestViewCount = POPULAR_VIEW_THRESHOLD - 1
+
+  for (const item of state.items) {
+    const viewCount = getNewsViewCount(item)
+    if (viewCount > highestViewCount) {
+      popularId = String(item.id)
+      highestViewCount = viewCount
+    }
+  }
+
+  return popularId
+})
+
+const gridItems = computed(() => {
+  const items = [...state.items]
+  const popularIndex = items.findIndex((item) => String(item.id) === popularNewsId.value)
+
+  // A full-width card needs to start a row. Only exchange it with the item directly
+  // before it, so the page remains as close as possible to chronological order.
+  if (popularIndex > 0 && popularIndex % 2 === 1) {
+    ;[items[popularIndex - 1], items[popularIndex]] = [items[popularIndex], items[popularIndex - 1]]
+  }
+
+  return items
+})
+
+const isPopularNews = (item: NewsItem) => {
+  return Boolean(popularNewsId.value) && String(item.id) === popularNewsId.value
+}
+
+const isGridOrphan = (index: number) => {
+  return (
+    Boolean(popularNewsId.value) &&
+    gridItems.value.length % 2 === 0 &&
+    index === gridItems.value.length - 1
+  )
+}
+
+const formatViewCount = (item: NewsItem) => {
+  return new Intl.NumberFormat('vi-VN').format(getNewsViewCount(item))
 }
 
 const currentPageFilters = (): Omit<NewsPageFilters, 'year' | 'month'> => ({
@@ -532,14 +582,21 @@ onMounted(async () => {
 
               <template v-else>
                 <div v-if="viewMode === 'grid'" class="news news-grid-view">
-                  <div class="row news-card-list news-card-list--grid">
+                  <div class="news-card-list news-card-list--grid">
                     <div
-                      v-for="(item, index) in state.items"
+                      v-for="(item, index) in gridItems"
                       :key="item.id"
-                      class="col-md-4 mb-30 news-card-column"
+                      class="news-card-column"
+                      :class="{
+                        'news-card-column--popular': isPopularNews(item),
+                        'news-card-column--orphan': isGridOrphan(index)
+                      }"
                     >
-                      <article class="item">
-                        <div class="position-re o-hidden">
+                      <article
+                        class="item news-grid-card"
+                        :class="{ 'news-grid-card--popular': isPopularNews(item) }"
+                      >
+                        <div class="position-re o-hidden news-grid-media">
                           <RouterLink
                             class="news-grid-image-link"
                             :to="{ name: 'news-detail', params: { id: item.id } }"
@@ -561,6 +618,10 @@ onMounted(async () => {
                         </div>
                         <div class="con">
                           <span class="category">
+                            <span v-if="isPopularNews(item)" class="news-popular-badge">
+                              <i class="ti-eye" aria-hidden="true"></i>
+                              Được quan tâm
+                            </span>
                             <button
                               type="button"
                               class="news-grid-category"
@@ -574,6 +635,12 @@ onMounted(async () => {
                               {{ item.titles }}
                             </RouterLink>
                           </h5>
+                          <p v-if="isPopularNews(item)" class="news-popular-summary">
+                            {{ item.summary }}
+                          </p>
+                          <span v-if="isPopularNews(item)" class="news-popular-views">
+                            {{ formatViewCount(item) }} lượt đọc
+                          </span>
                         </div>
                       </article>
                     </div>
@@ -850,6 +917,11 @@ onMounted(async () => {
 
 #news-results {
   scroll-margin-top: 90px;
+}
+
+#news-results.news-grid-view {
+  padding-top: 72px;
+  padding-bottom: 88px;
 }
 
 .news-state-action:focus-visible,
@@ -1317,17 +1389,153 @@ onMounted(async () => {
 }
 
 .news-card-list--grid {
-  row-gap: 0;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-items: stretch;
+  gap: 54px 30px;
+}
+
+.news-card-column {
+  min-width: 0;
+}
+
+.news-card-column--popular {
+  grid-column: 1 / -1;
+}
+
+.news-card-column--orphan {
+  grid-column: 1 / -1;
+  width: calc((100% - 30px) / 2);
+  justify-self: center;
+}
+
+.news-grid-card {
+  height: auto;
+  margin-bottom: 0 !important;
+}
+
+.news-grid-card--popular {
+  display: grid;
+  min-height: 390px;
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.85fr);
+  overflow: hidden;
+  background: #f8f5f0;
+}
+
+.news-grid-media {
+  aspect-ratio: 4 / 3;
+  background: #171717;
+}
+
+.news-grid-card--popular .news-grid-media {
+  min-height: 390px;
+  aspect-ratio: auto;
 }
 
 .news-grid-image-link {
   display: block;
+  height: 100%;
 }
 
 .news-grid-view .item img {
   display: block;
   width: 100%;
+  height: 100%;
   object-fit: cover;
+}
+
+.news-grid-view .news-grid-card .con {
+  z-index: 2;
+  bottom: 0;
+  display: flex;
+  width: calc(100% - 48px);
+  min-height: 0;
+  margin: -54px 24px 0;
+  padding: 26px 28px 24px;
+  flex-direction: column;
+}
+
+.news-grid-view .news-grid-card--popular .con {
+  position: static;
+  bottom: auto;
+  width: auto;
+  min-height: 100%;
+  margin: 0;
+  padding: 42px 40px;
+  justify-content: center;
+  border: 0;
+}
+
+.news-grid-view .news-grid-card .con h5 {
+  margin-bottom: 0;
+}
+
+.news-grid-view .news-grid-card .con h5 a {
+  display: -webkit-box;
+  overflow: hidden;
+  line-height: 1.32;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.news-grid-view .news-grid-card--popular .con h5 a {
+  font-size: 31px;
+  line-height: 1.25;
+}
+
+.news-grid-view .news-grid-card--popular .con .category {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin-bottom: 14px;
+}
+
+.news-popular-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: #aa8453;
+}
+
+.news-grid-view .item .con .category .news-popular-badge i {
+  color: currentColor;
+  font-size: 13px;
+}
+
+.news-grid-view .news-grid-card--popular .news-grid-category {
+  position: relative;
+  padding-left: 15px !important;
+}
+
+.news-grid-view .news-grid-card--popular .news-grid-category::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 1px;
+  height: 12px;
+  background: #c9c1b6;
+  content: '';
+  transform: translateY(-50%);
+}
+
+.news-grid-view .news-grid-card--popular .news-popular-summary {
+  display: -webkit-box;
+  overflow: hidden;
+  margin: 18px 0 22px;
+  color: #666;
+  font-size: 16px;
+  line-height: 1.65;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.news-popular-views {
+  color: #8a8177;
+  font-family: 'Barlow', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
 }
 
 .news-grid-view .item .con .category .news-grid-category {
@@ -1361,7 +1569,7 @@ onMounted(async () => {
 }
 
 .news-skeleton-list--grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 36px 30px;
 }
 
@@ -1371,10 +1579,118 @@ onMounted(async () => {
 
 .news-skeleton-list--grid .news-skeleton-copy {
   width: calc(100% - 32px);
-  min-height: 214px;
+  min-height: 132px;
   margin: -30px auto 0;
-  padding: 27px 24px 24px;
+  padding: 24px;
   background: #fff;
+}
+
+@media screen and (min-width: 768px) and (max-width: 991px) {
+  .news-grid-card--popular {
+    min-height: 340px;
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  }
+
+  .news-grid-card--popular .news-grid-media {
+    min-height: 340px;
+  }
+
+  .news-grid-view .news-grid-card--popular .con {
+    padding: 32px 28px;
+  }
+
+  .news-grid-view .news-grid-card--popular .con h5 a {
+    font-size: 27px;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  #news-results.news-grid-view {
+    padding-top: 54px;
+    padding-bottom: 70px;
+  }
+
+  .news-card-list--grid {
+    grid-template-columns: minmax(0, 1fr);
+    row-gap: 38px;
+  }
+
+  .news-card-column {
+    margin-bottom: 0;
+  }
+
+  .news-card-column--popular,
+  .news-card-column--orphan {
+    grid-column: auto;
+    width: auto;
+  }
+
+  .news-grid-card--popular {
+    display: block;
+    min-height: 0;
+    background: transparent;
+  }
+
+  .news-grid-media {
+    aspect-ratio: 4 / 3;
+  }
+
+  .news-grid-card--popular .news-grid-media {
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+
+  .news-grid-view .news-grid-card .con {
+    width: calc(100% - 28px);
+    min-height: 0;
+    margin: -36px 14px 0;
+    padding: 22px 20px 24px;
+  }
+
+  .news-grid-view .news-grid-card--popular .con {
+    position: relative;
+    bottom: 0;
+    width: calc(100% - 28px);
+    min-height: 0;
+    margin: -36px 14px 0;
+    padding: 24px 20px 25px;
+  }
+
+  .news-grid-view .news-grid-card--popular .con .category {
+    gap: 7px 11px;
+    margin-bottom: 9px;
+  }
+
+  .news-grid-view .news-grid-card--popular .con h5 a {
+    font-size: 22px;
+    line-height: 1.3;
+  }
+
+  .news-grid-view .news-grid-card--popular .news-popular-summary {
+    margin: 12px 0 13px;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-line-clamp: 2;
+  }
+
+  .news-grid-view .news-grid-card .con h5 a {
+    -webkit-line-clamp: 2;
+  }
+
+  .news-grid-view .item .con .category {
+    letter-spacing: 2px;
+  }
+
+  .news-skeleton-list--grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 30px;
+  }
+
+  .news-skeleton-list--grid .news-skeleton-copy {
+    width: calc(100% - 28px);
+    min-height: 124px;
+    margin: -30px 14px 0;
+  }
 }
 
 .news-pagination-wrap {

@@ -113,6 +113,7 @@ BEGIN
       summary NVARCHAR(MAX) NULL,
       content NVARCHAR(MAX) NULL,
       news_image NVARCHAR(1024) NULL,
+      view_count BIGINT NOT NULL DEFAULT 0,
       news_category_id BIGINT NULL,
       tags NVARCHAR(2048) NULL,
       hidden BIT DEFAULT 0,

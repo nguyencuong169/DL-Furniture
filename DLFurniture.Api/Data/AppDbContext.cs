@@ -52,6 +52,11 @@ public class AppDbContext : DbContext
             .HasMaxLength(1024);
 
         modelBuilder.Entity<NewsItem>()
+            .Property(n => n.ViewCount)
+            .HasColumnName("view_count")
+            .HasDefaultValue(0L);
+
+        modelBuilder.Entity<NewsItem>()
             .Property(n => n.NewsCategoryId)
             .HasColumnName("news_category_id");
 
