@@ -21,7 +21,6 @@ import BookingFormComponent from '../template/11_BookingFormComponent.vue'
 import ClientsComponent from '../template/12_ClientsComponent.vue'
 
 const NEWS_VIEW_MODE_STORAGE_KEY = 'news-view-mode'
-const POPULAR_VIEW_THRESHOLD = 300
 
 type NewsViewMode = 'grid' | 'list'
 
@@ -31,7 +30,7 @@ const router = useRouter()
 const state = reactive({
   items: [] as NewsItem[],
   page: 1,
-  pageSize: 6,
+  pageSize: 7,
   totalPages: 0,
   totalCount: 0
 })
@@ -97,8 +96,10 @@ const getNewsViewCount = (item: NewsItem) => {
 
 const popularNewsId = computed(() => {
   let popularId = ''
-  let highestViewCount = POPULAR_VIEW_THRESHOLD - 1
+  let highestViewCount = -1
 
+  // The highlight is relative to the current server page, so every non-empty
+  // page has exactly one full-width card even when a filter returns low-view posts.
   for (const item of state.items) {
     const viewCount = getNewsViewCount(item)
     if (viewCount > highestViewCount) {
@@ -557,9 +558,12 @@ onMounted(async () => {
                 :class="`news-skeleton-list--${viewMode}`"
               >
                 <article
-                  v-for="placeholder in viewMode === 'grid' ? 6 : 3"
+                  v-for="placeholder in viewMode === 'grid' ? state.pageSize : 3"
                   :key="placeholder"
                   class="news-card-skeleton"
+                  :class="{
+                    'news-card-skeleton--popular': viewMode === 'grid' && placeholder === 1
+                  }"
                 >
                   <div class="news-skeleton-image"></div>
                   <div class="news-skeleton-copy"><span></span><strong></strong><i></i><i></i></div>
@@ -1416,7 +1420,8 @@ onMounted(async () => {
 
 .news-grid-card--popular {
   display: grid;
-  min-height: 390px;
+  height: 500px;
+  min-height: 0;
   grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.85fr);
   overflow: hidden;
   background: #f8f5f0;
@@ -1428,7 +1433,8 @@ onMounted(async () => {
 }
 
 .news-grid-card--popular .news-grid-media {
-  min-height: 390px;
+  height: 100%;
+  min-height: 0;
   aspect-ratio: auto;
 }
 
@@ -1585,14 +1591,46 @@ onMounted(async () => {
   background: #fff;
 }
 
+.news-skeleton-list--grid .news-card-skeleton--popular {
+  display: grid;
+  height: 500px;
+  min-height: 0;
+  grid-column: 1 / -1;
+  grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.85fr);
+  background: #f8f5f0;
+}
+
+.news-skeleton-list--grid .news-card-skeleton--popular .news-skeleton-image {
+  height: 100%;
+  min-height: 0;
+  aspect-ratio: auto;
+}
+
+.news-skeleton-list--grid .news-card-skeleton--popular .news-skeleton-copy {
+  width: auto;
+  min-height: 100%;
+  margin: 0;
+  padding: 42px 40px;
+  align-content: center;
+  background: #f8f5f0;
+}
+
+@media screen and (min-width: 992px) and (max-width: 1199px) {
+  .news-grid-card--popular,
+  .news-skeleton-list--grid .news-card-skeleton--popular {
+    height: 440px;
+  }
+}
+
 @media screen and (min-width: 768px) and (max-width: 991px) {
   .news-grid-card--popular {
-    min-height: 340px;
+    height: 340px;
+    min-height: 0;
     grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
   }
 
   .news-grid-card--popular .news-grid-media {
-    min-height: 340px;
+    min-height: 0;
   }
 
   .news-grid-view .news-grid-card--popular .con {
@@ -1601,6 +1639,20 @@ onMounted(async () => {
 
   .news-grid-view .news-grid-card--popular .con h5 a {
     font-size: 27px;
+  }
+
+  .news-skeleton-list--grid .news-card-skeleton--popular {
+    height: 340px;
+    min-height: 0;
+    grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
+  }
+
+  .news-skeleton-list--grid .news-card-skeleton--popular .news-skeleton-image {
+    min-height: 0;
+  }
+
+  .news-skeleton-list--grid .news-card-skeleton--popular .news-skeleton-copy {
+    padding: 32px 28px;
   }
 }
 
@@ -1627,6 +1679,7 @@ onMounted(async () => {
 
   .news-grid-card--popular {
     display: block;
+    height: auto;
     min-height: 0;
     background: transparent;
   }
@@ -1686,10 +1739,31 @@ onMounted(async () => {
     gap: 30px;
   }
 
+  .news-skeleton-list--grid .news-card-skeleton--popular {
+    display: block;
+    height: auto;
+    min-height: 0;
+    grid-column: auto;
+    background: transparent;
+  }
+
+  .news-skeleton-list--grid .news-card-skeleton--popular .news-skeleton-image {
+    min-height: 0;
+    aspect-ratio: 4 / 3;
+  }
+
   .news-skeleton-list--grid .news-skeleton-copy {
     width: calc(100% - 28px);
     min-height: 124px;
     margin: -30px 14px 0;
+  }
+
+  .news-skeleton-list--grid .news-card-skeleton--popular .news-skeleton-copy {
+    width: calc(100% - 28px);
+    min-height: 124px;
+    margin: -30px 14px 0;
+    padding: 24px;
+    background: #fff;
   }
 }
 

@@ -209,7 +209,7 @@ public class NewsController : ControllerBase
     [HttpGet("paged")]
     public async Task<ActionResult<PagedNewsResponse>> GetPaged(
         [FromQuery] int page = 1,
-        [FromQuery] int pageSize = 6,
+        [FromQuery] int pageSize = 7,
         [FromQuery] int? year = null,
         [FromQuery] int? month = null,
         [FromQuery] long? categoryId = null,
@@ -217,7 +217,7 @@ public class NewsController : ControllerBase
         [FromQuery] string? search = null)
     {
         if (page < 1) page = 1;
-        if (pageSize < 1) pageSize = 6;
+        if (pageSize < 1) pageSize = 7;
         pageSize = Math.Min(pageSize, 50);
 
         var query = _context.News
