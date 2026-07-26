@@ -3,7 +3,12 @@ import { computed, onMounted, reactive, ref, watch } from 'vue'
 import dayjs from 'dayjs'
 import type { News } from '../generated/api-client/models'
 import { getNewsPaged } from '../api/newsPagedClient'
-import { getNewsArchives, getNewsCategories, getNewsRelated, getNewsTags } from '../api/newsSidebarClient'
+import {
+  getNewsArchives,
+  getNewsCategories,
+  getNewsRelated,
+  getNewsTags
+} from '../api/newsSidebarClient'
 
 const state = reactive({
   items: [] as News[],
@@ -69,7 +74,6 @@ const loadRelatedForCurrentPage = async () => {
   }
 }
 
-
 type PageButton = number | '...'
 
 const pageButtons = computed<PageButton[]>(() => {
@@ -102,7 +106,9 @@ const pageButtons = computed<PageButton[]>(() => {
   return result
 })
 
-const numberedPages = computed(() => pageButtons.value.filter((p) => typeof p === 'number') as number[])
+const numberedPages = computed(
+  () => pageButtons.value.filter((p) => typeof p === 'number') as number[]
+)
 
 const archivesByYear = computed(() => {
   const map = new Map<number, { year: number; count: number }>()
@@ -122,7 +128,12 @@ type MonthArchive = { year: number; month: number; monthLabel: string; count: nu
 const displayArchives = computed(() => {
   if (uiState.showAllArchives) return sidebar.archives as MonthArchive[]
   // gộp theo năm (chỉ hiển thị year)
-  return archivesByYear.value.map((y) => ({ year: y.year, month: 0, monthLabel: '', count: y.count })) as any
+  return archivesByYear.value.map((y) => ({
+    year: y.year,
+    month: 0,
+    monthLabel: '',
+    count: y.count
+  })) as any
 })
 
 const displayedTags = computed(() => {
@@ -147,14 +158,8 @@ watch(
 )
 </script>
 
-
-
-
-
 <template>
-
   <main>
-
     <!-- Header Banner -->
     <div
       class="banner-header section-padding valign bg-img bg-fixed"
@@ -179,7 +184,6 @@ watch(
             <div class="row">
               <div class="col-md-12" v-for="item in state.items" :key="item.id">
                 <div class="item">
-
                   <div class="post-img">
                     <a href="post.html"> <img src="../assets/img/restaurant/2.png" alt="" /> </a>
                     <div class="date">
@@ -208,7 +212,11 @@ watch(
                 <!-- Pagination -->
                 <ul class="news-pagination-wrap align-center mb-30 mt-30">
                   <li>
-                    <a href="#" :class="{ disabled: state.page <= 1 }" @click.prevent="state.page > 1 && loadPage(state.page - 1)">
+                    <a
+                      href="#"
+                      :class="{ disabled: state.page <= 1 }"
+                      @click.prevent="state.page > 1 && loadPage(state.page - 1)"
+                    >
                       <i class="ti-angle-left"></i>
                     </a>
                   </li>
@@ -221,19 +229,17 @@ watch(
                     <a href="#" @click.prevent="loadPage(p)">{{ p }}</a>
                   </li>
 
-
-
-
-
                   <li>
-                    <a href="#" :class="{ disabled: state.page >= state.totalPages }" @click.prevent="state.page < state.totalPages && loadPage(state.page + 1)">
+                    <a
+                      href="#"
+                      :class="{ disabled: state.page >= state.totalPages }"
+                      @click.prevent="state.page < state.totalPages && loadPage(state.page + 1)"
+                    >
                       <i class="ti-angle-right"></i>
                     </a>
                   </li>
                 </ul>
               </div>
-
-
             </div>
           </div>
           <div class="col-md-4">
@@ -249,7 +255,7 @@ watch(
               <div class="col-md-12">
                 <div class="widget">
                   <div class="widget-title">
-                    <h6>Bài viết liên quan</h6>
+                    <h6>Tin tức liên quan</h6>
                   </div>
                   <ul class="recent">
                     <li v-if="loadingRelated && !sidebar.related.length">
@@ -268,9 +274,11 @@ watch(
               <div class="col-md-12">
                 <div class="widget">
                   <div class="widget-title">
-                    <div class="d-flex align-items-center justify-content-between" style="gap: 15px; width: 100%;">
+                    <div
+                      class="d-flex align-items-center justify-content-between"
+                      style="gap: 15px; width: 100%"
+                    >
                       <h6 class="mb-0">Archives</h6>
-
 
                       <a
                         v-if="sidebar.archives.length > 0 && !uiState.showAllArchives"
@@ -315,7 +323,10 @@ watch(
               <div class="col-md-12">
                 <div class="widget">
                   <div class="widget-title">
-                    <div class="d-flex align-items-center justify-content-between" style="width: 100%;">
+                    <div
+                      class="d-flex align-items-center justify-content-between"
+                      style="width: 100%"
+                    >
                       <h6 class="mb-0">Tags</h6>
                       <a
                         v-if="sidebar.tags.length > 0 && !uiState.showAllTags"
@@ -342,8 +353,6 @@ watch(
                   </ul>
                 </div>
               </div>
-
-
             </div>
           </div>
         </div>
