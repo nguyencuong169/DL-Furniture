@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<GalleryCategory> GalleryCategories { get; set; } = null!;
     public DbSet<GalleryItem> GalleryItems { get; set; } = null!;
     public DbSet<Project> Projects { get; set; } = null!;
+    public DbSet<BookingRequest> BookingRequests { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -185,6 +186,31 @@ public class AppDbContext : DbContext
             entity.HasIndex(item => new { item.IsActive, item.MediaType, item.DisplayOrder });
             entity.HasIndex(item => new { item.IsActive, item.MediaType, item.UpdatedAt });
             entity.HasIndex(item => item.ProjectId);
+        });
+
+        modelBuilder.Entity<BookingRequest>(entity =>
+        {
+            entity.ToTable("booking_requests");
+            entity.HasKey(request => request.Id);
+            entity.Property(request => request.Id).HasColumnName("id");
+            entity.Property(request => request.FullName).HasColumnName("full_name").HasMaxLength(255);
+            entity.Property(request => request.Email).HasColumnName("email").HasMaxLength(255);
+            entity.Property(request => request.Phone).HasColumnName("phone").HasMaxLength(50);
+            entity.Property(request => request.Message).HasColumnName("message");
+            entity.Property(request => request.Source)
+                .HasColumnName("source")
+                .HasMaxLength(100)
+                .HasDefaultValue("consultation_form");
+            entity.Property(request => request.Status)
+                .HasColumnName("status")
+                .HasMaxLength(50)
+                .HasDefaultValue("pending");
+            entity.Property(request => request.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("GETDATE()");
+            entity.Property(request => request.UpdatedAt)
+                .HasColumnName("updated_at")
+                .HasDefaultValueSql("GETDATE()");
         });
     }
 }
