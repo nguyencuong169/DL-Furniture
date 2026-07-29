@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { getFallbackGallery, getGallery } from '../api/galleryClient'
 import type {
   GalleryCategory,
-  GalleryCounts,
   GalleryItem,
   GalleryMediaType,
   GalleryQuery,
@@ -12,18 +11,37 @@ import type {
 
 const IMAGE_PAGE_SIZE = 10
 const VIDEO_PAGE_SIZE = 4
-const FILTER_SIDEBAR_SESSION_KEY = 'gallery-filter-sidebar-open'
-const FILTER_SIDEBAR_DOCK_QUERY = '(min-width: 1440px)'
+const SELECT2_INIT_RETRY_DELAY = 100
+const SELECT2_INIT_MAX_ATTEMPTS = 30
 
 type SectionResult = {
   response: GalleryResponse
   fallback: boolean
 }
 
+type GallerySelect2Event = {
+  currentTarget: EventTarget | null
+}
+
+type GallerySelect2Collection = {
+  hasClass(className: string): boolean
+  off(events: string): GallerySelect2Collection
+  on(events: string, handler: (event: GallerySelect2Event) => void): GallerySelect2Collection
+  select2(options: { minimumResultsForSearch: number } | 'destroy'): GallerySelect2Collection
+  trigger(eventName: string): GallerySelect2Collection
+  val(value: string): GallerySelect2Collection
+}
+
+type GalleryJQueryStatic = {
+  (selector: string): GallerySelect2Collection
+  fn: {
+    select2?: unknown
+  }
+}
+
 const imageItems = ref<GalleryItem[]>([])
 const videoItems = ref<GalleryItem[]>([])
 const categories = ref<GalleryCategory[]>([])
-const counts = ref<GalleryCounts>({ all: 0, images: 0, videos: 0 })
 const mediaType = ref<GalleryMediaType | 'all'>('all')
 const category = ref('all')
 const searchDraft = ref('')
@@ -39,30 +57,10 @@ const loading = ref(false)
 const usingFallback = ref(false)
 const notice = ref('')
 const activeIndex = ref(-1)
-const filterSidebarDockMedia =
-  typeof window === 'undefined' ? null : window.matchMedia(FILTER_SIDEBAR_DOCK_QUERY)
-
-function readFilterSidebarPreference() {
-  if (typeof window === 'undefined') return null
-
-  try {
-    const savedPreference = window.sessionStorage.getItem(FILTER_SIDEBAR_SESSION_KEY)
-    if (savedPreference === 'true') return true
-    if (savedPreference === 'false') return false
-  } catch {
-    // Continue with the responsive default when session storage is unavailable.
-  }
-
-  return null
-}
-
-const savedFilterSidebarPreference = readFilterSidebarPreference()
-let hasFilterSidebarPreference = savedFilterSidebarPreference !== null
-const filterSidebarOpen = ref(
-  savedFilterSidebarPreference ?? filterSidebarDockMedia?.matches ?? false
-)
 let originalBodyOverflow = ''
 let requestSerial = 0
+let gallerySelectInitAttempts = 0
+let gallerySelectInitTimer: number | undefined
 
 const items = computed(() => [...imageItems.value, ...videoItems.value])
 const activeItem = computed(() => (activeIndex.value >= 0 ? items.value[activeIndex.value] : null))
@@ -78,12 +76,6 @@ const hasMoreVideos = computed(() => videoPage.value < videoTotalPages.value)
 const canCollapseImages = computed(() => imagePage.value > 1 && !hasMoreImages.value)
 const canCollapseVideos = computed(() => videoPage.value > 1 && !hasMoreVideos.value)
 const isBodyLocked = computed(() => Boolean(activeItem.value))
-const activeFilterCount = computed(
-  () =>
-    Number(mediaType.value !== 'all') +
-    Number(category.value !== 'all') +
-    Number(Boolean(search.value))
-)
 const resultLabel = computed(() => {
   if (loading.value && items.value.length === 0) return 'Đang tải bộ sưu tập...'
   if (totalCount.value === 0) return 'Không tìm thấy nội dung phù hợp'
@@ -141,7 +133,7 @@ async function fetchSection(type: GalleryMediaType, page: number): Promise<Secti
 
 function applySharedResponse(result: SectionResult) {
   categories.value = result.response.categories
-  counts.value = result.response.counts
+  void nextTick(syncGallerySelectValues)
 }
 
 function applyFallbackState(fallback: boolean) {
@@ -267,18 +259,6 @@ async function collapseSection(type: GalleryMediaType) {
   }
 }
 
-function selectMediaType(value: GalleryMediaType | 'all') {
-  if (mediaType.value === value) return
-  mediaType.value = value
-  void loadGallery()
-}
-
-function selectCategory(value: string) {
-  if (category.value === value) return
-  category.value = value
-  void loadGallery()
-}
-
 function submitSearch() {
   search.value = searchDraft.value.trim()
   void loadGallery()
@@ -289,30 +269,104 @@ function clearFilters() {
   category.value = 'all'
   searchDraft.value = ''
   search.value = ''
+  void nextTick(syncGallerySelectValues)
   void loadGallery()
 }
 
-function rememberFilterSidebarState(isOpen: boolean) {
-  hasFilterSidebarPreference = true
+function getGalleryJQuery() {
+  if (typeof window === 'undefined') return null
 
-  try {
-    window.sessionStorage.setItem(FILTER_SIDEBAR_SESSION_KEY, String(isOpen))
-  } catch {
-    // The panel remains functional even when session storage is unavailable.
+  const jquery = (window as Window & { jQuery?: GalleryJQueryStatic }).jQuery
+  const select2Plugin = jquery?.fn.select2
+
+  return jquery && typeof select2Plugin === 'function' ? jquery : null
+}
+
+function gallerySelect(selector: string) {
+  const jquery = getGalleryJQuery()
+  return jquery ? jquery(selector) : null
+}
+
+function updateMediaTypeFromElement(target: EventTarget | null) {
+  const value = (target as HTMLSelectElement | null)?.value
+  if (value !== 'all' && value !== 'image' && value !== 'video') return
+  if (mediaType.value === value) return
+
+  mediaType.value = value
+  void loadGallery()
+}
+
+function updateCategoryFromElement(target: EventTarget | null) {
+  const value = (target as HTMLSelectElement | null)?.value
+  if (!value || category.value === value) return
+
+  category.value = value
+  void loadGallery()
+}
+
+function handleMediaTypeChange(event: Event) {
+  updateMediaTypeFromElement(event.currentTarget)
+}
+
+function handleCategoryChange(event: Event) {
+  updateCategoryFromElement(event.currentTarget)
+}
+
+function syncGallerySelectValues() {
+  gallerySelect('#gallery-booking-media')?.val(mediaType.value).trigger('change.select2')
+  gallerySelect('#gallery-booking-category')?.val(category.value).trigger('change.select2')
+}
+
+function initializeGallerySelects() {
+  const mediaSelect = gallerySelect('#gallery-booking-media')
+  const categorySelect = gallerySelect('#gallery-booking-category')
+  if (!mediaSelect || !categorySelect) return false
+
+  ;[mediaSelect, categorySelect].forEach((select) => {
+    if (!select.hasClass('select2-hidden-accessible')) {
+      select.select2({ minimumResultsForSearch: Infinity })
+    }
+    select.off('.galleryBooking')
+  })
+
+  mediaSelect.on('change.galleryBooking', (event) => {
+    updateMediaTypeFromElement(event.currentTarget)
+  })
+  categorySelect.on('change.galleryBooking', (event) => {
+    updateCategoryFromElement(event.currentTarget)
+  })
+  syncGallerySelectValues()
+  return true
+}
+
+function initializeGallerySelectsWhenReady() {
+  if (gallerySelectInitTimer !== undefined) {
+    window.clearTimeout(gallerySelectInitTimer)
+    gallerySelectInitTimer = undefined
   }
+
+  if (initializeGallerySelects()) {
+    gallerySelectInitAttempts = 0
+    return
+  }
+
+  if (gallerySelectInitAttempts >= SELECT2_INIT_MAX_ATTEMPTS) return
+
+  gallerySelectInitAttempts += 1
+  gallerySelectInitTimer = window.setTimeout(
+    initializeGallerySelectsWhenReady,
+    SELECT2_INIT_RETRY_DELAY
+  )
 }
 
-function setFilterSidebarOpen(isOpen: boolean) {
-  filterSidebarOpen.value = isOpen
-  rememberFilterSidebarState(isOpen)
-}
+function destroyGallerySelects() {
+  ;['#gallery-booking-media', '#gallery-booking-category'].forEach((selector) => {
+    const select = gallerySelect(selector)
+    if (!select) return
 
-function toggleFilterSidebar() {
-  setFilterSidebarOpen(!filterSidebarOpen.value)
-}
-
-function closeFilterSidebar() {
-  setFilterSidebarOpen(false)
+    select.off('.galleryBooking')
+    if (select.hasClass('select2-hidden-accessible')) select.select2('destroy')
+  })
 }
 
 function openItem(itemId: number) {
@@ -336,17 +390,12 @@ function showNext() {
 function handleKeydown(event: KeyboardEvent) {
   if (event.key === 'Escape') {
     if (activeItem.value) closeViewer()
-    else if (filterSidebarOpen.value) closeFilterSidebar()
     return
   }
 
   if (!activeItem.value) return
   if (event.key === 'ArrowLeft') showPrevious()
   if (event.key === 'ArrowRight') showNext()
-}
-
-function handleFilterSidebarBreakpoint(event: MediaQueryListEvent) {
-  if (!hasFilterSidebarPreference) filterSidebarOpen.value = event.matches
 }
 
 watch(isBodyLocked, (locked, wasLocked) => {
@@ -358,67 +407,119 @@ watch(isBodyLocked, (locked, wasLocked) => {
   }
 })
 
-watch(
-  filterSidebarOpen,
-  (isOpen) => {
-    if (typeof document === 'undefined') return
-    document.body.classList.add('gallery-filter-layout')
-    document.body.classList.toggle('gallery-filter-docked-open', isOpen)
-  },
-  { immediate: true }
-)
-
-onMounted(() => {
+onMounted(async () => {
   window.addEventListener('keydown', handleKeydown)
-  filterSidebarDockMedia?.addEventListener('change', handleFilterSidebarBreakpoint)
+  window.addEventListener('load', initializeGallerySelectsWhenReady, { once: true })
+  await nextTick()
+  initializeGallerySelectsWhenReady()
   void loadGallery()
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleKeydown)
-  filterSidebarDockMedia?.removeEventListener('change', handleFilterSidebarBreakpoint)
-  document.body.classList.remove('gallery-filter-layout', 'gallery-filter-docked-open')
+  window.removeEventListener('load', initializeGallerySelectsWhenReady)
+  if (gallerySelectInitTimer !== undefined) window.clearTimeout(gallerySelectInitTimer)
+  destroyGallerySelects()
   document.body.style.overflow = originalBodyOverflow
 })
 </script>
 
 <template>
   <main>
-    <header
-      class="banner-header gallery-hero section-padding valign bg-img bg-fixed"
-      data-overlay-dark="4"
-      :style="{ backgroundImage: `url('/media/gallery/walnut-villa-living.webp')` }"
-    >
-      <div class="container gallery-hero-inner">
-        <div class="row">
-          <div class="col-md-12 text-left caption gallery-hero-copy">
-            <h5>Hình ảnh &amp; thước phim</h5>
-            <h1>Thư viện</h1>
+    <div class="position-re">
+      <header
+        class="banner-header gallery-hero section-padding bg-img bg-fixed"
+        data-overlay-dark="4"
+        :style="{ backgroundImage: `url('/media/gallery/walnut-villa-living.webp')` }"
+      >
+        <div class="container gallery-hero-inner">
+          <div class="row">
+            <div class="col-md-12 text-left caption gallery-hero-copy">
+              <h5>Hình ảnh &amp; thước phim</h5>
+              <h1>Thư viện</h1>
+              <div class="gallery-meta" aria-live="polite">
+                <span>{{ resultLabel }}</span>
+                <span v-if="notice" class="gallery-notice">
+                  <i class="ti-info-alt" aria-hidden="true"></i> {{ notice }}
+                </span>
+              </div>
+            </div>
           </div>
         </div>
+      </header>
 
-        <div class="gallery-hero-panel gallery-hero-summary">
-          <div class="gallery-meta" aria-live="polite">
-            <span>{{ resultLabel }}</span>
-            <span v-if="notice" class="gallery-notice">
-              <i class="ti-info-alt" aria-hidden="true"></i> {{ notice }}
-            </span>
+      <section class="booking-wrapper" aria-label="Tìm kiếm thư viện">
+        <div class="container">
+          <div class="booking-inner clearfix">
+            <form class="form1 clearfix" role="search" @submit.prevent="submitSearch">
+              <div class="row m-0">
+                <div class="col-lg-5 col-md-4 c1 no-padding">
+                  <div class="input1_wrapper">
+                    <label for="gallery-booking-search">Tìm trong thư viện</label>
+                    <div class="full_name">
+                      <input
+                        id="gallery-booking-search"
+                        v-model="searchDraft"
+                        type="search"
+                        class="form-control input"
+                        placeholder="Không gian, chất liệu, dự án..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-2 col-md-3 c2 no-padding">
+                  <div class="select1_wrapper">
+                    <label for="gallery-booking-media">Loại nội dung</label>
+                    <div class="select1_inner">
+                      <select
+                        id="gallery-booking-media"
+                        :value="mediaType"
+                        class="select2 select"
+                        style="width: 100%"
+                        :disabled="loading"
+                        @change="handleMediaTypeChange"
+                      >
+                        <option value="all">Tất cả nội dung</option>
+                        <option value="image">Hình ảnh</option>
+                        <option value="video">Video</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-3 col-md-3 c3 no-padding">
+                  <div class="select1_wrapper">
+                    <label for="gallery-booking-category">Không gian</label>
+                    <div class="select1_inner">
+                      <select
+                        id="gallery-booking-category"
+                        :value="category"
+                        class="select2 select"
+                        style="width: 100%"
+                        :disabled="loading"
+                        @change="handleCategoryChange"
+                      >
+                        <option value="all">Mọi không gian</option>
+                        <option v-for="item in categories" :key="item.id" :value="item.slug">
+                          {{ item.name }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-2 col-md-2 c4 no-padding">
+                  <button type="submit" class="btn-form1-submit" :disabled="loading">
+                    Tìm kiếm
+                  </button>
+                </div>
+              </div>
+            </form>
           </div>
-          <button
-            type="button"
-            class="gallery-filter-toggle"
-            data-testid="gallery-filter-toggle"
-            aria-controls="gallery-filter-sidebar"
-            :aria-expanded="filterSidebarOpen"
-            @click="toggleFilterSidebar"
-          >
-            <span class="gallery-filter-toggle-icon" aria-hidden="true"><i></i><i></i></span>
-            <span>Tìm kiếm &amp; bộ lọc</span>
-            <strong v-if="activeFilterCount">{{ activeFilterCount }}</strong>
-          </button>
         </div>
-      </div>
-    </header>
+      </section>
+    </div>
 
     <section
       v-if="showImageSection"
@@ -618,108 +719,6 @@ onBeforeUnmount(() => {
     </section>
 
     <Teleport to="body">
-      <Transition name="gallery-filter-panel">
-        <aside
-          v-if="filterSidebarOpen"
-          id="gallery-filter-sidebar"
-          class="gallery-filter-sidebar"
-          role="complementary"
-          aria-labelledby="gallery-filter-title"
-        >
-          <div class="gallery-filter-header">
-            <div>
-              <span>Thư viện D&amp;L</span>
-              <h2 id="gallery-filter-title">Tìm kiếm &amp; bộ lọc</h2>
-            </div>
-            <button
-              type="button"
-              class="gallery-filter-close"
-              data-testid="gallery-filter-close"
-              aria-label="Đóng"
-              @click="closeFilterSidebar"
-            >
-              <i></i><i></i>
-            </button>
-          </div>
-
-          <div class="gallery-filter-body">
-            <form class="gallery-sidebar-search" role="search" @submit.prevent="submitSearch">
-              <label for="gallery-sidebar-search">Tìm trong thư viện</label>
-              <div>
-                <input
-                  id="gallery-sidebar-search"
-                  v-model="searchDraft"
-                  type="search"
-                  placeholder="Không gian, chất liệu, dự án..."
-                />
-                <button type="submit" aria-label="Tìm kiếm">
-                  <i class="ti-search" aria-hidden="true"></i>
-                </button>
-              </div>
-            </form>
-
-            <div class="gallery-filter-group">
-              <h3>Loại nội dung</h3>
-              <div class="gallery-filter-list" role="group" aria-label="Loại nội dung">
-                <button
-                  type="button"
-                  :class="{ active: mediaType === 'all' }"
-                  @click="selectMediaType('all')"
-                >
-                  <span>Tất cả</span><strong>{{ counts.all }}</strong>
-                </button>
-                <button
-                  type="button"
-                  :class="{ active: mediaType === 'image' }"
-                  @click="selectMediaType('image')"
-                >
-                  <span>Hình ảnh</span><strong>{{ counts.images }}</strong>
-                </button>
-                <button
-                  type="button"
-                  :class="{ active: mediaType === 'video' }"
-                  @click="selectMediaType('video')"
-                >
-                  <span>Video</span><strong>{{ counts.videos }}</strong>
-                </button>
-              </div>
-            </div>
-
-            <div class="gallery-filter-group">
-              <h3>Không gian</h3>
-              <div class="gallery-filter-list" role="group" aria-label="Danh mục không gian">
-                <button
-                  type="button"
-                  :class="{ active: category === 'all' }"
-                  @click="selectCategory('all')"
-                >
-                  <span>Mọi không gian</span><strong>{{ counts.all }}</strong>
-                </button>
-                <button
-                  v-for="item in categories"
-                  :key="item.id"
-                  type="button"
-                  :class="{ active: category === item.slug }"
-                  @click="selectCategory(item.slug)"
-                >
-                  <span>{{ item.name }}</span
-                  ><strong>{{ item.itemCount }}</strong>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <div class="gallery-filter-footer">
-            <p>{{ resultLabel }}</p>
-            <button v-if="activeFilterCount" type="button" @click="clearFilters">
-              Xóa bộ lọc <i class="ti-close" aria-hidden="true"></i>
-            </button>
-          </div>
-        </aside>
-      </Transition>
-    </Teleport>
-
-    <Teleport to="body">
       <Transition name="gallery-viewer">
         <div
           v-if="activeItem"
@@ -815,19 +814,37 @@ onBeforeUnmount(() => {
   line-height: 1.1;
 }
 
-.gallery-hero-panel {
+.booking-wrapper .full_name::after {
+  content: '\e610';
+}
+
+.booking-wrapper .full_name input:focus,
+.booking-wrapper .full_name input:focus-visible {
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+}
+
+.booking-wrapper .c1,
+.booking-wrapper .c2,
+.booking-wrapper .c3,
+.booking-wrapper .c4 {
+  position: relative;
+  margin-bottom: 0;
+  border-right: 0;
+}
+
+.booking-wrapper .c1::after,
+.booking-wrapper .c2::after {
   position: absolute;
-  right: 15px;
-  bottom: 24px;
-  left: 15px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 12px 0;
-  border-top: 1px solid rgba(255, 255, 255, 0.28);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
-  background: transparent;
+  z-index: 2;
+  top: 14px;
+  right: 0;
+  bottom: 14px;
+  width: 1px;
+  background: rgba(170, 132, 83, 0.48);
+  content: '';
+  pointer-events: none;
 }
 
 .gallery-meta {
@@ -841,250 +858,6 @@ onBeforeUnmount(() => {
 
 .gallery-notice {
   color: #d8b98d;
-}
-
-.gallery-filter-toggle {
-  display: inline-flex;
-  flex: 0 0 auto;
-  align-items: center;
-  gap: 12px;
-  padding: 8px 0;
-  border: 0;
-  background: transparent;
-  color: #fff;
-  font-family: 'Barlow Condensed', sans-serif;
-  /* font-size: 12px; */
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.gallery-filter-toggle strong {
-  display: grid;
-  width: 21px;
-  height: 21px;
-  place-items: center;
-  border-radius: 50%;
-  background: #aa8453;
-  color: #fff;
-  font-size: 10px;
-  font-weight: 400;
-  letter-spacing: 0;
-}
-
-.gallery-filter-toggle-icon {
-  position: relative;
-  display: block;
-  width: 26px;
-  height: 16px;
-}
-
-.gallery-filter-toggle-icon i {
-  position: absolute;
-  right: 0;
-  width: 26px;
-  height: 1px;
-  background: #d8b98d;
-  transition: width 0.25s ease;
-}
-
-.gallery-filter-toggle-icon i:first-child {
-  top: 4px;
-}
-
-.gallery-filter-toggle-icon i:last-child {
-  top: 11px;
-  width: 18px;
-}
-
-.gallery-filter-toggle:hover .gallery-filter-toggle-icon i:last-child {
-  width: 26px;
-}
-
-.gallery-filter-sidebar {
-  position: fixed;
-  z-index: 99991;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  display: flex;
-  width: min(410px, calc(100vw - 24px));
-  flex-direction: column;
-  overflow-y: auto;
-  background: #fff;
-  box-shadow: -20px 0 45px rgba(25, 23, 20, 0.12);
-}
-
-.gallery-filter-header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 30px;
-  padding: 44px 38px 31px;
-  border-bottom: 1px solid #eeeae5;
-}
-
-.gallery-filter-header span,
-.gallery-sidebar-search label,
-.gallery-filter-group h3 {
-  color: #aa8453;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px;
-  font-weight: 400;
-  letter-spacing: 2.6px;
-  text-transform: uppercase;
-}
-
-.gallery-filter-header h2 {
-  margin: 5px 0 0;
-  color: #222;
-  font-size: 30px;
-  font-weight: 400;
-}
-
-.gallery-filter-close {
-  position: relative;
-  flex: 0 0 32px;
-  width: 32px;
-  height: 32px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-}
-
-.gallery-filter-close i {
-  position: absolute;
-  top: 15px;
-  left: 2px;
-  width: 28px;
-  height: 1px;
-  background: #aa8453;
-}
-
-.gallery-filter-close i:first-child {
-  transform: rotate(45deg);
-}
-
-.gallery-filter-close i:last-child {
-  transform: rotate(-45deg);
-}
-
-.gallery-filter-body {
-  flex: 1 0 auto;
-  padding: 32px 38px 20px;
-}
-
-.gallery-sidebar-search label {
-  display: block;
-  margin-bottom: 12px;
-}
-
-.gallery-sidebar-search > div {
-  position: relative;
-  border-bottom: 1px solid #d8d3cd;
-}
-
-.gallery-sidebar-search input {
-  width: 100%;
-  height: 44px;
-  padding: 0 42px 0 0;
-  border: 0;
-  outline: 0;
-  background: transparent;
-  color: #222;
-  font-family: 'Barlow', sans-serif;
-  font-size: 14px;
-}
-
-.gallery-sidebar-search input::placeholder {
-  color: #999;
-}
-
-.gallery-sidebar-search button {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 40px;
-  height: 44px;
-  border: 0;
-  background: transparent;
-  color: #aa8453;
-  cursor: pointer;
-}
-
-.gallery-filter-group {
-  margin-top: 34px;
-}
-
-.gallery-filter-group h3 {
-  margin-bottom: 9px;
-}
-
-.gallery-filter-list button {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: space-between;
-  gap: 20px;
-  padding: 12px 0;
-  border: 0;
-  border-bottom: 1px solid #eeeae5;
-  background: transparent;
-  color: #555;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 14px;
-  letter-spacing: 0.8px;
-  text-align: left;
-  text-transform: uppercase;
-  cursor: pointer;
-  transition: color 0.2s ease;
-}
-
-.gallery-filter-list button strong {
-  color: #aaa;
-  font-size: 11px;
-  font-weight: 400;
-}
-
-.gallery-filter-list button:hover,
-.gallery-filter-list button.active,
-.gallery-filter-list button.active strong {
-  color: #aa8453;
-}
-
-.gallery-filter-footer {
-  padding: 24px 38px 32px;
-  border-top: 1px solid #eeeae5;
-}
-
-.gallery-filter-footer p {
-  margin: 0;
-  color: #777;
-  font-size: 12px;
-}
-
-.gallery-filter-footer button {
-  margin-top: 11px;
-  padding: 0;
-  border: 0;
-  background: transparent;
-  color: #aa8453;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  letter-spacing: 1.6px;
-  text-transform: uppercase;
-  cursor: pointer;
-}
-
-.gallery-filter-panel-enter-active,
-.gallery-filter-panel-leave-active {
-  transition: transform 0.42s cubic-bezier(0.77, 0, 0.18, 1);
-}
-
-.gallery-filter-panel-enter-from,
-.gallery-filter-panel-leave-to {
-  transform: translateX(100%);
 }
 
 .gallery-media-section {
@@ -1343,6 +1116,17 @@ onBeforeUnmount(() => {
   }
 }
 
+@media (max-width: 991.98px) {
+  .gallery-hero {
+    height: auto;
+  }
+
+  .booking-wrapper {
+    padding-bottom: 30px;
+    background: #f8f5f0;
+  }
+}
+
 @media (max-width: 767px) {
   .gallery-hero {
     min-height: 540px;
@@ -1360,36 +1144,35 @@ onBeforeUnmount(() => {
     font-size: 48px;
   }
 
-  .gallery-hero-panel {
-    right: 15px;
-    bottom: 22px;
-    left: 15px;
-    align-items: flex-start;
-    padding: 12px 0;
-  }
-
   .gallery-meta {
     gap: 3px;
   }
 
-  .gallery-filter-toggle > span:nth-child(2) {
-    display: none;
+  .booking-wrapper .c1,
+  .booking-wrapper .c2,
+  .booking-wrapper .c3,
+  .booking-wrapper .c4 {
+    height: 62px;
+    margin-bottom: 0;
+    border-right: 0;
   }
 
-  .gallery-filter-sidebar {
-    width: min(360px, calc(100vw - 18px));
+  .booking-wrapper .c1::after,
+  .booking-wrapper .c2::after {
+    top: auto;
+    right: 20px;
+    bottom: 0;
+    left: 20px;
+    width: auto;
+    height: 1px;
   }
 
-  .gallery-filter-header {
-    padding: 32px 26px 25px;
+  .booking-wrapper .c4 {
+    margin-top: 12px;
   }
 
-  .gallery-filter-body {
-    padding: 26px 26px 18px;
-  }
-
-  .gallery-filter-footer {
-    padding: 21px 26px 27px;
+  .booking-wrapper :deep(.select2) {
+    margin-bottom: 0;
   }
 
   .gallery-media-section {
@@ -1434,33 +1217,6 @@ onBeforeUnmount(() => {
 </style>
 
 <style>
-@media (min-width: 1440px) {
-  body.gallery-filter-layout #app > .navbar {
-    transition:
-      width 0.42s cubic-bezier(0.77, 0, 0.18, 1),
-      transform 0.5s;
-  }
-
-  body.gallery-filter-layout #app > main,
-  body.gallery-filter-layout #app > .footer {
-    transition: width 0.42s cubic-bezier(0.77, 0, 0.18, 1);
-  }
-
-  body.gallery-filter-layout #app > main .container {
-    transition: width 0.42s cubic-bezier(0.77, 0, 0.18, 1);
-  }
-
-  body.gallery-filter-docked-open #app > .navbar,
-  body.gallery-filter-docked-open #app > main,
-  body.gallery-filter-docked-open #app > .footer {
-    width: calc(100% - 410px);
-  }
-
-  body.gallery-filter-docked-open #app > main .container {
-    width: calc(100% - 64px);
-  }
-}
-
 .gallery-viewer {
   position: fixed;
   z-index: 99999;
