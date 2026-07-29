@@ -698,53 +698,51 @@ onMounted(async () => {
                     </article>
                   </div>
                 </div>
+
+                <div v-if="state.totalPages > 1" class="col-md-12">
+                  <nav aria-label="Phân trang tin tức">
+                    <ul class="news-pagination-wrap align-center mb-30 mt-30">
+                      <li>
+                        <a
+                          :href="paginationHref(state.page - 1)"
+                          :class="{ 'is-disabled': state.page <= 1 || loading }"
+                          :aria-disabled="state.page <= 1 || loading"
+                          aria-label="Trang trước"
+                          @click.prevent="goToPage(state.page - 1)"
+                        >
+                          <i class="ti-angle-left" aria-hidden="true"></i>
+                        </a>
+                      </li>
+
+                      <li v-for="(page, pageIndex) in pageButtons" :key="`${page}-${pageIndex}`">
+                        <span v-if="page === '...'" class="news-pagination-ellipsis">...</span>
+                        <a
+                          v-else
+                          :href="paginationHref(page)"
+                          :class="{ active: page === state.page, 'is-disabled': loading }"
+                          :aria-current="page === state.page ? 'page' : undefined"
+                          :aria-disabled="loading"
+                          @click.prevent="goToPage(page)"
+                        >
+                          {{ page }}
+                        </a>
+                      </li>
+
+                      <li>
+                        <a
+                          :href="paginationHref(state.page + 1)"
+                          :class="{ 'is-disabled': state.page >= state.totalPages || loading }"
+                          :aria-disabled="state.page >= state.totalPages || loading"
+                          aria-label="Trang sau"
+                          @click.prevent="goToPage(state.page + 1)"
+                        >
+                          <i class="ti-angle-right" aria-hidden="true"></i>
+                        </a>
+                      </li>
+                    </ul>
+                  </nav>
+                </div>
               </template>
-            </div>
-
-            <div v-if="state.totalPages > 1" class="row">
-              <div class="col-md-12">
-                <nav aria-label="Phân trang tin tức">
-                  <ul class="news-pagination-wrap align-center mb-30 mt-30">
-                    <li>
-                      <a
-                        :href="paginationHref(state.page - 1)"
-                        :class="{ 'is-disabled': state.page <= 1 || loading }"
-                        :aria-disabled="state.page <= 1 || loading"
-                        aria-label="Trang trước"
-                        @click.prevent="goToPage(state.page - 1)"
-                      >
-                        <i class="ti-angle-left" aria-hidden="true"></i>
-                      </a>
-                    </li>
-
-                    <li v-for="(page, pageIndex) in pageButtons" :key="`${page}-${pageIndex}`">
-                      <span v-if="page === '...'" class="news-pagination-ellipsis">...</span>
-                      <a
-                        v-else
-                        :href="paginationHref(page)"
-                        :class="{ active: page === state.page, 'is-disabled': loading }"
-                        :aria-current="page === state.page ? 'page' : undefined"
-                        :aria-disabled="loading"
-                        @click.prevent="goToPage(page)"
-                      >
-                        {{ page }}
-                      </a>
-                    </li>
-
-                    <li>
-                      <a
-                        :href="paginationHref(state.page + 1)"
-                        :class="{ 'is-disabled': state.page >= state.totalPages || loading }"
-                        :aria-disabled="state.page >= state.totalPages || loading"
-                        aria-label="Trang sau"
-                        @click.prevent="goToPage(state.page + 1)"
-                      >
-                        <i class="ti-angle-right" aria-hidden="true"></i>
-                      </a>
-                    </li>
-                  </ul>
-                </nav>
-              </div>
             </div>
           </div>
 
@@ -921,19 +919,13 @@ onMounted(async () => {
   white-space: nowrap !important;
 }
 
-.news .item .con {
-  margin: -155px 0px 90px;
-}
-
 #news-results {
-  --news-card-image-height: 500px;
-
   scroll-margin-top: 90px;
 }
 
 #news-results.news-grid-view {
-  /* padding-top: 72px;
-  padding-bottom: 88px; */
+  padding-top: 72px;
+  padding-bottom: 88px;
 }
 
 .news-state-action:focus-visible,
@@ -1010,7 +1002,7 @@ onMounted(async () => {
 
 .news-state {
   display: flex;
-  min-height: 520px;
+  min-height: 420px;
   padding: 70px 40px;
   align-items: center;
   justify-content: center;
@@ -1103,8 +1095,7 @@ onMounted(async () => {
 
 .news-skeleton-image {
   width: 100%;
-  height: var(--news-card-image-height);
-  aspect-ratio: auto;
+  aspect-ratio: 16 / 9;
 }
 
 .news-skeleton-copy {
@@ -1141,7 +1132,7 @@ onMounted(async () => {
   right: 0;
   bottom: 0;
   left: 0;
-  height: 60%;
+  height: 40%;
   content: '';
   background: linear-gradient(to top, rgba(15, 13, 10, 0.46), transparent);
   pointer-events: none;
@@ -1150,8 +1141,7 @@ onMounted(async () => {
 .news2 .post-img img {
   display: block;
   width: 100%;
-  height: var(--news-card-image-height);
-  aspect-ratio: auto;
+  aspect-ratio: 16 / 9;
   object-fit: cover;
 }
 
@@ -1415,7 +1405,6 @@ onMounted(async () => {
 
 .news-card-column--popular {
   grid-column: 1 / -1;
-  margin-bottom: 25px;
 }
 
 .news-card-column--orphan {
@@ -1431,7 +1420,7 @@ onMounted(async () => {
 
 .news-grid-card--popular {
   display: grid;
-  height: var(--news-card-image-height);
+  height: 500px;
   min-height: 0;
   grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.85fr);
   overflow: hidden;
@@ -1439,8 +1428,7 @@ onMounted(async () => {
 }
 
 .news-grid-media {
-  height: var(--news-card-image-height);
-  aspect-ratio: auto;
+  aspect-ratio: 4 / 3;
   background: #171717;
 }
 
@@ -1455,68 +1443,33 @@ onMounted(async () => {
   height: 100%;
 }
 
-.news-grid-view .item {
-  position: relative;
-  overflow: hidden;
-}
-
 .news-grid-view .item img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  -webkit-transition: all 0.5s ease;
-  transition: all 0.5s ease;
-  -webkit-filter: brightness(100%);
-  filter: brightness(100%);
-}
-
-.news-grid-view .item:hover img {
-  -webkit-transform: scale(1.09, 1.09);
-  transform: scale(1.09, 1.09);
-  -webkit-filter: brightness(75%);
-  filter: brightness(75%);
-  -webkit-transition: all 1s ease;
-  transition: all 1s ease;
-}
-
-.news-grid-card {
-  position: relative;
 }
 
 .news-grid-view .news-grid-card .con {
-  /* position: absolute; */
   z-index: 2;
-  left: 24px;
-  width: calc(100% - 48px);
-  padding: 26px 28px 24px;
+  bottom: 0;
   display: flex;
+  width: calc(100% - 48px);
+  min-height: 0;
+  margin: -54px 24px 0;
+  padding: 26px 28px 24px;
   flex-direction: column;
-  background: #f8f5f0;
-  border: 1px solid #f8f5f0;
-  bottom: -65px;
-  -webkit-transition: bottom 0.35s cubic-bezier(0.3, 0.58, 0.55, 1);
-  transition: bottom 0.35s cubic-bezier(0.3, 0.58, 0.55, 1);
-}
-
-.news-grid-card:hover .con {
-  bottom: 10px;
-}
-
-.news-grid-card--popular .con,
-.news-grid-card--popular:hover .con {
-  bottom: auto;
 }
 
 .news-grid-view .news-grid-card--popular .con {
   position: static;
+  bottom: auto;
   width: auto;
   min-height: 100%;
   margin: 0;
   padding: 42px 40px;
   justify-content: center;
   border: 0;
-  background: transparent;
 }
 
 .news-grid-view .news-grid-card .con h5 {
@@ -1627,8 +1580,7 @@ onMounted(async () => {
 }
 
 .news-skeleton-list--grid .news-skeleton-image {
-  height: var(--news-card-image-height);
-  aspect-ratio: auto;
+  aspect-ratio: 4 / 3;
 }
 
 .news-skeleton-list--grid .news-skeleton-copy {
@@ -1641,7 +1593,7 @@ onMounted(async () => {
 
 .news-skeleton-list--grid .news-card-skeleton--popular {
   display: grid;
-  height: var(--news-card-image-height);
+  height: 500px;
   min-height: 0;
   grid-column: 1 / -1;
   grid-template-columns: minmax(0, 1.55fr) minmax(300px, 0.85fr);
@@ -1666,13 +1618,13 @@ onMounted(async () => {
 @media screen and (min-width: 992px) and (max-width: 1199px) {
   .news-grid-card--popular,
   .news-skeleton-list--grid .news-card-skeleton--popular {
-    height: var(--news-card-image-height);
+    height: 440px;
   }
 }
 
 @media screen and (min-width: 768px) and (max-width: 991px) {
   .news-grid-card--popular {
-    height: var(--news-card-image-height);
+    height: 340px;
     min-height: 0;
     grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
   }
@@ -1690,7 +1642,7 @@ onMounted(async () => {
   }
 
   .news-skeleton-list--grid .news-card-skeleton--popular {
-    height: var(--news-card-image-height);
+    height: 340px;
     min-height: 0;
     grid-template-columns: minmax(0, 1.15fr) minmax(280px, 0.85fr);
   }
@@ -1706,8 +1658,8 @@ onMounted(async () => {
 
 @media screen and (max-width: 767px) {
   #news-results.news-grid-view {
-    /* padding-top: 54px;
-    padding-bottom: 70px; */
+    padding-top: 54px;
+    padding-bottom: 70px;
   }
 
   .news-card-list--grid {
@@ -1733,38 +1685,28 @@ onMounted(async () => {
   }
 
   .news-grid-media {
-    height: var(--news-card-image-height);
-    aspect-ratio: auto;
+    aspect-ratio: 4 / 3;
   }
 
   .news-grid-card--popular .news-grid-media {
-    height: var(--news-card-image-height);
     min-height: 0;
-    aspect-ratio: auto;
+    aspect-ratio: 4 / 3;
   }
 
   .news-grid-view .news-grid-card .con {
-    /* width: calc(100% - 28px); */
+    width: calc(100% - 28px);
     min-height: 0;
-    /* margin: -36px 14px 0; */
+    margin: -36px 14px 0;
     padding: 22px 20px 24px;
   }
 
   .news-grid-view .news-grid-card--popular .con {
     position: relative;
-    bottom: -65px;
-    left: 24px;
-    width: calc(100% - 48px);
+    bottom: 0;
+    width: calc(100% - 28px);
     min-height: 0;
-    margin: -155px 0 90px;
-    padding: 22px 20px 24px;
-    justify-content: flex-start;
-    border: 1px solid #f8f5f0;
-    background: #f8f5f0;
-  }
-
-  .news-grid-view .news-grid-card--popular:hover .con {
-    bottom: 10px;
+    margin: -36px 14px 0;
+    padding: 24px 20px 25px;
   }
 
   .news-grid-view .news-grid-card--popular .con .category {
@@ -1772,24 +1714,16 @@ onMounted(async () => {
     margin-bottom: 9px;
   }
 
-  .news-grid-view .news-grid-card--popular .news-popular-badge {
-    padding: 5px 10px;
-    border-radius: 999px;
-    background: #aa8453;
-    color: #fff;
-    font-size: 10px;
-    line-height: 1.2;
-    letter-spacing: 1px;
-  }
-
   .news-grid-view .news-grid-card--popular .con h5 a {
-    font-size: 20px;
-    line-height: 1.32;
+    font-size: 22px;
+    line-height: 1.3;
   }
 
-  .news-grid-view .news-grid-card--popular .news-popular-summary,
-  .news-grid-view .news-grid-card--popular .news-popular-views {
-    display: none;
+  .news-grid-view .news-grid-card--popular .news-popular-summary {
+    margin: 12px 0 13px;
+    font-size: 15px;
+    line-height: 1.55;
+    -webkit-line-clamp: 2;
   }
 
   .news-grid-view .news-grid-card .con h5 a {
@@ -1814,9 +1748,8 @@ onMounted(async () => {
   }
 
   .news-skeleton-list--grid .news-card-skeleton--popular .news-skeleton-image {
-    height: var(--news-card-image-height);
     min-height: 0;
-    aspect-ratio: auto;
+    aspect-ratio: 4 / 3;
   }
 
   .news-skeleton-list--grid .news-skeleton-copy {

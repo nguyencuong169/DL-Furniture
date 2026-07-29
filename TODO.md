@@ -1,14 +1,14 @@
-# TODO: Polish NewsDetailView.vue
+# NewsView Grid Hover Effect Plan
 
-## Steps
+## Steps:
 
-- [x] Step 1: Explore repo and understand current implementation
-- [x] Step 2: Create comprehensive plan and get user approval
-- [x] Step 3: Enhanced Article Header / Metadata Section (author, view count, dates)
-- [x] Step 4: Rich Content Rendering with `v-html` and comprehensive article styles
-- [x] Step 5: Article Footer Section (tags, category, share buttons, navigation)
-- [x] Step 6: Enhanced Author / Source Box
-- [x] Step 7: Related Articles Redesign - **Updated NewsComponent to accept `items` prop** + **Sidebar now shows "Chuyên mục" categories**
-- [x] Step 8: Reading Progress Bar & Back-to-Top Button
-- [x] Step 9: Improved Loading & Error States (skeleton, retry)
-- [x] Step 10: Final review — type-check running...
+- [x] Step 1: Information gathering (read NewsView.vue and NewsComponent.vue)
+- [x] Step 2: Plan creation and approval
+- [x] Step 3: Add CSS transitions and hover effects to grid cards in NewsView.vue
+  - 3a: Add `position: relative; overflow: hidden` to `.item` in grid view
+  - 3b: Add `transition` and `filter: brightness(100%)` to `.news-grid-view .item img`
+  - 3c: Add hover: image scale(1.09) + brightness(75%) (matching NewsComponent)
+  - 3d: Add `bottom: -70px` + `transition` to `.con`, hover sets `bottom: 0` (slide-up)
+  - 3e: Add `background` + `border` to `.con` matching NewsComponent
+  - 3f: Handle popular card variant (no slide-up, keep static layout)
+- [x] Step 4: Verified all changes in file

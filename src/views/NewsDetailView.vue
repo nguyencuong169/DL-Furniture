@@ -762,7 +762,7 @@ watch(
 .nd-banner {
   position: relative;
   min-height: 520px;
-  padding: 0;
+  /* padding: 0; */
   background-position: center;
   background-size: cover;
 }
