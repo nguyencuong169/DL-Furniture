@@ -3,6 +3,7 @@
 <template>
   <section class="services section-padding">
     <div class="container">
+      <!-- Row 1 -->
       <div class="row">
         <div
           class="col-md-6 bg-cream p-0 order2 valign animate-box"
@@ -11,57 +12,67 @@
           <div class="content">
             <div class="cont text-left">
               <div class="info">
-                <h6>Experiences</h6>
+                <h6>NGUYÊN LIỆU</h6>
               </div>
-              <h4>SANG TRỌNG, ĐẲNG CẤP</h4>
+              <h4>GỖ ÓC CHÓ BẮC MỸ NHẬP KHẨU</h4>
               <p>
-                Xây dựng và khẳng định vị thế thương hiệu bằng uy tín, chất lượng với những sản phẩm
-                mang tính độc bản.
-                <strong>D&L Furniture</strong> luôn đón đầu xu hướng thiết kế đẹp và đẳng cấp nhất
-                hiện nay, đem lại cho khách hàng giá trị sống vẹn cùng sự trải nghiệm có một không
-                hai tại Việt Nam..
+                <strong>D&L Furniture</strong> sử dụng 100% gỗ óc chó nhập khẩu từ Bắc Mỹ, được kiểm
+                định chất lượng nghiêm ngặt. Vân gỗ tự nhiên, màu sắc đặc trưng, độ bền vượt thời
+                gian — nguyên liệu hoàn hảo cho nội thất đẳng cấp.
               </p>
               <div class="butn-dark">
-                <a href="spa-wellness.html"><span>Khám phá ngay</span></a>
+                <router-link to="/san-pham"><span>Khám phá ngay</span></router-link>
               </div>
             </div>
           </div>
         </div>
         <div class="col-md-6 p-0 order1 animate-box" data-animate-effect="fadeInRight">
           <div class="img">
-            <a href="spa-wellness.html"><img src="@/assets/img/spa/1.jpg" alt="" /></a>
+            <router-link to="/san-pham">
+              <img
+                src="/media/gallery/walnut-joinery-detail.webp"
+                alt="Vân gỗ óc chó Bắc Mỹ - D&L Furniture"
+                loading="lazy"
+              />
+            </router-link>
           </div>
         </div>
       </div>
+
+      <!-- Row 2 -->
       <div class="row">
         <div class="col-md-6 p-0 animate-box" data-animate-effect="fadeInLeft">
           <div class="img left">
-            <a href="restaurant.html"><img src="@/assets/img/restaurant/1.jpg" alt="" /></a>
+            <router-link to="/san-pham">
+              <img
+                src="/media/gallery/artisan-walnut-chair.webp"
+                alt="Chế tác gỗ óc chó thủ công - D&L Furniture"
+                loading="lazy"
+              />
+            </router-link>
           </div>
         </div>
         <div class="col-md-6 p-0 bg-cream valign animate-box" data-animate-effect="fadeInRight">
           <div class="content">
             <div class="cont text-left">
               <div class="info">
-                <h6>Khám phá</h6>
+                <h6>CHẾ TÁC</h6>
               </div>
-              <h4>KHÔNG GIAN SỐNG HIỆN ĐẠI</h4>
+              <h4>THỦ CÔNG TINH XẢO</h4>
               <p>
-                Đứng đầu “Top” những đơn vị thi công nội thất gỗ óc chó trên thị trường hiện nay,
-                <strong>D&L Furniture</strong> không ngừng tìm hiểu, lắng nghe và nghiên cứu thị
-                hiếu người tiêu dùng qua từng giai đoạn để có thể mang đến những sản phẩm nội thất
-                cao cấp hoàn hảo, thể hiện đẳng cấp gia chủ. Không chỉ dừng ở việc sản xuất ra những
-                sản phẩm nội thất gỗ óc chó cao cấp, <strong>D&L Furniture</strong> thấu hiểu một
-                cách sâu sắc những thế mạnh của vật liệu thi công, từ đó đẩy mạnh phát triển và sáng
-                tạo ra sự khác biệt.
+                Từng chi tiết đều được chế tác bởi đội ngũ thợ lành nghề với hơn 15 năm kinh nghiệm.
+                Sự kết hợp giữa kỹ thuật truyền thống và công nghệ hiện đại, mỗi sản phẩm là một tác
+                phẩm nghệ thuật mang hồn cốt riêng.
               </p>
               <div class="butn-dark">
-                <a href="restaurant.html"><span>Khám phá ngay</span></a>
+                <router-link to="/san-pham"><span>Khám phá ngay</span></router-link>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Row 3 -->
       <div class="row">
         <div
           class="col-md-6 bg-cream p-0 order2 valign animate-box"
@@ -70,53 +81,60 @@
           <div class="content">
             <div class="cont text-left">
               <div class="info">
-                <h6>DUY NHẤT</h6>
+                <h6>KIỂM ĐỊNH</h6>
               </div>
-              <h4>THIẾT KẾ ĐỘC QUYỀN</h4>
+              <h4>CHẤT LƯỢNG ĐẠT CHUẨN</h4>
               <p>
-                <strong>D&L Furniture</strong> hướng tới những giải pháp thiết kế mang tính độc
-                quyền, thể hiện xu hướng cá nhân hóa một cách mạnh mẽ, tiêu biểu qua các dự án chung
-                cư biệt thự cao cấp. Đội ngũ KTS tài năng, sáng tạo, bài bản và đầy nhiệt huyết, với
-                những ý tưởng thiết kế độc đáo, kiến tạo nên những giá trị riêng biệt. Mỗi một sản
-                phẩm thiết kế của <strong>D&L Furniture</strong> đều được thực hiện dựa trên yêu cầu
-                riêng của từng khách hàng, nhiệm vụ của các KTS là nghiên cứu và tìm ra những giải
-                pháp mang tính đồng bộ, tạo ra các không gian sống tiện nghi, sang trọng và đẳng
-                cấp..
+                Mỗi sản phẩm trước khi đến tay khách hàng đều trải qua quy trình kiểm định nghiêm
+                ngặt 3 bước. Từ độ ẩm gỗ, độ bền mối ghép đến hoàn thiện bề mặt —
+                <strong>D&L Furniture</strong> cam kết chất lượng tốt nhất.
               </p>
               <div class="butn-dark">
-                <a href="spa-wellness.html"><span>Khám phá ngay</span></a>
+                <router-link to="/san-pham"><span>Khám phá ngay</span></router-link>
               </div>
             </div>
           </div>
         </div>
         <div class="col-md-6 p-0 order1 animate-box" data-animate-effect="fadeInRight">
           <div class="img">
-            <a href="spa-wellness.html"><img src="@/assets/img/spa/3.png" alt="" /></a>
+            <router-link to="/san-pham">
+              <img
+                src="/media/gallery/walnut-suite.jpg"
+                alt="Sản phẩm gỗ óc chó hoàn thiện đạt chuẩn - D&L Furniture"
+                loading="lazy"
+              />
+            </router-link>
           </div>
         </div>
       </div>
+
+      <!-- Row 4 -->
       <div class="row">
         <div class="col-md-6 p-0 animate-box" data-animate-effect="fadeInLeft">
           <div class="img left">
-            <a href="spa-wellness.html"><img src="@/assets/img/spa/2.png" alt="" /></a>
+            <router-link to="/san-pham">
+              <img
+                src="/media/gallery/arched-dining.jpg"
+                alt="Bộ bàn ăn gỗ óc chó bền bỉ trường tồn - D&L Furniture"
+                loading="lazy"
+              />
+            </router-link>
           </div>
         </div>
         <div class="col-md-6 p-0 bg-cream valign animate-box" data-animate-effect="fadeInRight">
           <div class="content">
             <div class="cont text-left">
               <div class="info">
-                <h6>LUXURY</h6>
+                <h6>BẢO HÀNH</h6>
               </div>
-              <h4>NỘI THẤT CAO CẤP</h4>
+              <h4>ĐỒNG HÀNH TRỌN ĐỜI</h4>
               <p>
-                Định hướng tập trung chuyên sâu vào lĩnh vực nội thất cao cấp với những khu dự án
-                cao cấp nổi tiếng cùng các căn biệt thự, chung cư hạng sang,
-                <strong>D&L Furniture</strong> luôn tiên phong trong xu hướng thiết kế hiện đại. Với
-                dòng gỗ óc chó nhập khẩu Bắc Mỹ, được kiểm định kỹ càng về chất lượng, từng sản phẩm
-                được trau chuốt kĩ càng trước khi mang đến khách hàng những sản phẩm hoàn hảo nhất.
+                <strong>D&L Furniture</strong> cam kết bảo hành 2 năm, bảo trì trọn đời cho mọi sản
+                phẩm nội thất gỗ óc chó. Đội ngũ kỹ thuật sẵn sàng phục vụ quý khách 24/7, đảm bảo
+                sản phẩm luôn bền đẹp theo thời gian.
               </p>
               <div class="butn-dark">
-                <a href="spa-wellness.html"><span>Khám phá ngay</span></a>
+                <router-link to="/lien-he"><span>Liên hệ tư vấn</span></router-link>
               </div>
             </div>
           </div>
@@ -126,4 +144,18 @@
   </section>
 </template>
 
-<style scoped></style>
+<style scoped>
+/* Đồng bộ chiều cao ảnh & box text */
+.services .img {
+  height: 380px;
+  overflow: hidden;
+}
+.services .img img {
+  width: 100%;
+  height: 380px;
+  object-fit: cover;
+}
+.services .content {
+  height: 380px;
+}
+</style>
