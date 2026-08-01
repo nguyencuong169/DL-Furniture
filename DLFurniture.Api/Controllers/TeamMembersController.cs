@@ -7,6 +7,7 @@ namespace DLFurniture.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Route("api/team-members")]
 public class TeamMembersController : ControllerBase
 {
     private readonly AppDbContext _context;

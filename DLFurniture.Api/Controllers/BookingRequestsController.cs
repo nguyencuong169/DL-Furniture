@@ -130,7 +130,7 @@ public partial class BookingRequestsController : ControllerBase
             details.Add($"Trang gửi yêu cầu: {request.PagePath.Trim()}");
         }
 
-        var now = DateTime.UtcNow;
+        var now = DateTimeOffset.UtcNow;
         var bookingRequest = new BookingRequest
         {
             FullName = request.FullName.Trim(),

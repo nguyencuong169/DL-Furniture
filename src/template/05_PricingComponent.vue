@@ -1,11 +1,32 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { fetchServices, type ServiceResponse } from '../api/serviceClient'
+import { initOwlCarousel } from '../utils/carousel'
 
 const services = ref<ServiceResponse[]>([])
 
 onMounted(async () => {
   services.value = await fetchServices()
+  await nextTick()
+  initOwlCarousel('.pricing .owl-carousel', {
+    loop: true,
+    margin: 30,
+    mouseDrag: true,
+    autoplay: true,
+    autoplayHoverPause: true,
+    dots: true,
+    nav: false,
+    navText: [
+      "<span class='lnr ti-angle-left'></span>",
+      "<span class='lnr ti-angle-right'></span>"
+    ],
+    responsiveClass: true,
+    responsive: {
+      0: { items: 1 },
+      600: { items: 1 },
+      1000: { items: 2 }
+    }
+  })
 })
 </script>
 

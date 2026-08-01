@@ -5,7 +5,7 @@ public class TeamMember
     public long Id { get; set; }
     public string FullName { get; set; } = string.Empty;
     public string Role { get; set; } = string.Empty;
-    public string AvatarImage { get; set; } = string.Empty;
+    public string? AvatarImage { get; set; }
     public string Email { get; set; } = string.Empty;
     public string? FacebookUrl { get; set; }
     public string? TwitterUrl { get; set; }

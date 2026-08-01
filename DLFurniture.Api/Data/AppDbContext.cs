@@ -271,7 +271,8 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Testimonial>()
             .Property(t => t.CreatedDate)
-            .HasColumnName("created_date");
+            .HasColumnName("created_date")
+            .HasColumnType("datetimeoffset");
 
         modelBuilder.Entity<Testimonial>()
             .Property(t => t.UpdatedUser)
@@ -280,7 +281,8 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<Testimonial>()
             .Property(t => t.UpdatedDate)
-            .HasColumnName("updated_date");
+            .HasColumnName("updated_date")
+            .HasColumnType("datetimeoffset");
 
         // Configure TeamMembers table
         modelBuilder.Entity<TeamMember>()
@@ -353,7 +355,8 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<TeamMember>()
             .Property(t => t.CreatedDate)
-            .HasColumnName("created_date");
+            .HasColumnName("created_date")
+            .HasColumnType("datetimeoffset");
 
         modelBuilder.Entity<TeamMember>()
             .Property(t => t.UpdatedUser)
@@ -362,7 +365,8 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<TeamMember>()
             .Property(t => t.UpdatedDate)
-            .HasColumnName("updated_date");
+            .HasColumnName("updated_date")
+            .HasColumnType("datetimeoffset");
 
         // Configure Services table
         modelBuilder.Entity<ServiceItem>()
@@ -414,7 +418,8 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<ServiceItem>()
             .Property(s => s.CreatedDate)
-            .HasColumnName("created_date");
+            .HasColumnName("created_date")
+            .HasColumnType("datetimeoffset");
 
         modelBuilder.Entity<ServiceItem>()
             .Property(s => s.UpdatedUser)
@@ -423,6 +428,7 @@ public class AppDbContext : DbContext
 
         modelBuilder.Entity<ServiceItem>()
             .Property(s => s.UpdatedDate)
-            .HasColumnName("updated_date");
+            .HasColumnName("updated_date")
+            .HasColumnType("datetimeoffset");
     }
 }

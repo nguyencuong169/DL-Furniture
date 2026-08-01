@@ -230,13 +230,23 @@ CREATE TABLE dbo.booking_requests (
 CREATE TABLE dbo.services (
     id            BIGINT          IDENTITY (1, 1) PRIMARY KEY,
     title         NVARCHAR (255)  NOT NULL,
+    name          NVARCHAR (255)  NOT NULL CONSTRAINT DF_services_name DEFAULT (N''),
     description   NVARCHAR (MAX)  NULL,
     image_url     NVARCHAR (1024) NULL,
+    image         NVARCHAR (1024) NULL,
+    category      NVARCHAR (255)  NULL,
     display_order INT             DEFAULT 0,
+    sort_order    INT             NOT NULL CONSTRAINT DF_services_sort_order DEFAULT (0),
     is_active     BIT             DEFAULT 1,
+    hidden        BIT             NOT NULL CONSTRAINT DF_services_hidden DEFAULT (0),
+    del_flag      BIT             NOT NULL CONSTRAINT DF_services_del_flag DEFAULT (0),
+    created_user  NVARCHAR (255)  NULL,
+    created_date  DATETIMEOFFSET  NULL,
+    updated_user  NVARCHAR (255)  NULL,
+    updated_date  DATETIMEOFFSET  NULL,
     created_at    DATETIME2       DEFAULT GETDATE(),
     updated_at    DATETIME2       DEFAULT GETDATE()
-); -- Facilities
+);
 
 CREATE TABLE dbo.facilities (
     id            BIGINT         IDENTITY (1, 1) PRIMARY KEY,
@@ -250,31 +260,53 @@ CREATE TABLE dbo.facilities (
 CREATE TABLE dbo.team_members (
     id            BIGINT          IDENTITY (1, 1) PRIMARY KEY,
     name          NVARCHAR (255)  NOT NULL,
+    full_name     NVARCHAR (255)  NOT NULL CONSTRAINT DF_team_members_full_name DEFAULT (N''),
     role          NVARCHAR (255)  NULL,
     email         NVARCHAR (255)  NULL,
     image_url     NVARCHAR (1024) NULL,
+    avatar_image  NVARCHAR (1024) NULL,
     instagram     NVARCHAR (255)  NULL,
     twitter       NVARCHAR (255)  NULL,
     facebook      NVARCHAR (255)  NULL,
     pinterest     NVARCHAR (255)  NULL,
+    instagram_url NVARCHAR (1024) NULL,
+    twitter_url   NVARCHAR (1024) NULL,
+    facebook_url  NVARCHAR (1024) NULL,
+    pinterest_url NVARCHAR (1024) NULL,
     bio           NVARCHAR (MAX)  NULL,
     display_order INT             DEFAULT 0,
+    sort_order    INT             NOT NULL CONSTRAINT DF_team_members_sort_order DEFAULT (0),
     is_active     BIT             DEFAULT 1,
+    hidden        BIT             NOT NULL CONSTRAINT DF_team_members_hidden DEFAULT (0),
+    del_flag      BIT             NOT NULL CONSTRAINT DF_team_members_del_flag DEFAULT (0),
+    created_user  NVARCHAR (255)  NULL,
+    created_date  DATETIMEOFFSET  NULL,
+    updated_user  NVARCHAR (255)  NULL,
+    updated_date  DATETIMEOFFSET  NULL,
     created_at    DATETIME2       DEFAULT GETDATE(),
     updated_at    DATETIME2       DEFAULT GETDATE()
-); -- Testimonials
+);
 
 CREATE TABLE dbo.testimonials (
-    id          BIGINT          IDENTITY (1, 1) PRIMARY KEY,
-    author_name NVARCHAR (255)  NOT NULL,
-    location    NVARCHAR (255)  NULL,
-    content     NVARCHAR (MAX)  NOT NULL,
-    rating      INT             DEFAULT 5,
-    image_url   NVARCHAR (1024) NULL,
-    is_active   BIT             DEFAULT 1,
-    created_at  DATETIME2       DEFAULT GETDATE(),
+    id            BIGINT          IDENTITY (1, 1) PRIMARY KEY,
+    author_name   NVARCHAR (255)  NOT NULL,
+    customer_name NVARCHAR (255)  NOT NULL CONSTRAINT DF_testimonials_customer_name DEFAULT (N''),
+    location      NVARCHAR (255)  NULL,
+    content       NVARCHAR (MAX)  NOT NULL,
+    rating        INT             DEFAULT 5,
+    image_url     NVARCHAR (1024) NULL,
+    avatar_image  NVARCHAR (1024) NULL,
+    sort_order    INT             NOT NULL CONSTRAINT DF_testimonials_sort_order DEFAULT (0),
+    is_active     BIT             DEFAULT 1,
+    hidden        BIT             NOT NULL CONSTRAINT DF_testimonials_hidden DEFAULT (0),
+    del_flag      BIT             NOT NULL CONSTRAINT DF_testimonials_del_flag DEFAULT (0),
+    created_user  NVARCHAR (255)  NULL,
+    created_date  DATETIMEOFFSET  NULL,
+    updated_user  NVARCHAR (255)  NULL,
+    updated_date  DATETIMEOFFSET  NULL,
+    created_at    DATETIME2       DEFAULT GETDATE(),
     CONSTRAINT CHK_testimonials_rating CHECK (rating BETWEEN 1 AND 5)
-); -- Clients
+);
 
 CREATE TABLE dbo.clients (
     id            BIGINT          IDENTITY (1, 1) PRIMARY KEY,

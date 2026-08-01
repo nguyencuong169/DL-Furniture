@@ -6,7 +6,7 @@ public class Testimonial
     public string CustomerName { get; set; } = string.Empty;
     public string Location { get; set; } = string.Empty;
     public string Content { get; set; } = string.Empty;
-    public string AvatarImage { get; set; } = string.Empty;
+    public string? AvatarImage { get; set; }
     public int Rating { get; set; } = 5;
     public int SortOrder { get; set; } = 0;
     public bool Hidden { get; set; } = false;

@@ -108,11 +108,11 @@ END
 WHERE id IN (1, 2, 3, 5, 6, 9);
 
 -- Services
-INSERT INTO services (title, description, image_url, display_order, is_active)
-VALUES (N'Nội thất biệt thự', N'Kiến tạo nên tính thẩm mỹ cá tính với đa phong cách thiết kế', N'/src/assets/img/pricing/1.jpg', 1, 1),
-       (N'Nội thất chung cư', N'Chuyên thiết kế nội thất chung cư trọn gói', N'/src/assets/img/pricing/2.jpg', 2, 1),
-       (N'Nội thất văn phòng', N'Cung cấp mẫu thiết kế nội thất văn phòng', N'/src/assets/img/pricing/3.jpg', 3, 1),
-       (N'Showroom & Trung tâm', N'Xây dựng không gian theo concept riêng', N'/src/assets/img/pricing/4.jpg', 4, 1);
+INSERT INTO services (title, name, description, image_url, image, category, display_order, sort_order, is_active, hidden, del_flag, created_user, created_date)
+VALUES (N'Nội thất biệt thự', N'Nội thất biệt thự', N'Kiến tạo nên tính thẩm mỹ cá tính với đa phong cách thiết kế', N'/src/assets/img/pricing/1.jpg', N'/src/assets/img/pricing/1.jpg', N'Thi công', 1, 1, 1, 0, 0, N'admin', GETDATE()),
+       (N'Nội thất chung cư', N'Nội thất chung cư', N'Chuyên thiết kế nội thất chung cư trọn gói', N'/src/assets/img/pricing/2.jpg', N'/src/assets/img/pricing/2.jpg', N'Thi công', 2, 2, 1, 0, 0, N'admin', GETDATE()),
+       (N'Nội thất văn phòng', N'Nội thất văn phòng', N'Cung cấp mẫu thiết kế nội thất văn phòng', N'/src/assets/img/pricing/3.jpg', N'/src/assets/img/pricing/3.jpg', N'Thi công', 3, 3, 1, 0, 0, N'admin', GETDATE()),
+       (N'Showroom & Trung tâm', N'Showroom & Trung tâm', N'Xây dựng không gian theo concept riêng', N'/src/assets/img/pricing/4.jpg', N'/src/assets/img/pricing/4.jpg', N'Thi công', 4, 4, 1, 0, 0, N'admin', GETDATE());
 
 -- Facilities
 INSERT INTO facilities (title, description, icon_class, display_order, is_active)
@@ -121,15 +121,15 @@ VALUES (N'Đội ngũ chuyên nghiệp', N'Đội ngũ kiến trúc sư trẻ n�
        (N'Giám sát tiến độ', N'Giám sát tiến độ chính xác', N'flaticon-bed', 3, 1);
 
 -- Team members
-INSERT INTO team_members (name, role, email, image_url, instagram, twitter, facebook, pinterest, bio, display_order, is_active)
-VALUES (N'Valentina Karla', N'General Manager', N'valentina@hotel.com', N'/src/assets/img/team/4.jpg', N'#', N'#', N'#', N'#', N'Giám đốc', 1, 1),
-       (N'Micheal White', N'Guest Service Department', N'micheal@hotel.com', N'/src/assets/img/team/1.jpg', N'#', N'#', N'#', N'#', N'Trưởng bộ phận dịch vụ', 2, 1),
-       (N'Olivia Martin', N'Reservations Manager', N'olivia@hotel.com', N'/src/assets/img/team/2.jpg', N'#', N'#', N'#', N'#', N'Quản lý đặt phòng', 3, 1);
+INSERT INTO team_members (name, full_name, role, email, image_url, avatar_image, instagram, twitter, facebook, pinterest, instagram_url, twitter_url, facebook_url, pinterest_url, bio, display_order, sort_order, is_active, hidden, del_flag, created_user, created_date)
+VALUES (N'Valentina Karla', N'KTS. Nguyễn Văn Dũng', N'General Manager', N'valentina@hotel.com', N'/src/assets/img/team/4.jpg', N'/src/assets/img/team/4.jpg', N'#', N'#', N'#', N'#', N'#', N'#', N'#', N'#', N'Giám đốc', 1, 1, 1, 0, 0, N'admin', GETDATE()),
+       (N'Micheal White', N'KTS. Trần Thị Linh', N'Guest Service Department', N'micheal@hotel.com', N'/src/assets/img/team/1.jpg', N'/src/assets/img/team/1.jpg', N'#', N'#', N'#', N'#', N'#', N'#', N'#', N'#', N'Trưởng bộ phận dịch vụ', 2, 2, 1, 0, 0, N'admin', GETDATE()),
+       (N'Olivia Martin', N'KTS. Phạm Minh Quân', N'Reservations Manager', N'olivia@hotel.com', N'/src/assets/img/team/2.jpg', N'/src/assets/img/team/2.jpg', N'#', N'#', N'#', N'#', N'#', N'#', N'#', N'#', N'Quản lý đặt phòng', 3, 3, 1, 0, 0, N'admin', GETDATE());
 
 -- Testimonials
-INSERT INTO testimonials (author_name, location, content, rating, image_url, is_active)
-VALUES (N'Chị Nguyễn Thị Thuỳ Linh', N'Hồ Chí Minh', N'Tôi rất ấn tượng với các dịch vụ và sản phẩm của D&L Furniture...', 5, N'/src/assets/img/team/4.jpg', 1),
-       (N'Anh Nguyễn Hùng Cường', N'Hà Nội', N'Sản phẩm luôn mang giá trị thẩm mỹ rất cao...', 5, N'/src/assets/img/team/1.jpg', 1);
+INSERT INTO testimonials (author_name, customer_name, location, content, rating, image_url, avatar_image, sort_order, is_active, hidden, del_flag, created_user, created_date)
+VALUES (N'Chị Nguyễn Thị Thuỳ Linh', N'Chị Nguyễn Thị Thuỳ Linh', N'Hồ Chí Minh', N'Tôi rất ấn tượng với các dịch vụ và sản phẩm của D&L Furniture...', 5, N'/src/assets/img/team/4.jpg', N'/src/assets/img/team/4.jpg', 0, 1, 0, 0, N'admin', GETDATE()),
+       (N'Anh Nguyễn Hùng Cường', N'Anh Nguyễn Hùng Cường', N'Hà Nội', N'Sản phẩm luôn mang giá trị thẩm mỹ rất cao...', 5, N'/src/assets/img/team/1.jpg', N'/src/assets/img/team/1.jpg', 0, 1, 0, 0, N'admin', GETDATE());
 
 -- Clients
 INSERT INTO clients (name, logo_url, website_url, display_order, is_active)

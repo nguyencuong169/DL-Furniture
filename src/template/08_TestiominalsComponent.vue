@@ -1,12 +1,33 @@
 <script setup lang="ts">
 import testimonialBg from '../assets/img/slider/2.jpg'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick } from 'vue'
 import { fetchTestimonials, type TestimonialResponse } from '../api/testimonialClient'
+import { initOwlCarousel } from '../utils/carousel'
 
 const testimonials = ref<TestimonialResponse[]>([])
 
 onMounted(async () => {
   testimonials.value = await fetchTestimonials()
+  await nextTick()
+  initOwlCarousel('.testimonials .owl-carousel', {
+    loop: true,
+    margin: 30,
+    mouseDrag: true,
+    autoplay: true,
+    autoplayHoverPause: true,
+    dots: true,
+    nav: false,
+    navText: [
+      "<span class='lnr ti-angle-left'></span>",
+      "<span class='lnr ti-angle-right'></span>"
+    ],
+    responsiveClass: true,
+    responsive: {
+      0: { items: 1 },
+      600: { items: 1 },
+      1000: { items: 1 }
+    }
+  })
 })
 </script>
 
@@ -35,6 +56,11 @@ onMounted(async () => {
                       <img :src="item.avatarImage" :alt="item.customerName" />
                     </div>
                     <div class="cont">
+                      <span
+                        ><i class="star-rating"></i><i class="star-rating"></i
+                        ><i class="star-rating"></i><i class="star-rating"></i
+                        ><i class="star-rating"></i
+                      ></span>
                       <h6>{{ item.customerName }}</h6>
                       <span>{{ item.location }}</span>
                     </div>

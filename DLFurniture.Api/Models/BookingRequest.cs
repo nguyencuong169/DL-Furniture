@@ -9,6 +9,6 @@ public class BookingRequest
     public string? Message { get; set; }
     public string Source { get; set; } = "consultation_form";
     public string Status { get; set; } = "pending";
-    public DateTime CreatedAt { get; set; }
-    public DateTime UpdatedAt { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
 }
