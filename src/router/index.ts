@@ -8,11 +8,18 @@ import ProductDetailView from '../views/ProductDetailView.vue'
 import NotFoundComponent from '../template/15_NotFoundComponent.vue'
 import ProductComponent from '../template/04_ProductComponent.vue'
 import NewsView from '../views/NewsView.vue'
+import NewsDetailView from '../views/NewsDetailView.vue'
 import ContactUsView from '../views/ContactUsView.vue'
+
+const historyBase = import.meta.env.BASE_URL === './' ? '/' : import.meta.env.BASE_URL
 
 const router = createRouter({
   linkActiveClass: 'active',
-  history: createWebHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(historyBase),
+  scrollBehavior(to) {
+    if (to.hash) return { el: to.hash, top: 110, behavior: 'smooth' }
+    return { top: 0 }
+  },
   routes: [
     {
       path: '/',
@@ -46,6 +53,11 @@ const router = createRouter({
       path: '/tin-tuc',
       name: 'news',
       component: NewsView
+    },
+    {
+      path: '/tin-tuc/:id(\\d+)',
+      name: 'news-detail',
+      component: NewsDetailView
     },
     {
       path: '/san-pham',

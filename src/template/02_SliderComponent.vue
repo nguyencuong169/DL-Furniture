@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import { reactive } from 'vue'
+import slider1 from '../assets/img/slider/slider_1.jpg'
+import slider2 from '../assets/img/slider/slider_2.jpg'
+import slider3 from '../assets/img/slider/slider_3.jpg'
 
 const state = reactive({
   overlayDark: 2
@@ -13,7 +16,7 @@ const state = reactive({
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        data-background="https://dl-furniture.netlify.app/assets/1-b3ntw45g.jpg"
+        :data-background="slider1"
       >
         <img src="../assets/img/slider/1.png" v-show="false" />
         <div class="v-middle caption">
@@ -43,7 +46,7 @@ const state = reactive({
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        data-background="https://dl-furniture.netlify.app/assets/2-bupjuqqy.png "
+        :data-background="slider2"
       >
         <img src="../assets/img/slider/2.png" v-show="false" />
         <div class="v-middle caption">
@@ -73,7 +76,7 @@ const state = reactive({
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        data-background="https://dl-furniture.netlify.app/assets/3-1hki4eyd.png"
+        :data-background="slider3"
       >
         <img src="../assets/img/slider/3.png" v-show="false" />
         <div class="v-middle caption">

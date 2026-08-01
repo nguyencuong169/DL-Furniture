@@ -19,8 +19,7 @@ public class NewsController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<NewsItem>>> GetAll()
     {
-        // Only return fields that exist in the current DB schema.
-        // If the DB hasn't been migrated with `tags`/`category_id`, projection avoids SQL errors.
+        // Keep the list payload explicit so it stays stable as the entity grows.
         var items = await _context.News
             .Where(x => !x.DelFlag && !x.Hidden)
             .OrderByDescending(x => x.UpdatedDate)
@@ -32,6 +31,7 @@ public class NewsController : ControllerBase
                 Summary = x.Summary,
                 Content = x.Content,
                 NewsImage = x.NewsImage,
+                ViewCount = x.ViewCount,
                 Hidden = x.Hidden,
                 DelFlag = x.DelFlag,
                 CreatedUser = x.CreatedUser,
@@ -53,6 +53,7 @@ public class NewsController : ControllerBase
         public required long Id { get; set; }
         public required string Name { get; set; }
         public required string Slug { get; set; }
+        public required int PublishedCount { get; set; }
     }
 
     public class TagDto
@@ -72,11 +73,19 @@ public class NewsController : ControllerBase
     [HttpGet("categories")]
     public async Task<ActionResult<IEnumerable<CategoryDto>>> GetCategories()
     {
-        // Use raw SQL because EF model doesn't include news_categories.
-        var items = await _context.Database
-            .SqlQueryRaw<CategoryDto>("SELECT id AS Id, name AS Name, slug AS Slug FROM news_categories WHERE is_active = 1")
+        var items = await _context.NewsCategories
+            .AsNoTracking()
+            .Where(category => category.IsActive)
+            .OrderBy(category => category.DisplayOrder)
+            .ThenBy(category => category.Name)
+            .Select(category => new CategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Slug = category.Slug,
+                PublishedCount = category.NewsItems.Count(news => !news.DelFlag && !news.Hidden)
+            })
             .ToListAsync();
-
 
         return Ok(items);
     }
@@ -146,17 +155,11 @@ public class NewsController : ControllerBase
             .Select(x => x.ToLowerInvariant())
             .ToHashSet();
 
-        var query = _context.News
-            .Where(x => x.Id != id && !x.DelFlag && !x.Hidden);
+        take = Math.Clamp(take, 1, 12);
 
-        // Filter by category or shared tags (coarse match)
-        if (current.NewsCategoryId.HasValue)
-        {
-            query = query.Where(x => x.NewsCategoryId == current.NewsCategoryId || (x.Tags != null && x.Tags != ""));
-        }
-
-
-        var candidates = await query.ToListAsync();
+        var candidates = await _context.News
+            .Where(x => x.Id != id && !x.DelFlag && !x.Hidden)
+            .ToListAsync();
 
         static int TagOverlap(string? tags, HashSet<string> currentTags)
         {
@@ -178,11 +181,10 @@ public class NewsController : ControllerBase
 
                 TagOverlap = TagOverlap(x.Tags, currentTags)
             })
-            .Where(x => x.CategoryMatch == 1 || x.TagOverlap > 0)
             .OrderByDescending(x => x.CategoryMatch)
             .ThenByDescending(x => x.TagOverlap)
             .ThenByDescending(x => x.Item.UpdatedDate)
-            .Take(Math.Max(1, take))
+            .Take(take)
             .Select(x => x.Item)
             .ToList();
 
@@ -199,20 +201,66 @@ public class NewsController : ControllerBase
         public required int TotalPages { get; set; }
     }
 
+    public class ViewCountResponse
+    {
+        public required long ViewCount { get; set; }
+    }
+
     [HttpGet("paged")]
-    public async Task<ActionResult<PagedNewsResponse>> GetPaged([FromQuery] int page = 1, [FromQuery] int pageSize = 6)
+    public async Task<ActionResult<PagedNewsResponse>> GetPaged(
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 7,
+        [FromQuery] int? year = null,
+        [FromQuery] int? month = null,
+        [FromQuery] long? categoryId = null,
+        [FromQuery] string? tag = null,
+        [FromQuery] string? search = null)
     {
         if (page < 1) page = 1;
-        if (pageSize < 1) pageSize = 6;
+        if (pageSize < 1) pageSize = 7;
+        pageSize = Math.Min(pageSize, 50);
 
         var query = _context.News
             .Where(x => !x.DelFlag && !x.Hidden)
-            .OrderByDescending(x => x.UpdatedDate);
+            .AsQueryable();
+
+        if (year.HasValue)
+        {
+            query = query.Where(x => x.UpdatedDate.HasValue && x.UpdatedDate.Value.Year == year.Value);
+        }
+
+        if (month.HasValue)
+        {
+            query = query.Where(x => x.UpdatedDate.HasValue && x.UpdatedDate.Value.Month == month.Value);
+        }
+
+        if (categoryId.HasValue)
+        {
+            query = query.Where(x => x.NewsCategoryId == categoryId.Value);
+        }
+
+        if (!string.IsNullOrWhiteSpace(tag))
+        {
+            var normalizedTag = tag.Trim();
+            query = query.Where(x => x.Tags != null && ("," + x.Tags + ",").Contains("," + normalizedTag + ","));
+        }
+
+        if (!string.IsNullOrWhiteSpace(search))
+        {
+            var pattern = $"%{search.Trim()}%";
+            query = query.Where(x =>
+                (x.Titles != null && EF.Functions.Like(x.Titles, pattern)) ||
+                (x.Summary != null && EF.Functions.Like(x.Summary, pattern)) ||
+                (x.Content != null && EF.Functions.Like(x.Content, pattern)));
+        }
 
         var totalCount = await query.CountAsync();
         var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+        if (totalPages > 0 && page > totalPages) page = totalPages;
 
         var items = await query
+            .OrderByDescending(x => x.UpdatedDate)
+            .ThenByDescending(x => x.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync();
@@ -236,13 +284,38 @@ public class NewsController : ControllerBase
         return item is null ? NotFound() : Ok(item);
     }
 
+    [HttpPost("{id:long}/views")]
+    public async Task<ActionResult<ViewCountResponse>> IncrementViewCount(long id)
+    {
+        var updatedRows = await _context.News
+            .Where(x => x.Id == id && !x.DelFlag && !x.Hidden)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(x => x.ViewCount, x => x.ViewCount + 1));
+
+        if (updatedRows == 0)
+        {
+            return NotFound();
+        }
+
+        var viewCount = await _context.News
+            .Where(x => x.Id == id)
+            .Select(x => x.ViewCount)
+            .SingleAsync();
+
+        return Ok(new ViewCountResponse { ViewCount = viewCount });
+    }
+
     [HttpPost]
     public async Task<ActionResult<NewsItem>> Create([FromBody] NewsItem model)
     {
+        var categoryError = await ValidateCategoryAsync(model);
+        if (categoryError is not null) return BadRequest(new { message = categoryError });
+
         model.CreatedDate ??= DateTimeOffset.UtcNow;
         model.UpdatedDate ??= model.CreatedDate;
         model.CreatedUser ??= "admin";
         model.UpdatedUser ??= "admin";
+        model.ViewCount = 0;
 
         _context.News.Add(model);
         await _context.SaveChangesAsync();
@@ -256,10 +329,15 @@ public class NewsController : ControllerBase
         var existing = await _context.News.FindAsync(id);
         if (existing is null) return NotFound();
 
+        var categoryError = await ValidateCategoryAsync(model);
+        if (categoryError is not null) return BadRequest(new { message = categoryError });
+
         existing.Titles = model.Titles;
         existing.Summary = model.Summary;
         existing.Content = model.Content;
         existing.NewsImage = model.NewsImage;
+        existing.NewsCategoryId = model.NewsCategoryId;
+        existing.Tags = model.Tags;
         existing.Hidden = model.Hidden;
         existing.DelFlag = model.DelFlag;
         existing.UpdatedUser = model.UpdatedUser ?? "admin";
@@ -280,5 +358,20 @@ public class NewsController : ControllerBase
         await _context.SaveChangesAsync();
 
         return NoContent();
+    }
+
+    private async Task<string?> ValidateCategoryAsync(NewsItem model)
+    {
+        if (!model.NewsCategoryId.HasValue)
+        {
+            return !model.Hidden && !model.DelFlag
+                ? "Bài viết công khai phải thuộc một chuyên mục tin tức."
+                : null;
+        }
+
+        var categoryIsActive = await _context.NewsCategories
+            .AnyAsync(category => category.Id == model.NewsCategoryId.Value && category.IsActive);
+
+        return categoryIsActive ? null : "Chuyên mục tin tức không tồn tại hoặc đã ngừng sử dụng.";
     }
 }

@@ -16,8 +16,8 @@ module.exports = {
   parserOptions: {
     ecmaVersion: 'latest'
   },
-  global: {
-    $: true,
-    jQuery: true
+  globals: {
+    $: 'readonly',
+    jQuery: 'readonly'
   }
 }

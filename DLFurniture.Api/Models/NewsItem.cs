@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace DLFurniture.Api.Models;
 
 public class NewsItem
@@ -8,12 +10,16 @@ public class NewsItem
     public string? Summary { get; set; }
     public string? Content { get; set; }
     public string? NewsImage { get; set; }
+    public long ViewCount { get; set; }
 
     // Sidebar fields
     /// <summary>
     /// Category for NEWS (maps to news.news_category_id)
     /// </summary>
     public long? NewsCategoryId { get; set; }
+
+    [JsonIgnore]
+    public NewsCategory? NewsCategory { get; set; }
 
     /// <summary>
     /// Delimited by ',' e.g. "Restaurant,Hotel,Spa"
