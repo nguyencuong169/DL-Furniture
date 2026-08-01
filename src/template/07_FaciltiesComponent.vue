@@ -5,7 +5,7 @@
     <div class="container">
       <div class="row">
         <div class="col-md-12">
-          <div class="section-subtitle">Our Solutions</div>
+          <div class="section-subtitle">Vì sao chọn chúng tôi</div>
           <div class="section-title">Giải pháp của chúng tôi</div>
         </div>
       </div>

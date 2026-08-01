@@ -41,7 +41,8 @@
               <p class="footer-contact-text">Đường Cầu Liêu<br />Thạch Xá - Thạch Thất - Hà Nội</p>
               <div class="footer-contact-info">
                 <p class="footer-contact-phone">
-                  <span class="flaticon-call"></span> (+84)961-109-897
+                  <span class="flaticon-call"></span>
+                  <a href="tel:+84961109897">(+84)961-109-897</a>
                 </p>
                 <p class="footer-contact-mail">info@dl-furniture.com</p>
               </div>

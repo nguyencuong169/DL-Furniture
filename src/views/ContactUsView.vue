@@ -35,7 +35,7 @@ import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
               <div class="icon"><span class="flaticon-call"></span></div>
               <div class="text">
                 <p>Tư vấn thiết kế</p>
-                <a href="tel:0945366622">(+84) 961-109-897</a>
+                <a href="tel:+84961109897">(+84) 961-109-897</a>
               </div>
             </div>
             <div class="reservations mb-30">

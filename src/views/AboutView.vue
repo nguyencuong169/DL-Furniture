@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import aboutBanner from '../assets/img/slider/1.jpg'
 import AboutComponent from '../template/03_AboutComponent.vue'
 import PricingComponent from '../template/05_PricingComponent.vue'
 import FaciltiesComponent from '../template/07_FaciltiesComponent.vue'
@@ -12,7 +13,7 @@ import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
     <div
       class="banner-header section-padding valign bg-img bg-fixed"
       data-overlay-dark="4"
-      data-background="https://dl-furniture.netlify.app/assets/1-vdnilppx.jpg"
+      :style="{ backgroundImage: `url(${aboutBanner})` }"
     >
       <div class="container">
         <div class="row">
