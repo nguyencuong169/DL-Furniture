@@ -9,6 +9,7 @@ import {
   getNewsById,
   getNewsCategories,
   getNewsRelated,
+  getNewsTags,
   recordNewsView
 } from '../api/newsSidebarClient'
 import { resolveNewsImage, splitNewsTags } from '../utils/news'
@@ -26,6 +27,7 @@ const item = ref<NewsItem | null>(null)
 const related = ref<NewsItem[]>([])
 const categories = ref<CategoryDto[]>([])
 const archives = ref<ArchiveDto[]>([])
+const sidebarTags = ref<{ name: string; count: number }[]>([])
 const loading = ref(true)
 const errorMessage = ref('')
 const readProgress = ref(0)
@@ -177,7 +179,8 @@ const updateNewsSeo = (current: NewsItem | null, section: string) => {
   const pageTitle = `${title} | D&L Furniture`
   const description = createSeoDescription(current)
   const canonicalUrl = new URL(route.path, window.location.origin).href
-  const imageUrl = new URL(resolveNewsImage(current.newsImage, current.id), window.location.origin).href
+  const imageUrl = new URL(resolveNewsImage(current.newsImage, current.id), window.location.origin)
+    .href
   const publishedTime = toIsoDate(current.createdDate)
   const modifiedTime = toIsoDate(current.updatedDate) || publishedTime
 
@@ -374,10 +377,11 @@ const loadArticle = async (id: number) => {
   related.value = []
 
   try {
-    const [article, categoryItems, archiveItems] = await Promise.all([
+    const [article, categoryItems, archiveItems, tagItems] = await Promise.all([
       getNewsById(id),
       getNewsCategories().catch(() => []),
-      getNewsArchives().catch(() => [])
+      getNewsArchives().catch(() => []),
+      getNewsTags().catch(() => [])
     ])
 
     if (currentRequest !== requestId) return
@@ -386,6 +390,7 @@ const loadArticle = async (id: number) => {
     void trackArticleViewOnce(article.id)
     categories.value = categoryItems
     archives.value = archiveItems
+    sidebarTags.value = tagItems.slice(0, 20)
     void loadRelatedNews(id, currentRequest)
   } catch (error) {
     if (currentRequest !== requestId) return
@@ -433,7 +438,6 @@ const shareOnLinkedIn = () => {
 const copyShareLink = async () => {
   try {
     await navigator.clipboard.writeText(shareUrl.value)
-    alert('Đã sao chép đường dẫn bài viết!')
   } catch {
     // Fallback
     const textarea = document.createElement('textarea')
@@ -442,8 +446,49 @@ const copyShareLink = async () => {
     textarea.select()
     document.execCommand('copy')
     document.body.removeChild(textarea)
-    alert('Đã sao chép đường dẫn bài viết!')
   }
+  showToast('Đã sao chép đường dẫn bài viết!')
+}
+
+let toastTimer: ReturnType<typeof setTimeout> | null = null
+
+const showToast = (message: string) => {
+  const existing = document.querySelector('.nd-toast')
+  if (existing) existing.remove()
+  if (toastTimer) clearTimeout(toastTimer)
+
+  const toast = document.createElement('div')
+  toast.className = 'nd-toast'
+  toast.textContent = message
+  toast.setAttribute('role', 'status')
+  toast.setAttribute('aria-live', 'polite')
+  Object.assign(toast.style, {
+    position: 'fixed',
+    bottom: '30px',
+    left: '50%',
+    transform: 'translateX(-50%)',
+    zIndex: '99999',
+    background: '#222',
+    color: '#fff',
+    padding: '12px 28px',
+    fontFamily: "'Barlow', sans-serif",
+    fontSize: '14px',
+    lineHeight: '1.4',
+    borderRadius: '0',
+    boxShadow: '0 6px 24px rgba(0,0,0,0.18)',
+    opacity: '0',
+    transition: 'opacity 0.3s ease',
+    pointerEvents: 'none'
+  })
+  document.body.appendChild(toast)
+  requestAnimationFrame(() => {
+    toast.style.opacity = '1'
+  })
+  toastTimer = setTimeout(() => {
+    toast.style.opacity = '0'
+    setTimeout(() => toast.remove(), 300)
+    toastTimer = null
+  }, 2200)
 }
 
 // ───── Reading progress ─────
@@ -482,6 +527,20 @@ const isSafeNewsReturnPath = (value: unknown): value is string => {
   return typeof value === 'string' && /^\/tin-tuc(?:[?#]|$)/.test(value)
 }
 
+const getSafeReferrerPath = () => {
+  if (typeof document === 'undefined' || typeof window === 'undefined') return null
+  try {
+    const url = new URL(document.referrer)
+    const candidate = url.pathname + url.search
+    if (url.origin === window.location.origin && isSafeNewsReturnPath(candidate)) {
+      return candidate
+    }
+  } catch {
+    // Invalid or cross-origin referrer — fall back to the default.
+  }
+  return null
+}
+
 const goBackToNews = () => {
   const browserBackPath = window.history.state?.back
 
@@ -515,7 +574,12 @@ const goToTagNews = (tag: string) => {
 
 onMounted(() => {
   const returnPath = window.history.state?.newsReturnTo
-  if (isSafeNewsReturnPath(returnPath)) newsReturnTo.value = returnPath
+  if (isSafeNewsReturnPath(returnPath)) {
+    newsReturnTo.value = returnPath
+  } else {
+    const referrerPath = getSafeReferrerPath()
+    if (referrerPath) newsReturnTo.value = referrerPath
+  }
 
   document.body.classList.add('news-detail-active')
   window.addEventListener('scroll', handleScroll, { passive: true })
@@ -625,11 +689,21 @@ watch([item, categoryName], ([current, section]) => updateNewsSeo(current, secti
           <div class="row">
             <div class="col-md-12 text-left caption mt-90 nd-banner-caption">
               <div class="nd-breadcrumb">
-                <button type="button" class="nd-breadcrumb-back" @click="goBackToNews">
+                <button
+                  type="button"
+                  class="nd-breadcrumb-back"
+                  aria-label="Quay lại trang tin tức"
+                  @click="goBackToNews"
+                >
                   Tin tức
                 </button>
-                <span class="nd-breadcrumb-sep">/</span>
-                <button type="button" class="nd-breadcrumb-category" @click="goToCategoryNews()">
+                <span class="nd-breadcrumb-sep" aria-hidden="true">/</span>
+                <button
+                  type="button"
+                  class="nd-breadcrumb-category"
+                  aria-label="Xem các bài viết trong chuyên mục"
+                  @click="goToCategoryNews()"
+                >
                   {{ categoryName }}
                 </button>
               </div>
@@ -642,13 +716,13 @@ watch([item, categoryName], ([current, section]) => updateNewsSeo(current, secti
                 <span class="nd-meta-item">
                   <i class="ti-calendar"></i>
                   {{ publishedDate }}
-                  <!-- <span
+                  <span
                     v-if="isUpdated"
                     class="nd-updated-badge"
                     :title="'Đã cập nhật: ' + updatedDateFormatted"
                   >
                     (Đã cập nhật)
-                  </span> -->
+                  </span>
                 </span>
                 <span class="nd-meta-item">
                   <i class="ti-eye"></i>
@@ -817,15 +891,19 @@ watch([item, categoryName], ([current, section]) => updateNewsSeo(current, secti
                 </div>
 
                 <!-- Tags Sidebar -->
-                <div v-if="tags.length" class="col-md-12">
+                <div v-if="sidebarTags.length" class="col-md-12">
                   <div class="widget">
                     <div class="widget-title">
                       <h2 class="nd-sidebar-heading">Thẻ nội dung</h2>
                     </div>
                     <ul class="tags nd-sidebar-tags">
-                      <li v-for="tag in tags" :key="tag">
-                        <button type="button" class="nd-sidebar-tag-btn" @click="goToTagNews(tag)">
-                          {{ tag }}
+                      <li v-for="tag in sidebarTags" :key="tag.name">
+                        <button
+                          type="button"
+                          class="nd-sidebar-tag-btn"
+                          @click="goToTagNews(tag.name)"
+                        >
+                          {{ tag.name }}
                         </button>
                       </li>
                     </ul>
@@ -1106,6 +1184,7 @@ watch([item, categoryName], ([current, section]) => updateNewsSeo(current, secti
 
 .nd-breadcrumb-back,
 .nd-breadcrumb-category {
+  cursor: pointer;
   text-transform: inherit;
 }
 
