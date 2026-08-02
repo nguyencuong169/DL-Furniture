@@ -32,3 +32,4 @@ coverage
 /DLFurniture.Api/bin/Debug/net10.0
 /DLFurniture.Api/.vs
 /DLFurniture.Api/obj
+/DLFurniture.Api/bin/Release/net10.0
