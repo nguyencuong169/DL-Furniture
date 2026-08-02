@@ -18,7 +18,6 @@ const state = reactive({
         :data-overlay-dark="state.overlayDark"
         :data-background="slider1"
       >
-        <img src="../assets/img/slider/1.png" v-show="false" />
         <div class="v-middle caption">
           <div class="container">
             <div class="row">
@@ -48,7 +47,6 @@ const state = reactive({
         :data-overlay-dark="state.overlayDark"
         :data-background="slider2"
       >
-        <img src="../assets/img/slider/2.png" v-show="false" />
         <div class="v-middle caption">
           <div class="container">
             <div class="row">
@@ -78,7 +76,6 @@ const state = reactive({
         :data-overlay-dark="state.overlayDark"
         :data-background="slider3"
       >
-        <img src="../assets/img/slider/3.png" v-show="false" />
         <div class="v-middle caption">
           <div class="container">
             <div class="row">

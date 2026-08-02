@@ -6,7 +6,7 @@ import 'dayjs/locale/vi'
 import newsBanner from '../assets/img/slider/7.jpg'
 import type { NewsItem } from '../types/news'
 import type { NewsPageFilters } from '../api/newsPagedClient'
-import { getNewsPaged, getNewsPagedByArchiveMonth } from '../api/newsPagedClient'
+import { getNewsPaged } from '../api/newsPagedClient'
 import {
   getNewsArchives,
   getNewsCategories,
@@ -16,6 +16,7 @@ import {
 import type { CategoryDto } from '../api/newsSidebarClient'
 import { getNewsDate, handleNewsImageError, resolveNewsImage } from '../utils/news'
 import NewsArchives from '../components/NewsArchives.vue'
+import NewsFilterSelect from '../components/NewsFilterSelect.vue'
 import NewsRelatedList from '../components/NewsRelatedList.vue'
 import BookingFormComponent from '../template/11_BookingFormComponent.vue'
 import ClientsComponent from '../template/12_ClientsComponent.vue'
@@ -56,6 +57,8 @@ const archiveFilter = reactive({
 })
 
 const searchInput = ref('')
+const headerCategory = ref('')
+const headerYear = ref('')
 const loading = ref(true)
 const loadingRelated = ref(false)
 const loadingCategories = ref(true)
@@ -140,10 +143,12 @@ const formatViewCount = (item: NewsItem) => {
   return new Intl.NumberFormat('vi-VN').format(getNewsViewCount(item))
 }
 
-const currentPageFilters = (): Omit<NewsPageFilters, 'year' | 'month'> => ({
+const currentPageFilters = (): NewsPageFilters => ({
   ...(uiState.categoryId ? { categoryId: uiState.categoryId } : {}),
   ...(uiState.tag ? { tag: uiState.tag } : {}),
-  ...(uiState.search ? { search: uiState.search } : {})
+  ...(uiState.search ? { search: uiState.search } : {}),
+  ...(archiveFilter.enabled && archiveFilter.year ? { year: archiveFilter.year } : {}),
+  ...(archiveFilter.enabled && archiveFilter.month ? { month: archiveFilter.month } : {})
 })
 
 const loadRelatedForCurrentPage = async () => {
@@ -174,16 +179,7 @@ const loadPage = async (page: number) => {
 
   try {
     const filters = currentPageFilters()
-    const response =
-      archiveFilter.enabled && archiveFilter.year && archiveFilter.month
-        ? await getNewsPagedByArchiveMonth(
-            archiveFilter.year,
-            archiveFilter.month,
-            page,
-            state.pageSize,
-            filters
-          )
-        : await getNewsPaged(page, state.pageSize, filters)
+    const response = await getNewsPaged(page, state.pageSize, filters)
 
     if (requestId !== pageRequestId) return
 
@@ -266,6 +262,51 @@ const displayedTags = computed(() => {
   return uiState.showAllTags ? sidebar.tags : sidebar.tags.slice(0, 12)
 })
 
+const quickTags = computed(() => sidebar.tags.slice(0, 7))
+
+const formatTagLabel = (tag: string) => {
+  const normalized = tag.replaceAll('-', ' ').trim()
+  return normalized ? normalized.charAt(0).toLocaleUpperCase('vi') + normalized.slice(1) : tag
+}
+
+const categoryFilterOptions = computed(() => [
+  { value: '', label: 'Mọi chuyên mục' },
+  ...sidebar.categories.map((category) => ({
+    value: String(category.id),
+    label: category.name,
+    meta: `${category.publishedCount} bài`,
+    disabled: category.publishedCount === 0
+  }))
+])
+
+const archiveYears = computed(() => {
+  const counts = new Map<number, number>()
+  sidebar.archives.forEach((archive) => {
+    counts.set(archive.year, (counts.get(archive.year) ?? 0) + archive.count)
+  })
+
+  return Array.from(counts, ([year, count]) => ({ year, count })).sort(
+    (first, second) => second.year - first.year
+  )
+})
+
+const yearFilterOptions = computed(() => [
+  { value: '', label: 'Mới nhất' },
+  ...archiveYears.value.map((archive) => ({
+    value: String(archive.year),
+    label: `Năm ${archive.year}`,
+    meta: `${archive.count} bài`
+  }))
+])
+
+const selectedYearMonths = computed(() => {
+  if (!archiveFilter.year) return []
+
+  return sidebar.archives
+    .filter((archive) => archive.year === archiveFilter.year)
+    .sort((first, second) => second.month - first.month)
+})
+
 const totalPublishedCount = computed(() => {
   return sidebar.categories.reduce((total, category) => total + category.publishedCount, 0)
 })
@@ -285,23 +326,31 @@ const resultLabel = computed(() => {
 })
 
 const activeFilterLabel = computed(() => {
-  if (uiState.search) return `Kết quả tìm kiếm: “${uiState.search}”`
+  const labels: string[] = []
+
+  if (uiState.search) labels.push(`“${uiState.search}”`)
 
   if (uiState.categoryId) {
     const category = sidebar.categories.find((item) => item.id === uiState.categoryId)
-    return `Danh mục: ${category?.name ?? ''}`
+    if (category) labels.push(category.name)
   }
 
-  if (uiState.tag) return `Thẻ: ${uiState.tag}`
+  if (uiState.tag) labels.push(`#${uiState.tag}`)
 
   if (archiveFilter.enabled) {
-    const archive = sidebar.archives.find(
-      (item) => item.year === archiveFilter.year && item.month === archiveFilter.month
-    )
-    return `${archive?.monthLabel ?? `Tháng ${archiveFilter.month}`} ${archiveFilter.year ?? ''}`
+    if (archiveFilter.month) {
+      const archive = sidebar.archives.find(
+        (item) => item.year === archiveFilter.year && item.month === archiveFilter.month
+      )
+      labels.push(
+        `${archive?.monthLabel ?? `Tháng ${archiveFilter.month}`} ${archiveFilter.year ?? ''}`
+      )
+    } else if (archiveFilter.year) {
+      labels.push(`Năm ${archiveFilter.year}`)
+    }
   }
 
-  return ''
+  return labels.join(' · ')
 })
 
 const resetFiltersWithoutLoading = () => {
@@ -326,6 +375,12 @@ const setViewMode = (mode: NewsViewMode) => {
   }
 }
 
+const newsDetailRoute = (id: number) => ({
+  name: 'news-detail',
+  params: { id },
+  state: { newsReturnTo: route.fullPath }
+})
+
 const scrollToResults = () => {
   document.querySelector('#news-results')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
 }
@@ -342,18 +397,18 @@ const applyRouteFilters = async () => {
   const requestedPage = Number(queryValue(route.query.page))
   const page = Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1
 
-  if (
-    Number.isInteger(routeYear) &&
-    Number.isInteger(routeMonth) &&
-    routeMonth >= 1 &&
-    routeMonth <= 12
-  ) {
+  if (Number.isInteger(routeYear) && routeYear > 0) {
     archiveFilter.enabled = true
     archiveFilter.year = routeYear
-    archiveFilter.month = routeMonth
-  } else if (routeTag) {
+    archiveFilter.month =
+      Number.isInteger(routeMonth) && routeMonth >= 1 && routeMonth <= 12 ? routeMonth : null
+  }
+
+  if (routeTag) {
     uiState.tag = String(routeTag)
-  } else if (routeCategory) {
+  }
+
+  if (routeCategory) {
     const routeCategoryNumber = Number(routeCategory)
     const matchedCategory = sidebar.categories.find(
       (category) =>
@@ -366,10 +421,15 @@ const applyRouteFilters = async () => {
     } else if (categoryLoadError.value && Number.isInteger(routeCategoryNumber)) {
       uiState.categoryId = routeCategoryNumber
     }
-  } else if (routeSearch) {
+  }
+
+  if (routeSearch) {
     uiState.search = String(routeSearch)
     searchInput.value = uiState.search
   }
+
+  headerCategory.value = uiState.categoryId ? String(uiState.categoryId) : ''
+  headerYear.value = archiveFilter.enabled && archiveFilter.year ? String(archiveFilter.year) : ''
 
   await loadPage(page)
 }
@@ -383,35 +443,85 @@ const clearFilters = async () => {
 }
 
 const setArchiveFilter = async (year: number, month: number) => {
-  await updateRouteQuery({ year, month })
+  const query = { ...route.query, year, month } as Record<string, string | number>
+  delete query.page
+  await updateRouteQuery(query)
 }
 
 const selectCategory = async (categoryId: number) => {
   const category = sidebar.categories.find((item) => item.id === categoryId)
   if (category?.publishedCount === 0) return
 
-  const shouldClear = uiState.categoryId === categoryId && !archiveFilter.enabled
-  await updateRouteQuery(shouldClear ? {} : { category: category?.slug ?? categoryId })
+  const query = { ...route.query } as Record<string, string | number>
+  delete query.page
+
+  if (uiState.categoryId === categoryId) delete query.category
+  else query.category = category?.slug ?? categoryId
+
+  await updateRouteQuery(query)
+}
+
+const selectArchiveMonth = async (month: number | null) => {
+  if (!archiveFilter.year) return
+
+  const query = { ...route.query, year: archiveFilter.year } as Record<string, string | number>
+  delete query.page
+
+  if (month) query.month = month
+  else delete query.month
+
+  await updateRouteQuery(query)
 }
 
 const selectTag = async (tag: string) => {
-  const shouldClear = uiState.tag === tag && !archiveFilter.enabled
-  await updateRouteQuery(shouldClear ? {} : { tag })
+  const query = { ...route.query } as Record<string, string | number>
+  delete query.page
+
+  if (uiState.tag === tag) delete query.tag
+  else query.tag = tag
+
+  await updateRouteQuery(query)
 }
 
 const submitSearch = async () => {
   const search = searchInput.value.trim()
-  if (!search) {
-    await clearFilters()
-    return
+  const query = { ...route.query } as Record<string, string | number>
+  delete query.page
+
+  if (search) query.search = search
+  else delete query.search
+
+  await updateRouteQuery(query)
+}
+
+const submitHeaderSearch = async () => {
+  const query: Record<string, string | number> = {}
+  const search = searchInput.value.trim()
+
+  if (search) query.search = search
+
+  const selectedCategoryId = Number(headerCategory.value)
+  if (Number.isInteger(selectedCategoryId) && selectedCategoryId > 0) {
+    const category = sidebar.categories.find((item) => item.id === selectedCategoryId)
+    query.category = category?.slug ?? selectedCategoryId
   }
 
-  await updateRouteQuery({ search })
+  const year = Number(headerYear.value)
+  if (Number.isInteger(year) && year > 0) {
+    query.year = year
+  }
+
+  await updateRouteQuery(query)
 }
 
 const clearSearchInput = async () => {
   searchInput.value = ''
-  if (uiState.search) await clearFilters()
+  if (!uiState.search) return
+
+  const query = { ...route.query } as Record<string, string | number>
+  delete query.search
+  delete query.page
+  await updateRouteQuery(query)
 }
 
 const retryPage = async () => {
@@ -458,55 +568,122 @@ onMounted(async () => {
 </script>
 
 <template>
-  <main class="news-page">
-    <!-- Header Banner -->
-    <header
-      class="banner-header news-hero section-padding valign bg-img bg-fixed"
-      data-overlay-dark="4"
-      :style="{ backgroundImage: `url(${newsBanner})` }"
-    >
-      <div class="container news-hero-inner">
-        <div class="row">
-          <div class="col-md-12 text-left caption news-hero-copy">
-            <h5>D&amp;L Furniture</h5>
-            <h1>Tin tức nội thất</h1>
-          </div>
-        </div>
-
-        <div class="news-hero-toolbar">
-          <div class="news-hero-meta" aria-live="polite">
-            <span>{{ resultLabel }}</span>
-            <strong v-if="hasActiveFilters">{{ activeFilterLabel }}</strong>
-            <span v-else>Góc nhìn, câu chuyện và cảm hứng không gian sống</span>
+  <main class="news-page" :class="{ 'news-page--grid': viewMode === 'grid' }">
+    <div class="position-re">
+      <!-- Header Banner -->
+      <header
+        class="banner-header news-hero section-padding valign bg-img bg-fixed"
+        data-overlay-dark="4"
+        :style="{ backgroundImage: `url(${newsBanner})` }"
+      >
+        <div class="container news-hero-inner">
+          <div class="row">
+            <div class="col-md-12 text-left caption news-hero-copy">
+              <h5>D&amp;L Furniture</h5>
+              <h1>Tin tức nội thất</h1>
+            </div>
           </div>
 
-          <div class="news-hero-actions">
-            <div class="news-view-switcher" role="group" aria-label="Chế độ hiển thị bài viết">
-              <button
-                type="button"
-                :class="{ active: viewMode === 'grid' }"
-                :aria-pressed="viewMode === 'grid'"
-                title="Hiển thị dạng lưới"
-                @click="setViewMode('grid')"
-              >
-                <i class="ti-layout-grid3-alt" aria-hidden="true"></i>
-                <span class="visually-hidden">Dạng lưới</span>
-              </button>
-              <button
-                type="button"
-                :class="{ active: viewMode === 'list' }"
-                :aria-pressed="viewMode === 'list'"
-                title="Hiển thị dạng danh sách"
-                @click="setViewMode('list')"
-              >
-                <i class="ti-view-list-alt" aria-hidden="true"></i>
-                <span class="visually-hidden">Dạng danh sách</span>
-              </button>
+          <div class="news-hero-toolbar">
+            <div class="news-hero-meta" aria-live="polite">
+              <span>{{ resultLabel }}</span>
+              <strong v-if="hasActiveFilters">{{ activeFilterLabel }}</strong>
+              <span v-else>Góc nhìn, câu chuyện và cảm hứng không gian sống</span>
+            </div>
+
+            <div class="news-hero-actions">
+              <div class="news-view-switcher" role="group" aria-label="Chế độ hiển thị bài viết">
+                <button
+                  type="button"
+                  :class="{ active: viewMode === 'grid' }"
+                  :aria-pressed="viewMode === 'grid'"
+                  title="Hiển thị dạng lưới"
+                  @click="setViewMode('grid')"
+                >
+                  <i class="ti-layout-grid3-alt" aria-hidden="true"></i>
+                  <span class="visually-hidden">Dạng lưới</span>
+                </button>
+                <button
+                  type="button"
+                  :class="{ active: viewMode === 'list' }"
+                  :aria-pressed="viewMode === 'list'"
+                  title="Hiển thị dạng danh sách"
+                  @click="setViewMode('list')"
+                >
+                  <i class="ti-view-list-alt" aria-hidden="true"></i>
+                  <span class="visually-hidden">Dạng danh sách</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    </header>
+      </header>
+
+      <section
+        v-if="viewMode === 'grid'"
+        class="booking-wrapper news-booking-wrapper"
+        aria-label="Tìm kiếm tin tức"
+      >
+        <div class="container">
+          <div class="booking-inner clearfix">
+            <form class="form1 clearfix" role="search" @submit.prevent="submitHeaderSearch">
+              <div class="row m-0">
+                <div class="col-lg-5 col-md-5 c1 no-padding">
+                  <div class="input1_wrapper">
+                    <label for="news-booking-search">Tìm trong tin tức</label>
+                    <div class="full_name">
+                      <input
+                        id="news-booking-search"
+                        v-model="searchInput"
+                        type="search"
+                        class="form-control input"
+                        placeholder="Chủ đề, vật liệu, không gian..."
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-3 col-md-3 c2 no-padding">
+                  <div class="select1_wrapper">
+                    <label for="news-booking-category">Chuyên mục</label>
+                    <div class="select1_inner">
+                      <NewsFilterSelect
+                        id="news-booking-category"
+                        v-model="headerCategory"
+                        label="Chọn chuyên mục tin tức"
+                        :options="categoryFilterOptions"
+                        :disabled="loadingCategories"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-2 col-md-2 c3 no-padding">
+                  <div class="select1_wrapper">
+                    <label for="news-booking-year">Thời gian</label>
+                    <div class="select1_inner">
+                      <NewsFilterSelect
+                        id="news-booking-year"
+                        v-model="headerYear"
+                        label="Chọn năm xuất bản"
+                        :options="yearFilterOptions"
+                        :disabled="loading"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="col-lg-2 col-md-2 c4 no-padding">
+                  <button type="submit" class="btn-form1-submit" :disabled="loading">
+                    Tìm kiếm
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+    </div>
 
     <!-- News 2 -->
     <section
@@ -520,6 +697,63 @@ onMounted(async () => {
       <div class="container">
         <div class="row">
           <div class="news-content-column" :class="viewMode === 'grid' ? 'col-md-12' : 'col-md-8'">
+            <div
+              v-if="viewMode === 'grid' && (quickTags.length || archiveFilter.year)"
+              class="news-smart-filters"
+            >
+              <div v-if="quickTags.length" class="news-smart-filter-row">
+                <span class="news-smart-filter-title">
+                  <i class="ti-tag" aria-hidden="true"></i>
+                  Chủ đề nổi bật
+                </span>
+                <div class="news-smart-filter-rail">
+                  <button
+                    v-for="tag in quickTags"
+                    :key="tag.name"
+                    type="button"
+                    class="news-smart-filter-chip"
+                    :class="{ active: uiState.tag === tag.name }"
+                    :aria-pressed="uiState.tag === tag.name"
+                    :title="`${tag.count} bài viết`"
+                    @click="selectTag(tag.name)"
+                  >
+                    <span>{{ formatTagLabel(tag.name) }}</span>
+                    <small>{{ tag.count }}</small>
+                  </button>
+                </div>
+              </div>
+
+              <div v-if="archiveFilter.year" class="news-smart-filter-row">
+                <span class="news-smart-filter-title">
+                  <i class="ti-calendar" aria-hidden="true"></i>
+                  Trong năm {{ archiveFilter.year }}
+                </span>
+                <div class="news-smart-filter-rail">
+                  <button
+                    type="button"
+                    class="news-smart-filter-chip"
+                    :class="{ active: !archiveFilter.month }"
+                    :aria-pressed="!archiveFilter.month"
+                    @click="selectArchiveMonth(null)"
+                  >
+                    Cả năm
+                  </button>
+                  <button
+                    v-for="archive in selectedYearMonths"
+                    :key="`${archive.year}-${archive.month}`"
+                    type="button"
+                    class="news-smart-filter-chip"
+                    :class="{ active: archiveFilter.month === archive.month }"
+                    :aria-pressed="archiveFilter.month === archive.month"
+                    @click="selectArchiveMonth(archive.month)"
+                  >
+                    <span>Tháng {{ archive.month }}</span>
+                    <small>{{ archive.count }}</small>
+                  </button>
+                </div>
+              </div>
+            </div>
+
             <div v-if="hasActiveFilters" class="news-archives-filter-bar">
               <span class="news-archives-filter-label">
                 <i class="ti-filter" aria-hidden="true"></i>
@@ -601,10 +835,7 @@ onMounted(async () => {
                         :class="{ 'news-grid-card--popular': isPopularNews(item) }"
                       >
                         <div class="position-re o-hidden news-grid-media">
-                          <RouterLink
-                            class="news-grid-image-link"
-                            :to="{ name: 'news-detail', params: { id: item.id } }"
-                          >
+                          <RouterLink class="news-grid-image-link" :to="newsDetailRoute(item.id)">
                             <img
                               :src="resolveNewsImage(item.newsImage, item.id)"
                               :alt="item.titles || 'Tin tức'"
@@ -614,7 +845,7 @@ onMounted(async () => {
                             />
                           </RouterLink>
                           <div class="date">
-                            <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                            <RouterLink :to="newsDetailRoute(item.id)">
                               <span>{{ formatNewsDate(item, 'MMM') }}</span>
                               <i>{{ formatNewsDate(item, 'DD') }}</i>
                             </RouterLink>
@@ -635,7 +866,7 @@ onMounted(async () => {
                             </button>
                           </span>
                           <h5>
-                            <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                            <RouterLink :to="newsDetailRoute(item.id)">
                               {{ item.titles }}
                             </RouterLink>
                           </h5>
@@ -659,7 +890,7 @@ onMounted(async () => {
                   >
                     <article class="item">
                       <div class="post-img">
-                        <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                        <RouterLink :to="newsDetailRoute(item.id)">
                           <img
                             :src="resolveNewsImage(item.newsImage, item.id)"
                             :alt="item.titles || 'Tin tức'"
@@ -669,7 +900,7 @@ onMounted(async () => {
                           />
                         </RouterLink>
                         <div class="date">
-                          <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                          <RouterLink :to="newsDetailRoute(item.id)">
                             <span>{{ formatNewsDate(item, 'MMM') }}</span>
                             <i>{{ formatNewsDate(item, 'DD') }}</i>
                           </RouterLink>
@@ -684,13 +915,13 @@ onMounted(async () => {
                           <span class="tag">{{ categoryName(item) }}</span>
                         </button>
                         <h5>
-                          <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                          <RouterLink :to="newsDetailRoute(item.id)">
                             {{ item.titles }}
                           </RouterLink>
                         </h5>
                         <p>{{ item.summary }}</p>
                         <div class="butn-dark">
-                          <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                          <RouterLink :to="newsDetailRoute(item.id)">
                             <span>Chi tiết</span>
                           </RouterLink>
                         </div>
@@ -1304,11 +1535,163 @@ onMounted(async () => {
 
 .news-hero-copy {
   margin: 0;
+  padding-top: 90px;
 }
 
 .news-hero .caption h1 {
   font-size: 60px;
   line-height: 1.1;
+}
+
+.news-page--grid .news-hero-inner {
+  padding-bottom: 205px;
+}
+
+.news-page--grid .news-hero-toolbar {
+  /* bottom: 104px; */
+}
+
+.news-booking-wrapper .full_name::after {
+  content: '\e610';
+}
+
+.news-booking-wrapper .full_name input:focus,
+.news-booking-wrapper .full_name input:focus-visible {
+  border: 0;
+  outline: 0;
+  box-shadow: none;
+}
+
+.news-booking-wrapper .c1,
+.news-booking-wrapper .c2,
+.news-booking-wrapper .c3,
+.news-booking-wrapper .c4 {
+  position: relative;
+  margin-bottom: 0;
+  border-right: 0;
+}
+
+.news-booking-wrapper .c1::after,
+.news-booking-wrapper .c2::after,
+.news-booking-wrapper .c3::after {
+  position: absolute;
+  z-index: 2;
+  top: 14px;
+  right: 0;
+  bottom: 14px;
+  width: 1px;
+  background: rgba(170, 132, 83, 0.48);
+  content: '';
+  pointer-events: none;
+}
+
+.news-booking-wrapper .select1_inner::after {
+  display: none;
+}
+
+.news-booking-wrapper .btn-form1-submit:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.news-smart-filters {
+  display: grid;
+  gap: 13px;
+  margin-bottom: 20px;
+  padding: 0 0 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
+}
+
+.news-smart-filter-row {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 150px minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+}
+
+.news-smart-filter-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.62);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 1.2px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.news-smart-filter-title i {
+  color: #c9a577;
+  font-size: 12px;
+}
+
+.news-smart-filter-rail {
+  display: flex;
+  overflow-x: auto;
+  min-width: 0;
+  gap: 8px;
+  padding: 2px;
+  scrollbar-width: none;
+}
+
+.news-smart-filter-rail::-webkit-scrollbar {
+  display: none;
+}
+
+.news-smart-filter-chip {
+  display: inline-flex;
+  min-height: 34px;
+  padding: 7px 13px;
+  align-items: center;
+  gap: 8px;
+  flex: 0 0 auto;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.78);
+  font-family: 'Barlow', sans-serif;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    background-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.news-smart-filter-chip small {
+  display: inline-grid;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.11);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 10px;
+  place-items: center;
+}
+
+.news-smart-filter-chip:hover {
+  border-color: rgba(201, 165, 119, 0.8);
+  color: #fff;
+}
+
+.news-smart-filter-chip.active {
+  border-color: #aa8453;
+  background: #aa8453;
+  color: #fff;
+}
+
+.news-smart-filter-chip.active small {
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+}
+
+.news-smart-filter-chip:focus-visible {
+  outline: 2px solid #d8b98d;
+  outline-offset: 2px;
 }
 
 .news-hero-toolbar {
@@ -1705,6 +2088,60 @@ onMounted(async () => {
 }
 
 @media screen and (max-width: 767px) {
+  .news-page--grid .news-hero {
+    min-height: 660px;
+    background-attachment: scroll;
+  }
+
+  .news-page--grid .news-hero-inner {
+    min-height: 660px;
+    justify-content: flex-start;
+    padding-top: 150px;
+    padding-bottom: 250px;
+  }
+
+  .news-page--grid .news-hero-toolbar {
+    /* bottom: 220px; */
+  }
+
+  .news-booking-wrapper {
+    padding-bottom: 30px;
+    background: #f8f5f0;
+  }
+
+  .news-booking-wrapper .c1,
+  .news-booking-wrapper .c2,
+  .news-booking-wrapper .c3,
+  .news-booking-wrapper .c4 {
+    height: 62px;
+    margin-bottom: 0;
+  }
+
+  .news-booking-wrapper .c1::after,
+  .news-booking-wrapper .c2::after,
+  .news-booking-wrapper .c3::after {
+    top: auto;
+    right: 20px;
+    bottom: 0;
+    left: 20px;
+    width: auto;
+    height: 1px;
+  }
+
+  .news-booking-wrapper .c4 {
+    margin-top: 12px;
+  }
+
+  .news-smart-filter-row {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 8px;
+  }
+
+  .news-smart-filter-rail {
+    margin-right: -15px;
+    padding-right: 15px;
+  }
+
   #news-results.news-grid-view {
     /* padding-top: 54px;
     padding-bottom: 70px; */

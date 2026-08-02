@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { getFallbackGallery, getGallery } from '../api/galleryClient'
+import NewsFilterSelect from '../components/NewsFilterSelect.vue'
 import type {
   GalleryCategory,
   GalleryItem,
@@ -11,32 +12,10 @@ import type {
 
 const IMAGE_PAGE_SIZE = 10
 const VIDEO_PAGE_SIZE = 4
-const SELECT2_INIT_RETRY_DELAY = 100
-const SELECT2_INIT_MAX_ATTEMPTS = 30
 
 type SectionResult = {
   response: GalleryResponse
   fallback: boolean
-}
-
-type GallerySelect2Event = {
-  currentTarget: EventTarget | null
-}
-
-type GallerySelect2Collection = {
-  hasClass(className: string): boolean
-  off(events: string): GallerySelect2Collection
-  on(events: string, handler: (event: GallerySelect2Event) => void): GallerySelect2Collection
-  select2(options: { minimumResultsForSearch: number } | 'destroy'): GallerySelect2Collection
-  trigger(eventName: string): GallerySelect2Collection
-  val(value: string): GallerySelect2Collection
-}
-
-type GalleryJQueryStatic = {
-  (selector: string): GallerySelect2Collection
-  fn: {
-    select2?: unknown
-  }
 }
 
 const imageItems = ref<GalleryItem[]>([])
@@ -59,8 +38,6 @@ const notice = ref('')
 const activeIndex = ref(-1)
 let originalBodyOverflow = ''
 let requestSerial = 0
-let gallerySelectInitAttempts = 0
-let gallerySelectInitTimer: number | undefined
 
 const items = computed(() => [...imageItems.value, ...videoItems.value])
 const activeItem = computed(() => (activeIndex.value >= 0 ? items.value[activeIndex.value] : null))
@@ -81,6 +58,22 @@ const resultLabel = computed(() => {
   if (totalCount.value === 0) return 'Không tìm thấy nội dung phù hợp'
   return `${totalCount.value} tác phẩm trong bộ sưu tập`
 })
+
+const mediaFilterOptions = computed(() => [
+  { value: 'all', label: 'Tất cả nội dung' },
+  { value: 'image', label: 'Hình ảnh' },
+  { value: 'video', label: 'Video' }
+])
+
+const categoryFilterOptions = computed(() => [
+  { value: 'all', label: 'Mọi không gian' },
+  ...categories.value.map((item) => ({
+    value: item.slug,
+    label: item.name,
+    meta: `${item.itemCount} mục`,
+    disabled: item.itemCount === 0
+  }))
+])
 
 function imageCardColumn(index: number, total: number) {
   if (total % 5 === 1 && index === total - 1) return 'col-md-12 gallery-item--wide'
@@ -133,7 +126,6 @@ async function fetchSection(type: GalleryMediaType, page: number): Promise<Secti
 
 function applySharedResponse(result: SectionResult) {
   categories.value = result.response.categories
-  void nextTick(syncGallerySelectValues)
 }
 
 function applyFallbackState(fallback: boolean) {
@@ -269,26 +261,10 @@ function clearFilters() {
   category.value = 'all'
   searchDraft.value = ''
   search.value = ''
-  void nextTick(syncGallerySelectValues)
   void loadGallery()
 }
 
-function getGalleryJQuery() {
-  if (typeof window === 'undefined') return null
-
-  const jquery = (window as Window & { jQuery?: GalleryJQueryStatic }).jQuery
-  const select2Plugin = jquery?.fn.select2
-
-  return jquery && typeof select2Plugin === 'function' ? jquery : null
-}
-
-function gallerySelect(selector: string) {
-  const jquery = getGalleryJQuery()
-  return jquery ? jquery(selector) : null
-}
-
-function updateMediaTypeFromElement(target: EventTarget | null) {
-  const value = (target as HTMLSelectElement | null)?.value
+function updateMediaType(value: string) {
   if (value !== 'all' && value !== 'image' && value !== 'video') return
   if (mediaType.value === value) return
 
@@ -296,77 +272,11 @@ function updateMediaTypeFromElement(target: EventTarget | null) {
   void loadGallery()
 }
 
-function updateCategoryFromElement(target: EventTarget | null) {
-  const value = (target as HTMLSelectElement | null)?.value
+function updateCategory(value: string) {
   if (!value || category.value === value) return
 
   category.value = value
   void loadGallery()
-}
-
-function handleMediaTypeChange(event: Event) {
-  updateMediaTypeFromElement(event.currentTarget)
-}
-
-function handleCategoryChange(event: Event) {
-  updateCategoryFromElement(event.currentTarget)
-}
-
-function syncGallerySelectValues() {
-  gallerySelect('#gallery-booking-media')?.val(mediaType.value).trigger('change.select2')
-  gallerySelect('#gallery-booking-category')?.val(category.value).trigger('change.select2')
-}
-
-function initializeGallerySelects() {
-  const mediaSelect = gallerySelect('#gallery-booking-media')
-  const categorySelect = gallerySelect('#gallery-booking-category')
-  if (!mediaSelect || !categorySelect) return false
-
-  ;[mediaSelect, categorySelect].forEach((select) => {
-    if (!select.hasClass('select2-hidden-accessible')) {
-      select.select2({ minimumResultsForSearch: Infinity })
-    }
-    select.off('.galleryBooking')
-  })
-
-  mediaSelect.on('change.galleryBooking', (event) => {
-    updateMediaTypeFromElement(event.currentTarget)
-  })
-  categorySelect.on('change.galleryBooking', (event) => {
-    updateCategoryFromElement(event.currentTarget)
-  })
-  syncGallerySelectValues()
-  return true
-}
-
-function initializeGallerySelectsWhenReady() {
-  if (gallerySelectInitTimer !== undefined) {
-    window.clearTimeout(gallerySelectInitTimer)
-    gallerySelectInitTimer = undefined
-  }
-
-  if (initializeGallerySelects()) {
-    gallerySelectInitAttempts = 0
-    return
-  }
-
-  if (gallerySelectInitAttempts >= SELECT2_INIT_MAX_ATTEMPTS) return
-
-  gallerySelectInitAttempts += 1
-  gallerySelectInitTimer = window.setTimeout(
-    initializeGallerySelectsWhenReady,
-    SELECT2_INIT_RETRY_DELAY
-  )
-}
-
-function destroyGallerySelects() {
-  ;['#gallery-booking-media', '#gallery-booking-category'].forEach((selector) => {
-    const select = gallerySelect(selector)
-    if (!select) return
-
-    select.off('.galleryBooking')
-    if (select.hasClass('select2-hidden-accessible')) select.select2('destroy')
-  })
 }
 
 function openItem(itemId: number) {
@@ -407,19 +317,13 @@ watch(isBodyLocked, (locked, wasLocked) => {
   }
 })
 
-onMounted(async () => {
+onMounted(() => {
   window.addEventListener('keydown', handleKeydown)
-  window.addEventListener('load', initializeGallerySelectsWhenReady, { once: true })
-  await nextTick()
-  initializeGallerySelectsWhenReady()
   void loadGallery()
 })
 
 onBeforeUnmount(() => {
   window.removeEventListener('keydown', handleKeydown)
-  window.removeEventListener('load', initializeGallerySelectsWhenReady)
-  if (gallerySelectInitTimer !== undefined) window.clearTimeout(gallerySelectInitTimer)
-  destroyGallerySelects()
   document.body.style.overflow = originalBodyOverflow
 })
 </script>
@@ -472,18 +376,14 @@ onBeforeUnmount(() => {
                   <div class="select1_wrapper">
                     <label for="gallery-booking-media">Loại nội dung</label>
                     <div class="select1_inner">
-                      <select
+                      <NewsFilterSelect
                         id="gallery-booking-media"
-                        :value="mediaType"
-                        class="select2 select"
-                        style="width: 100%"
+                        :model-value="mediaType"
+                        label="Chọn loại nội dung"
+                        :options="mediaFilterOptions"
                         :disabled="loading"
-                        @change="handleMediaTypeChange"
-                      >
-                        <option value="all">Tất cả nội dung</option>
-                        <option value="image">Hình ảnh</option>
-                        <option value="video">Video</option>
-                      </select>
+                        @update:model-value="updateMediaType"
+                      />
                     </div>
                   </div>
                 </div>
@@ -492,19 +392,14 @@ onBeforeUnmount(() => {
                   <div class="select1_wrapper">
                     <label for="gallery-booking-category">Không gian</label>
                     <div class="select1_inner">
-                      <select
+                      <NewsFilterSelect
                         id="gallery-booking-category"
-                        :value="category"
-                        class="select2 select"
-                        style="width: 100%"
+                        :model-value="category"
+                        label="Chọn không gian"
+                        :options="categoryFilterOptions"
                         :disabled="loading"
-                        @change="handleCategoryChange"
-                      >
-                        <option value="all">Mọi không gian</option>
-                        <option v-for="item in categories" :key="item.id" :value="item.slug">
-                          {{ item.name }}
-                        </option>
-                      </select>
+                        @update:model-value="updateCategory"
+                      />
                     </div>
                   </div>
                 </div>
@@ -788,12 +683,6 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
-.gallery-hero {
-  min-height: 540px;
-  padding: 0;
-  background-position: center;
-}
-
 .gallery-hero-inner {
   position: relative;
   z-index: 2;
@@ -835,7 +724,8 @@ onBeforeUnmount(() => {
 }
 
 .booking-wrapper .c1::after,
-.booking-wrapper .c2::after {
+.booking-wrapper .c2::after,
+.booking-wrapper .c3::after {
   position: absolute;
   z-index: 2;
   top: 14px;
@@ -845,6 +735,10 @@ onBeforeUnmount(() => {
   background: rgba(170, 132, 83, 0.48);
   content: '';
   pointer-events: none;
+}
+
+.booking-wrapper .select1_inner::after {
+  display: none;
 }
 
 .gallery-meta {
@@ -1117,10 +1011,6 @@ onBeforeUnmount(() => {
 }
 
 @media (max-width: 991.98px) {
-  .gallery-hero {
-    height: auto;
-  }
-
   .booking-wrapper {
     padding-bottom: 30px;
     background: #f8f5f0;
@@ -1135,7 +1025,7 @@ onBeforeUnmount(() => {
 
   .gallery-hero-inner {
     min-height: 540px;
-    justify-content: flex-start;
+    /* justify-content: flex-start; */
     padding-top: 165px;
     padding-bottom: 120px;
   }
@@ -1158,7 +1048,8 @@ onBeforeUnmount(() => {
   }
 
   .booking-wrapper .c1::after,
-  .booking-wrapper .c2::after {
+  .booking-wrapper .c2::after,
+  .booking-wrapper .c3::after {
     top: auto;
     right: 20px;
     bottom: 0;
@@ -1169,10 +1060,6 @@ onBeforeUnmount(() => {
 
   .booking-wrapper .c4 {
     margin-top: 12px;
-  }
-
-  .booking-wrapper :deep(.select2) {
-    margin-bottom: 0;
   }
 
   .gallery-media-section {

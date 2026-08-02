@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import dayjs from 'dayjs'
+import 'dayjs/locale/vi'
 import { newsApi } from '../api/newsClient'
 import type { News } from '../generated/api-client/models'
 import { handleNewsImageError, resolveNewsImage } from '../utils/news'
@@ -23,11 +24,13 @@ const props = withDefaults(
     title?: string
     subtitle?: string
     items?: News[]
+    loop?: boolean
   }>(),
   {
     title: 'Tin tức nội thất',
     subtitle: 'D&L Furniture News',
-    items: undefined
+    items: undefined,
+    loop: true
   }
 )
 
@@ -38,7 +41,32 @@ const state = reactive({
 const carouselElement = ref<HTMLElement | null>(null)
 let isComponentActive = true
 
+const getPublishedDate = (newsItem: News) => newsItem.createdDate ?? newsItem.updatedDate
+
 const getJQuery = () => (window as typeof window & { jQuery?: OwlJQuery }).jQuery
+
+const updateCarouselAccessibility = () => {
+  const element = carouselElement.value
+  if (!element) return
+
+  element.querySelector<HTMLButtonElement>('.owl-prev')?.setAttribute('aria-label', 'Xem tin trước')
+  element
+    .querySelector<HTMLButtonElement>('.owl-next')
+    ?.setAttribute('aria-label', 'Xem tin tiếp theo')
+
+  element.querySelectorAll<HTMLButtonElement>('.owl-dot').forEach((dot, index) => {
+    dot.setAttribute('aria-label', `Đi đến tin số ${index + 1}`)
+  })
+
+  element.querySelectorAll<HTMLElement>('.owl-item.cloned').forEach((clone) => {
+    clone.setAttribute('aria-hidden', 'true')
+    clone
+      .querySelectorAll<HTMLElement>('a, button, input, select, textarea, [tabindex]')
+      .forEach((control) => {
+        control.setAttribute('tabindex', '-1')
+      })
+  })
+}
 
 const destroyCarousel = () => {
   const jquery = getJQuery()
@@ -70,7 +98,7 @@ const initializeCarousel = async () => {
   }
 
   carousel.owlCarousel({
-    loop: true,
+    loop: props.loop,
     margin: 30,
     mouseDrag: true,
     autoplay: false,
@@ -97,6 +125,8 @@ const initializeCarousel = async () => {
       }
     }
   })
+
+  window.requestAnimationFrame(updateCarouselAccessibility)
 }
 
 const loadItems = async () => {
@@ -111,8 +141,8 @@ const loadItems = async () => {
     if (!isComponentActive) return
     state.items = (res.data ?? []).slice(0, 6) as News[]
     await initializeCarousel()
-  } catch (error) {
-    console.error('Failed to load news', error)
+  } catch {
+    state.items = []
   }
 }
 
@@ -138,32 +168,43 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section class="news home-news section-padding bg-blck">
+  <section v-if="state.items.length" class="news home-news section-padding bg-blck">
     <div class="container">
       <div class="row">
         <div class="col-md-12">
           <div class="section-subtitle">
             <span>{{ subtitle ? subtitle : 'D&L Furniture News' }}</span>
           </div>
-          <div class="section-title">
+          <h2 class="section-title">
             <span>{{ title }}</span>
-          </div>
+          </h2>
         </div>
       </div>
       <div class="row">
         <div class="col-md-12">
-          <div v-if="state.items.length" ref="carouselElement" class="owl-carousel owl-theme">
+          <div
+            v-if="state.items.length"
+            ref="carouselElement"
+            class="owl-carousel owl-theme"
+            role="region"
+            aria-roledescription="carousel"
+            :aria-label="title"
+          >
             <div class="item" v-for="item in state.items" :key="item.id">
               <div class="position-re o-hidden">
                 <img
                   :src="resolveNewsImage(item.newsImage, item.id)"
                   :alt="item.titles || 'Tin tức'"
+                  width="900"
+                  height="1200"
+                  loading="lazy"
+                  decoding="async"
                   @error="handleNewsImageError($event, item.id)"
                 />
                 <div class="date">
                   <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
-                    <span>{{ dayjs(item.updatedDate).format('MMM') }}</span>
-                    <i>{{ dayjs(item.updatedDate).format('DD') }}</i>
+                    <span>{{ dayjs(getPublishedDate(item)).locale('vi').format('MMM') }}</span>
+                    <i>{{ dayjs(getPublishedDate(item)).format('DD') }}</i>
                   </RouterLink>
                 </div>
               </div>
@@ -171,11 +212,11 @@ onBeforeUnmount(() => {
                 <span class="category">
                   <RouterLink :to="{ name: 'news' }">TIN TỨC</RouterLink>
                 </span>
-                <h5>
+                <h3 class="news-card-title">
                   <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
                     {{ item.titles }}
                   </RouterLink>
-                </h5>
+                </h3>
               </div>
             </div>
           </div>
@@ -201,18 +242,29 @@ onBeforeUnmount(() => {
 
 .home-news .item .con {
   box-sizing: border-box;
-  height: 135px;
+  height: 165px;
 }
 
-.home-news .item .con h5 {
-  height: 60px;
+.home-news .item .con .news-card-title {
+  height: 90px;
+  margin: 0;
   overflow: hidden;
+  color: #222;
+  font-family: 'Gilda Display', serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.25;
 }
 
-.home-news .item .con h5 a {
+.home-news .item .con .news-card-title a {
   display: -webkit-box;
   overflow: hidden;
+  color: inherit;
   -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 3;
+}
+
+.home-news .item .con .news-card-title a:hover {
+  color: #aa8453;
 }
 </style>

@@ -1,4 +1,43 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const commitments = [
+  {
+    icon: 'ti-ruler-pencil',
+    title: 'Thiết kế theo hiện trạng',
+    description:
+      'Giải pháp được phát triển từ số liệu khảo sát, kiến trúc sẵn có và thói quen sử dụng thực tế.'
+  },
+  {
+    icon: 'ti-layers',
+    title: 'Vật liệu được tuyển chọn',
+    description:
+      'Mỗi vật liệu được cân nhắc về sắc độ, độ bền và khả năng phối hợp trong tổng thể không gian.'
+  },
+  {
+    icon: 'ti-settings',
+    title: 'Sản xuất có kiểm soát',
+    description:
+      'Tỷ lệ, mối ghép và bề mặt hoàn thiện được kiểm tra xuyên suốt trước khi đưa tới công trình.'
+  },
+  {
+    icon: 'ti-check-box',
+    title: 'Thi công đồng bộ',
+    description:
+      'Thiết kế, sản xuất và lắp đặt được kết nối trong cùng một quy trình để hạn chế sai lệch.'
+  },
+  {
+    icon: 'ti-shield',
+    title: 'Bảo hành minh bạch',
+    description:
+      'Phạm vi bảo hành và hướng dẫn chăm sóc được trao đổi rõ ràng theo từng hạng mục bàn giao.'
+  },
+  {
+    icon: 'ti-comments',
+    title: 'Tư vấn theo nhu cầu',
+    description:
+      'Đề xuất được cân bằng giữa thẩm mỹ, công năng, vật liệu và ngân sách của từng gia đình.'
+  }
+]
+</script>
 
 <template>
   <section class="facilties section-padding">
@@ -10,18 +49,17 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-md-4">
+        <div class="col-md-4" v-for="item in commitments" :key="item.title">
           <div class="single-facility animate-box" data-animate-effect="fadeInUp">
-            <span class="flaticon-world"></span>
-            <h5>Đội ngũ nhân viên và kiến trúc sư chuyên nghiệp</h5>
+            <span :class="item.icon"></span>
+            <h5>{{ item.title }}</h5>
             <p>
-              Đội ngũ kiến trúc sư trẻ năng động và sáng tạo, cùng với công nhân sản xuất lành nghề,
-              nhiều kinh nghiệm được tuyển chọn.
+              {{ item.description }}
             </p>
-            <div class="facility-shape"><span class="flaticon-world"></span></div>
+            <div class="facility-shape"><span :class="item.icon"></span></div>
           </div>
         </div>
-        <div class="col-md-4">
+        <!-- <div class="col-md-4">
           <div class="single-facility animate-box" data-animate-effect="fadeInUp">
             <span class="flaticon-car"></span>
             <h5>Cập nhật xu hướng mới nhất hiện đại</h5>
@@ -75,7 +113,7 @@
             </p>
             <div class="facility-shape"><span class="flaticon-breakfast"></span></div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </section>

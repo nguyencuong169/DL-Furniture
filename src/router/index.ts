@@ -1,22 +1,24 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
-import GalleryView from '../views/GalleryView.vue'
-import AboutView from '../views/AboutView.vue'
-import ProductView from '../views/ProductView.vue'
-import ProjectView from '../views/ProjectView.vue'
-import ProductDetailView from '../views/ProductDetailView.vue'
-import NotFoundComponent from '../template/15_NotFoundComponent.vue'
-import ProductComponent from '../template/04_ProductComponent.vue'
-import NewsView from '../views/NewsView.vue'
-import NewsDetailView from '../views/NewsDetailView.vue'
-import ContactUsView from '../views/ContactUsView.vue'
+
+const GalleryView = () => import('../views/GalleryView.vue')
+const AboutView = () => import('../views/AboutView.vue')
+const ProductView = () => import('../views/ProductView.vue')
+const ProjectView = () => import('../views/ProjectView.vue')
+const ProductDetailView = () => import('../views/ProductDetailView.vue')
+const NotFoundComponent = () => import('../template/15_NotFoundComponent.vue')
+const ProductComponent = () => import('../template/04_ProductComponent.vue')
+const NewsView = () => import('../views/NewsView.vue')
+const NewsDetailView = () => import('../views/NewsDetailView.vue')
+const ContactUsView = () => import('../views/ContactUsView.vue')
 
 const historyBase = import.meta.env.BASE_URL === './' ? '/' : import.meta.env.BASE_URL
 
 const router = createRouter({
   linkActiveClass: 'active',
   history: createWebHistory(historyBase),
-  scrollBehavior(to) {
+  scrollBehavior(to, _from, savedPosition) {
+    if (savedPosition) return savedPosition
     if (to.hash) return { el: to.hash, top: 110, behavior: 'smooth' }
     return { top: 0 }
   },
@@ -111,7 +113,19 @@ const router = createRouter({
         {
           path: 'phong-bep',
           name: 'phongbep',
-          component: ProductComponent
+          component: ProductComponent,
+          children: [
+            {
+              path: 'ban-an',
+              name: 'banan',
+              component: ProductComponent
+            },
+            {
+              path: 'tu-bep',
+              name: 'tubep',
+              component: ProductComponent
+            }
+          ]
         }
       ]
     },

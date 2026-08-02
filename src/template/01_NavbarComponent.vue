@@ -32,9 +32,9 @@ watch(
         <!-- <a class="logo" href="index.html">
           <img src="@/assets/img/logo.png" class="logo-img" alt="" />
         </a> -->
-        <a class="logo" href="index.html">
-          <h2>D&L Furniture <span>Nội thất Dũng Linh</span></h2>
-        </a>
+        <RouterLink class="logo" to="/" aria-label="D&L Furniture - Trang chủ">
+          <div class="logo-wordmark">D&amp;L Furniture <span>Nội thất Dũng Linh</span></div>
+        </RouterLink>
       </div>
       <!-- Button -->
       <button
@@ -45,7 +45,7 @@ watch(
         data-bs-target="#navbar"
         aria-controls="navbar"
         aria-expanded="false"
-        aria-label="Toggle navigation"
+        aria-label="Mở menu điều hướng"
       >
         <span class="navbar-toggler-icon"><i class="ti-menu"></i></span>
       </button>
@@ -197,4 +197,17 @@ watch(
   </nav>
 </template>
 
-<style scoped></style>
+<style scoped>
+.logo-wordmark {
+  display: block;
+  width: 100%;
+  padding: 20px 0;
+  color: #aa8453;
+  font-family: 'Gilda Display', serif;
+  font-size: 27px;
+  font-weight: 400;
+  line-height: 1.2;
+  letter-spacing: 1px;
+  text-align: center;
+}
+</style>

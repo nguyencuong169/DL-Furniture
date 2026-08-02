@@ -1,4 +1,6 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+const currentYear = new Date().getFullYear()
+</script>
 
 <template>
   <footer class="footer">
@@ -9,9 +11,8 @@
             <div class="footer-column footer-about">
               <h3 class="footer-title">D&L Furniture</h3>
               <p class="footer-about-text">
-                Được thành lập vào năm 2022 bởi đội ngũ kiến trúc sư đầy sáng tạo nhiệt huyết cùng
-                với đội ngũ thợ thi công tay nghề cao, giàu kinh nghiệm. <br />
-                Các thiết kế của chúng tôi theo phong cách đương đại với triết lý tối giản.
+                Thiết kế và thi công nội thất theo hiện trạng, nhu cầu sử dụng và dấu ấn riêng của
+                mỗi gia chủ. D&amp;L Furniture đồng hành từ ý tưởng đến khi công trình hoàn thiện.
               </p>
 
               <div class="footer-language">
@@ -41,10 +42,12 @@
               <p class="footer-contact-text">Đường Cầu Liêu<br />Thạch Xá - Thạch Thất - Hà Nội</p>
               <div class="footer-contact-info">
                 <p class="footer-contact-phone">
-                  <span class="flaticon-call"></span>
-                  <a href="tel:+84961109897">(+84)961-109-897</a>
+                  <span class="flaticon-call" aria-hidden="true"></span>
+                  <a href="tel:+84961109897">(+84) 961-109-897</a>
                 </p>
-                <p class="footer-contact-mail">info@dl-furniture.com</p>
+                <p class="footer-contact-mail">
+                  <a href="mailto:info@dl-furniture.com">info@dl-furniture.com</a>
+                </p>
               </div>
               <div class="footer-about-social-list">
                 <a href="#"><i class="ti-instagram"></i></a>
@@ -64,7 +67,7 @@
           <div class="col-md-12">
             <div class="footer-bottom-inner">
               <p class="footer-bottom-copy-right">
-                © Copyright 2024 by <a href="#">D&L Furniture</a>
+                © {{ currentYear }} D&amp;L Furniture. All rights reserved.
               </p>
             </div>
           </div>

@@ -11,7 +11,7 @@ import {
   getNewsRelated,
   recordNewsView
 } from '../api/newsSidebarClient'
-import { getNewsDate, handleNewsImageError, resolveNewsImage, splitNewsTags } from '../utils/news'
+import { resolveNewsImage, splitNewsTags } from '../utils/news'
 import type { ArchiveDto, CategoryDto } from '../api/newsSidebarClient'
 import NewsArchives from '../components/NewsArchives.vue'
 import NewsComponent from '../template/10_NewsComponent.vue'
@@ -30,16 +30,21 @@ const loading = ref(true)
 const errorMessage = ref('')
 const readProgress = ref(0)
 const showBackToTop = ref(false)
+const articleElement = ref<HTMLElement | null>(null)
+const newsReturnTo = ref('/tin-tuc')
+const defaultDocumentTitle = typeof document === 'undefined' ? 'D&L Furniture' : document.title
+const NEWS_SEO_MARKER = 'data-dl-news-seo'
 
 let requestId = 0
 let scrollListenerAttached = false
 const trackedArticleIds = new Set<number>()
+const trackingArticleIds = new Set<number>()
 const newsViewSessionKey = (id: number) => `dl-furniture:news:viewed:${id}`
 
 // ───── Track view ─────
 
 const trackArticleViewOnce = async (id: number) => {
-  if (trackedArticleIds.has(id)) return
+  if (trackedArticleIds.has(id) || trackingArticleIds.has(id)) return
 
   const sessionKey = newsViewSessionKey(id)
 
@@ -48,18 +53,27 @@ const trackArticleViewOnce = async (id: number) => {
       trackedArticleIds.add(id)
       return
     }
-
-    sessionStorage.setItem(sessionKey, '1')
   } catch {
     // Keep an in-memory fallback when sessionStorage is unavailable.
   }
 
-  trackedArticleIds.add(id)
+  trackingArticleIds.add(id)
 
   try {
-    await recordNewsView(id)
+    const response = await recordNewsView(id)
+
+    if (item.value?.id === id) item.value.viewCount = response.viewCount
+    trackedArticleIds.add(id)
+
+    try {
+      sessionStorage.setItem(sessionKey, '1')
+    } catch {
+      // The in-memory set still prevents duplicate requests for this page session.
+    }
   } catch (error) {
     console.warn('Failed to record news article view', error)
+  } finally {
+    trackingArticleIds.delete(id)
   }
 }
 
@@ -76,7 +90,7 @@ const tags = computed(() => splitNewsTags(item.value?.tags))
 
 const publishedDate = computed(() => {
   if (!item.value) return ''
-  const date = getNewsDate(item.value)
+  const date = item.value.createdDate ?? item.value.updatedDate
   return date ? dayjs(date).locale('vi').format('DD MMMM, YYYY') : ''
 })
 
@@ -103,7 +117,10 @@ const viewCount = computed(() => {
 })
 
 const authorName = computed(() => {
-  return item.value?.updatedUser || item.value?.createdUser || 'D&L Furniture'
+  const candidate = (item.value?.updatedUser || item.value?.createdUser || '').trim()
+  return /^(?:content-seed|admin|system)$/i.test(candidate)
+    ? 'D&L Furniture'
+    : candidate || 'D&L Furniture'
 })
 
 const bannerStyle = computed(() => ({
@@ -111,12 +128,217 @@ const bannerStyle = computed(() => ({
 }))
 
 const shareUrl = computed(() => {
-  if (typeof window === 'undefined') return ''
-  return window.location.href
+  const currentPath = route.fullPath
+  if (typeof window === 'undefined') return currentPath
+  return new URL(currentPath, window.location.origin).href
 })
 
+const removeNewsSeo = () => {
+  if (typeof document === 'undefined') return
+  document.head.querySelectorAll(`[${NEWS_SEO_MARKER}]`).forEach((element) => element.remove())
+}
+
+const appendNewsMeta = (attribute: 'name' | 'property', key: string, content: string) => {
+  const meta = document.createElement('meta')
+  meta.setAttribute(attribute, key)
+  meta.setAttribute('content', content)
+  meta.setAttribute(NEWS_SEO_MARKER, '')
+  document.head.appendChild(meta)
+}
+
+const cleanSeoText = (value: string) => {
+  const template = document.createElement('template')
+  template.innerHTML = value
+  return (template.content.textContent || '').replace(/\s+/g, ' ').trim()
+}
+
+const createSeoDescription = (current: NewsItem) => {
+  const source = cleanSeoText(current.summary || current.content || '')
+  if (source.length <= 160) return source
+  return `${source.slice(0, 157).trimEnd()}…`
+}
+
+const toIsoDate = (value?: Date) => {
+  if (!value) return undefined
+  const date = dayjs(value)
+  return date.isValid() ? date.toISOString() : undefined
+}
+
+const updateNewsSeo = (current: NewsItem | null, section: string) => {
+  if (typeof document === 'undefined' || typeof window === 'undefined') return
+
+  removeNewsSeo()
+  if (!current) {
+    document.title = defaultDocumentTitle
+    return
+  }
+
+  const title = (current.titles || 'Tin tức nội thất').trim()
+  const pageTitle = `${title} | D&L Furniture`
+  const description = createSeoDescription(current)
+  const canonicalUrl = new URL(route.path, window.location.origin).href
+  const imageUrl = new URL(resolveNewsImage(current.newsImage, current.id), window.location.origin).href
+  const publishedTime = toIsoDate(current.createdDate)
+  const modifiedTime = toIsoDate(current.updatedDate) || publishedTime
+
+  document.title = pageTitle
+  appendNewsMeta('name', 'description', description)
+  appendNewsMeta('name', 'robots', 'index, follow, max-image-preview:large')
+  appendNewsMeta('property', 'og:type', 'article')
+  appendNewsMeta('property', 'og:locale', 'vi_VN')
+  appendNewsMeta('property', 'og:site_name', 'D&L Furniture')
+  appendNewsMeta('property', 'og:title', pageTitle)
+  appendNewsMeta('property', 'og:description', description)
+  appendNewsMeta('property', 'og:url', canonicalUrl)
+  appendNewsMeta('property', 'og:image', imageUrl)
+  appendNewsMeta('name', 'twitter:card', 'summary_large_image')
+  appendNewsMeta('name', 'twitter:title', pageTitle)
+  appendNewsMeta('name', 'twitter:description', description)
+  appendNewsMeta('name', 'twitter:image', imageUrl)
+  if (publishedTime) appendNewsMeta('property', 'article:published_time', publishedTime)
+  if (modifiedTime) appendNewsMeta('property', 'article:modified_time', modifiedTime)
+
+  const canonical = document.createElement('link')
+  canonical.rel = 'canonical'
+  canonical.href = canonicalUrl
+  canonical.setAttribute(NEWS_SEO_MARKER, '')
+  document.head.appendChild(canonical)
+
+  const structuredData = document.createElement('script')
+  structuredData.type = 'application/ld+json'
+  structuredData.setAttribute(NEWS_SEO_MARKER, '')
+  structuredData.textContent = JSON.stringify({
+    '@context': 'https://schema.org',
+    '@type': 'Article',
+    headline: title,
+    description,
+    image: [imageUrl],
+    datePublished: publishedTime,
+    dateModified: modifiedTime,
+    articleSection: section,
+    keywords: splitNewsTags(current.tags).join(', '),
+    author: {
+      '@type': 'Organization',
+      name: authorName.value
+    },
+    publisher: {
+      '@type': 'Organization',
+      name: 'D&L Furniture'
+    },
+    mainEntityOfPage: {
+      '@type': 'WebPage',
+      '@id': canonicalUrl
+    }
+  })
+  document.head.appendChild(structuredData)
+}
+
+const isSafeMediaUrl = (value: string, embed = false) => {
+  try {
+    const url = new URL(value, window.location.origin)
+    if (!['http:', 'https:'].includes(url.protocol)) return false
+    if (!embed || url.origin === window.location.origin) return true
+
+    return ['www.youtube.com', 'www.youtube-nocookie.com', 'player.vimeo.com'].includes(
+      url.hostname
+    )
+  } catch {
+    return false
+  }
+}
+
+const sanitizeArticleHtml = (content: string) => {
+  if (typeof document === 'undefined') return ''
+
+  const template = document.createElement('template')
+  template.innerHTML = content
+  template.content
+    .querySelectorAll('script, style, object, embed, form, input, button, textarea, select')
+    .forEach((element) => element.remove())
+
+  const allowedAttributes: Record<string, Set<string>> = {
+    A: new Set(['href', 'target', 'title', 'class']),
+    IMG: new Set(['src', 'alt', 'title', 'loading', 'width', 'height', 'class']),
+    VIDEO: new Set([
+      'src',
+      'poster',
+      'controls',
+      'autoplay',
+      'muted',
+      'loop',
+      'playsinline',
+      'preload',
+      'class'
+    ]),
+    SOURCE: new Set(['src', 'type']),
+    IFRAME: new Set([
+      'src',
+      'title',
+      'allow',
+      'allowfullscreen',
+      'loading',
+      'referrerpolicy',
+      'class'
+    ])
+  }
+  const globalAttributes = new Set(['class', 'title'])
+
+  template.content.querySelectorAll('*').forEach((element) => {
+    Array.from(element.attributes).forEach((attribute) => {
+      const allowedForElement = allowedAttributes[element.tagName]
+      if (!globalAttributes.has(attribute.name) && !allowedForElement?.has(attribute.name)) {
+        element.removeAttribute(attribute.name)
+      }
+    })
+
+    if (element instanceof HTMLAnchorElement) {
+      if (!isSafeMediaUrl(element.href)) element.removeAttribute('href')
+      else {
+        element.rel = 'noopener noreferrer'
+        if (element.target !== '_blank') element.removeAttribute('target')
+      }
+    }
+
+    if (element instanceof HTMLImageElement && !isSafeMediaUrl(element.src)) {
+      element.removeAttribute('src')
+    }
+
+    if (element instanceof HTMLVideoElement) {
+      if (element.src && !isSafeMediaUrl(element.src)) element.removeAttribute('src')
+      element.setAttribute('controls', '')
+      element.setAttribute('playsinline', '')
+    }
+
+    if (element instanceof HTMLSourceElement && !isSafeMediaUrl(element.src)) {
+      element.remove()
+    }
+
+    if (element instanceof HTMLIFrameElement && !isSafeMediaUrl(element.src, true)) {
+      element.remove()
+    }
+  })
+
+  return template.innerHTML
+}
+
 const articleContent = computed(() => {
-  return item.value?.content || item.value?.summary || ''
+  const content = (item.value?.content || '').trim()
+  if (!content) return ''
+  if (/<\/?[a-z][\s\S]*>/i.test(content)) return sanitizeArticleHtml(content)
+
+  const escapedContent = content
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;')
+  const sentences = escapedContent.split(/(?<=[.!?])\s+/).filter(Boolean)
+
+  if (sentences.length <= 2) return `<p>${escapedContent}</p>`
+
+  return Array.from({ length: Math.ceil(sentences.length / 2) }, (_, index) => {
+    return `<p>${sentences.slice(index * 2, index * 2 + 2).join(' ')}</p>`
+  }).join('')
 })
 
 const categoriesTotal = computed(() => {
@@ -126,12 +348,30 @@ const categoriesTotal = computed(() => {
   )
 })
 
+const readingTime = computed(() => {
+  const source = `${item.value?.summary ?? ''} ${item.value?.content ?? ''}`
+    .replace(/<[^>]+>/g, ' ')
+    .trim()
+  const words = source ? source.split(/\s+/).length : 0
+  return Math.max(1, Math.ceil(words / 220))
+})
+
 // ───── Load article ─────
+
+const loadRelatedNews = async (id: number, currentRequest: number) => {
+  const relatedItems = await getNewsRelated(id, DEFAULT_RELATED_COUNT).catch(() => [])
+
+  if (currentRequest !== requestId || item.value?.id !== id) return
+
+  related.value = relatedItems
+  window.requestAnimationFrame(handleScroll)
+}
 
 const loadArticle = async (id: number) => {
   const currentRequest = ++requestId
   loading.value = true
   errorMessage.value = ''
+  related.value = []
 
   try {
     const [article, categoryItems, archiveItems] = await Promise.all([
@@ -146,7 +386,7 @@ const loadArticle = async (id: number) => {
     void trackArticleViewOnce(article.id)
     categories.value = categoryItems
     archives.value = archiveItems
-    related.value = await getNewsRelated(id, DEFAULT_RELATED_COUNT).catch(() => [])
+    void loadRelatedNews(id, currentRequest)
   } catch (error) {
     if (currentRequest !== requestId) return
     item.value = null
@@ -210,11 +450,26 @@ const copyShareLink = async () => {
 
 const handleScroll = () => {
   const scrollTop = window.scrollY
-  const docHeight = document.documentElement.scrollHeight - window.innerHeight
-  if (docHeight > 0) {
-    readProgress.value = Math.min(Math.round((scrollTop / docHeight) * 100), 100)
+  const article = articleElement.value
+  let articleBottom = 0
+
+  if (!article) {
+    readProgress.value = 0
+  } else {
+    const articleTop = article.getBoundingClientRect().top + scrollTop
+    articleBottom = articleTop + article.offsetHeight
+    const readableDistance = article.offsetHeight - window.innerHeight
+
+    if (readableDistance <= 0) {
+      readProgress.value = scrollTop >= articleTop ? 100 : 0
+    } else {
+      const progress = ((scrollTop - articleTop) / readableDistance) * 100
+      readProgress.value = Math.round(Math.min(Math.max(progress, 0), 100))
+    }
   }
-  showBackToTop.value = scrollTop > 500
+
+  showBackToTop.value =
+    Boolean(article) && scrollTop > 500 && scrollTop + window.innerHeight * 0.35 < articleBottom
 }
 
 const scrollToTop = () => {
@@ -222,6 +477,21 @@ const scrollToTop = () => {
 }
 
 // ───── Navigation ─────
+
+const isSafeNewsReturnPath = (value: unknown): value is string => {
+  return typeof value === 'string' && /^\/tin-tuc(?:[?#]|$)/.test(value)
+}
+
+const goBackToNews = () => {
+  const browserBackPath = window.history.state?.back
+
+  if (browserBackPath === newsReturnTo.value) {
+    router.back()
+    return
+  }
+
+  void router.push(newsReturnTo.value)
+}
 
 const openArchive = (year: number, month: number) => {
   void router.push({ name: ROUTE_NAME_NEWS, query: { year, month } })
@@ -231,9 +501,9 @@ const openLatestNews = () => {
   void router.push({ name: ROUTE_NAME_NEWS })
 }
 
-const goToCategoryNews = () => {
-  if (item.value?.newsCategoryId) {
-    void router.push({ name: ROUTE_NAME_NEWS, query: { category: item.value.newsCategoryId } })
+const goToCategoryNews = (categoryId = item.value?.newsCategoryId) => {
+  if (categoryId) {
+    void router.push({ name: ROUTE_NAME_NEWS, query: { category: categoryId } })
   }
 }
 
@@ -244,15 +514,27 @@ const goToTagNews = (tag: string) => {
 // ───── Lifecycle ─────
 
 onMounted(() => {
+  const returnPath = window.history.state?.newsReturnTo
+  if (isSafeNewsReturnPath(returnPath)) newsReturnTo.value = returnPath
+
+  document.body.classList.add('news-detail-active')
   window.addEventListener('scroll', handleScroll, { passive: true })
+  window.addEventListener('resize', handleScroll, { passive: true })
   scrollListenerAttached = true
+  handleScroll()
 })
 
 onBeforeUnmount(() => {
+  document.body.classList.remove('news-detail-active')
+
   if (scrollListenerAttached) {
     window.removeEventListener('scroll', handleScroll)
+    window.removeEventListener('resize', handleScroll)
     scrollListenerAttached = false
   }
+
+  document.title = defaultDocumentTitle
+  removeNewsSeo()
 })
 
 watch(
@@ -269,6 +551,10 @@ watch(
   },
   { immediate: true }
 )
+
+watch([item, categoryName], ([current, section]) => updateNewsSeo(current, section), {
+  immediate: true
+})
 </script>
 
 <template>
@@ -319,9 +605,9 @@ watch(
             <button type="button" class="nd-btn nd-btn--primary" @click="retryLoad">
               <i class="ti-reload"></i> Thử tải lại
             </button>
-            <RouterLink :to="{ name: 'news' }" class="nd-btn nd-btn--outline">
+            <button type="button" class="nd-btn nd-btn--outline" @click="goBackToNews">
               <i class="ti-arrow-left"></i> Quay lại tin tức
-            </RouterLink>
+            </button>
           </div>
         </div>
       </div>
@@ -331,7 +617,7 @@ watch(
     <template v-else>
       <!-- Banner Header -->
       <div
-        class="nd-banner section-padding valign bg-img bg-fixed"
+        class="banner-header nd-banner section-padding valign bg-img bg-fixed"
         data-overlay-dark="5"
         :style="bannerStyle"
       >
@@ -339,9 +625,11 @@ watch(
           <div class="row">
             <div class="col-md-12 text-left caption mt-90 nd-banner-caption">
               <div class="nd-breadcrumb">
-                <RouterLink :to="{ name: 'news' }">Tin tức</RouterLink>
+                <button type="button" class="nd-breadcrumb-back" @click="goBackToNews">
+                  Tin tức
+                </button>
                 <span class="nd-breadcrumb-sep">/</span>
-                <button type="button" class="nd-breadcrumb-category" @click="goToCategoryNews">
+                <button type="button" class="nd-breadcrumb-category" @click="goToCategoryNews()">
                   {{ categoryName }}
                 </button>
               </div>
@@ -354,17 +642,21 @@ watch(
                 <span class="nd-meta-item">
                   <i class="ti-calendar"></i>
                   {{ publishedDate }}
-                  <span
+                  <!-- <span
                     v-if="isUpdated"
                     class="nd-updated-badge"
                     :title="'Đã cập nhật: ' + updatedDateFormatted"
                   >
                     (Đã cập nhật)
-                  </span>
+                  </span> -->
                 </span>
                 <span class="nd-meta-item">
                   <i class="ti-eye"></i>
                   {{ viewCount }} lượt xem
+                </span>
+                <span class="nd-meta-item">
+                  <i class="ti-time"></i>
+                  {{ readingTime }} phút đọc
                 </span>
               </div>
             </div>
@@ -377,21 +669,10 @@ watch(
         <div class="container">
           <div class="row">
             <!-- ─── Left Column: Article Body ─── -->
-            <div class="col-md-8">
-              <!-- Featured Image -->
-              <figure class="nd-featured-image">
-                <img
-                  :src="resolveNewsImage(item.newsImage, item.id)"
-                  :alt="item.titles || 'Tin tức'"
-                  @error="handleNewsImageError($event, item.id)"
-                />
-                <figcaption v-if="item.titles" class="nd-image-caption">
-                  Hình ảnh: {{ item.titles }}
-                </figcaption>
-              </figure>
-
+            <article ref="articleElement" class="col-md-8">
               <!-- Summary / Lead -->
               <div v-if="item.summary" class="nd-lead">
+                <span class="nd-lead-label">Tóm tắt biên tập</span>
                 {{ item.summary }}
               </div>
 
@@ -414,7 +695,7 @@ watch(
                 <div class="nd-footer-row">
                   <!-- Category (left) -->
                   <div class="nd-category-section">
-                    <button type="button" class="nd-category-btn" @click="goToCategoryNews">
+                    <button type="button" class="nd-category-btn" @click="goToCategoryNews()">
                       <i class="ti-folder"></i> {{ categoryName }}
                     </button>
                   </div>
@@ -425,34 +706,38 @@ watch(
                       <button
                         type="button"
                         class="nd-share-btn nd-share-btn--facebook"
+                        aria-label="Chia sẻ bài viết lên Facebook"
                         title="Chia sẻ lên Facebook"
                         @click="shareOnFacebook"
                       >
-                        <i class="ti-facebook"></i>
+                        <i class="ti-facebook" aria-hidden="true"></i>
                       </button>
                       <button
                         type="button"
                         class="nd-share-btn nd-share-btn--twitter"
+                        aria-label="Chia sẻ bài viết lên Twitter"
                         title="Chia sẻ lên Twitter"
                         @click="shareOnTwitter"
                       >
-                        <i class="ti-twitter-alt"></i>
+                        <i class="ti-twitter-alt" aria-hidden="true"></i>
                       </button>
                       <button
                         type="button"
                         class="nd-share-btn nd-share-btn--linkedin"
+                        aria-label="Chia sẻ bài viết lên LinkedIn"
                         title="Chia sẻ lên LinkedIn"
                         @click="shareOnLinkedIn"
                       >
-                        <i class="ti-linkedin"></i>
+                        <i class="ti-linkedin" aria-hidden="true"></i>
                       </button>
                       <button
                         type="button"
                         class="nd-share-btn nd-share-btn--copy"
+                        aria-label="Sao chép đường dẫn bài viết"
                         title="Sao chép đường dẫn"
                         @click="copyShareLink"
                       >
-                        <i class="ti-link"></i>
+                        <i class="ti-link" aria-hidden="true"></i>
                       </button>
                     </div>
                   </div>
@@ -465,7 +750,7 @@ watch(
                   <i class="ti-user"></i>
                 </div>
                 <div class="nd-author-info">
-                  <h5 class="nd-author-name">{{ authorName }}</h5>
+                  <h2 class="nd-author-name">{{ authorName }}</h2>
                   <p class="nd-author-bio">
                     Bài viết được đăng tải bởi đội ngũ <strong>D&amp;L Furniture</strong>, chuyên
                     cung cấp những thông tin hữu ích về nội thất, thiết kế không gian sống và xu
@@ -476,11 +761,11 @@ watch(
 
               <!-- Navigation Buttons -->
               <div class="nd-post-navigation">
-                <RouterLink :to="{ name: 'news' }" class="nd-btn nd-btn--outline">
+                <button type="button" class="nd-btn nd-btn--outline" @click="goBackToNews">
                   <i class="ti-arrow-left"></i> Quay lại tin tức
-                </RouterLink>
+                </button>
               </div>
-            </div>
+            </article>
 
             <!-- ─── Right Column: Sidebar ─── -->
             <div class="col-md-4">
@@ -489,12 +774,12 @@ watch(
                 <div class="col-md-12">
                   <div class="widget news-category-widget">
                     <div class="widget-title">
-                      <h6>Chuyên mục</h6>
+                      <h2 class="nd-sidebar-heading">Chuyên mục</h2>
                       <p v-if="categories.length">{{ categoriesTotal }} bài viết</p>
                     </div>
                     <ul class="news-category-list">
                       <li>
-                        <button type="button" class="news-category-link" @click="goToCategoryNews">
+                        <button type="button" class="news-category-link" @click="openLatestNews">
                           <span class="news-category-name">
                             <i class="ti-layout-grid2" aria-hidden="true"></i>
                             Tất cả bài viết
@@ -507,7 +792,7 @@ watch(
                           class="news-category-link"
                           :class="{ active: item?.newsCategoryId === category.id }"
                           :aria-pressed="item?.newsCategoryId === category.id"
-                          @click="goToCategoryNews"
+                          @click="goToCategoryNews(category.id)"
                         >
                           <span class="news-category-name">
                             <i class="ti-angle-right" aria-hidden="true"></i>
@@ -535,7 +820,7 @@ watch(
                 <div v-if="tags.length" class="col-md-12">
                   <div class="widget">
                     <div class="widget-title">
-                      <h6>Thẻ nội dung</h6>
+                      <h2 class="nd-sidebar-heading">Thẻ nội dung</h2>
                     </div>
                     <ul class="tags nd-sidebar-tags">
                       <li v-for="tag in tags" :key="tag">
@@ -552,9 +837,26 @@ watch(
         </div>
       </section>
 
-      <NewsComponent v-if="related.length" :items="related" title="Tin tức liên quan" />
       <BookingFormComponent :background-image="resolveNewsImage(item.newsImage, item.id)" />
+      <NewsComponent
+        v-if="related.length"
+        :items="related"
+        :loop="false"
+        title="Tin tức liên quan"
+      />
     </template>
+
+    <Transition name="nd-backtop">
+      <button
+        v-if="showBackToTop"
+        type="button"
+        class="nd-back-to-top"
+        aria-label="Quay lên đầu bài viết"
+        @click="scrollToTop"
+      >
+        <i class="ti-arrow-up" aria-hidden="true"></i>
+      </button>
+    </Transition>
   </main>
 </template>
 
@@ -765,6 +1067,7 @@ watch(
   /* padding: 0; */
   background-position: center;
   background-size: cover;
+  height: 60vh;
 }
 
 .nd-banner-caption {
@@ -784,25 +1087,25 @@ watch(
 }
 
 .nd-breadcrumb a,
+.nd-breadcrumb-back,
 .nd-breadcrumb-category {
-  color: rgba(255, 255, 255, 0.72);
+  /* color: rgba(255, 255, 255, 0.72); */
   text-decoration: none;
   transition: color 0.2s ease;
+  color: #aa8453;
+  font-weight: 500;
+  font-size: 15px;
+  letter-spacing: 6px;
 }
 
 .nd-breadcrumb a:hover,
+.nd-breadcrumb-back:hover,
 .nd-breadcrumb-category:hover {
   color: #d4a96a;
 }
 
+.nd-breadcrumb-back,
 .nd-breadcrumb-category {
-  padding: 0;
-  border: 0;
-  background: transparent;
-  cursor: pointer;
-  font-family: inherit;
-  font-size: inherit;
-  letter-spacing: inherit;
   text-transform: inherit;
 }
 
@@ -811,10 +1114,12 @@ watch(
 }
 
 .nd-banner-caption h1 {
+  max-width: 980px;
   color: #fff;
-  font-size: 52px;
-  line-height: 1.15;
+  font-size: clamp(42px, 4.1vw, 52px);
+  line-height: 1.25;
   margin-bottom: 20px;
+  /* text-wrap: balance; */
 }
 
 .nd-banner-meta {
@@ -850,34 +1155,13 @@ watch(
   cursor: help;
 }
 
-/* ─── Featured Image ─── */
-.nd-featured-image {
-  margin: 0 0 30px;
-  background: #eeeae4;
-}
-
-.nd-featured-image img {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-}
-
-.nd-image-caption {
-  padding: 10px 14px;
-  background: #f8f5f0;
-  color: #7a7168;
-  font-size: 13px;
-  font-style: italic;
-  line-height: 1.5;
-}
-
 /* ─── Lead / Summary ─── */
 .nd-lead {
   position: relative;
   margin-bottom: 32px;
-  padding: 20px 24px;
-  border-left: 3px solid #aa8453;
+  padding: 24px 28px 25px;
+  border-top: 1px solid rgba(170, 132, 83, 0.42);
+  border-bottom: 1px solid rgba(170, 132, 83, 0.42);
   background: #f8f5f0;
   color: #3a342c;
   font-family: 'Gilda Display', serif;
@@ -885,21 +1169,32 @@ watch(
   line-height: 1.65;
 }
 
+.nd-lead-label {
+  display: block;
+  margin-bottom: 8px;
+  color: #aa8453;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  font-style: normal;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
 /* ─── Article Body (v-html content) ─── */
 .nd-article-body {
   color: #3a342c;
   font-family: 'Barlow', sans-serif;
-  font-size: 16px;
-  line-height: 1.85;
+  font-size: 17px;
+  line-height: 1.9;
   word-wrap: break-word;
 }
 
-.nd-article-body h1,
-.nd-article-body h2,
-.nd-article-body h3,
-.nd-article-body h4,
-.nd-article-body h5,
-.nd-article-body h6 {
+.nd-article-body :deep(h1),
+.nd-article-body :deep(h2),
+.nd-article-body :deep(h3),
+.nd-article-body :deep(h4),
+.nd-article-body :deep(h5),
+.nd-article-body :deep(h6) {
   margin-top: 1.6em;
   margin-bottom: 0.7em;
   color: #1a1816;
@@ -908,104 +1203,381 @@ watch(
   line-height: 1.3;
 }
 
-.nd-article-body h2 {
-  font-size: 28px;
+.nd-article-body :deep(h2) {
+  font-size: 32px;
 }
 
-.nd-article-body h3 {
-  font-size: 24px;
+.nd-article-body :deep(h3) {
+  font-size: 25px;
 }
 
-.nd-article-body h4 {
+.nd-article-body :deep(h4) {
   font-size: 20px;
 }
 
-.nd-article-body p {
-  margin-bottom: 1.2em;
+.nd-article-body :deep(p) {
+  margin-bottom: 1.35em;
 }
 
-.nd-article-body a {
+.nd-article-body :deep(p:first-child::first-letter) {
+  float: left;
+  margin: 8px 10px 0 0;
+  color: #aa8453;
+  font-family: 'Gilda Display', serif;
+  font-size: 58px;
+  line-height: 0.72;
+}
+
+.nd-article-body :deep(a) {
   color: #aa8453;
   text-decoration: underline;
   transition: color 0.2s ease;
 }
 
-.nd-article-body a:hover {
+.nd-article-body :deep(a:hover) {
   color: #7f603b;
 }
 
-.nd-article-body blockquote {
+.nd-article-body :deep(blockquote) {
   position: relative;
-  margin: 1.8em 0;
-  padding: 20px 24px 20px 40px;
-  border-left: 3px solid #aa8453;
-  background: #f8f5f0;
+  margin: 2.2em 0;
+  padding: 32px 34px 32px 56px;
+  border: 0;
+  background: #1f1c18;
+  color: #f5efe7;
   font-family: 'Gilda Display', serif;
-  font-size: 18px;
+  font-size: 23px;
   font-style: italic;
-  line-height: 1.7;
-  color: #4a443b;
+  line-height: 1.55;
 }
 
-.nd-article-body blockquote::before {
+.nd-article-body :deep(blockquote)::before {
   position: absolute;
-  top: 14px;
-  left: 14px;
+  top: 21px;
+  left: 22px;
   content: '\201C';
   color: #aa8453;
   font-family: 'Gilda Display', serif;
-  font-size: 32px;
+  font-size: 44px;
   line-height: 1;
 }
 
-.nd-article-body blockquote p {
+.nd-article-body :deep(blockquote p) {
   margin-bottom: 0;
 }
 
-.nd-article-body ul,
-.nd-article-body ol {
+.nd-article-body :deep(ul),
+.nd-article-body :deep(ol) {
   margin-bottom: 1.2em;
   padding-left: 1.5em;
 }
 
-.nd-article-body li {
+.nd-article-body :deep(li) {
   margin-bottom: 0.45em;
 }
 
-.nd-article-body img {
+.nd-article-body :deep(img) {
   display: block;
+  width: 100%;
   max-width: 100%;
   height: auto;
-  margin: 1.4em auto;
+  margin: 2em auto;
   border-radius: 0;
 }
 
-.nd-article-body figure {
-  margin: 1.6em 0;
+.nd-article-body :deep(figure) {
+  margin: 2.2em 0;
   text-align: center;
 }
 
-.nd-article-body figcaption {
-  margin-top: 8px;
+.nd-article-body :deep(figure img) {
+  margin-bottom: 0;
+}
+
+.nd-article-body :deep(figcaption) {
+  margin-top: 10px;
   color: #7a7168;
   font-size: 13px;
   font-style: italic;
 }
 
-.nd-article-body table {
+.nd-article-body :deep(video),
+.nd-article-body :deep(iframe) {
+  display: block;
+  width: 100%;
+  margin: 2.2em 0;
+  border: 0;
+  background: #15130f;
+  aspect-ratio: 16 / 9;
+}
+
+.nd-article-body :deep(video) {
+  height: auto;
+}
+
+.nd-article-body :deep(.news-media-gallery) {
+  display: grid;
+  overflow: visible;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin: 2.5em 0;
+  padding: 0;
+}
+
+.nd-article-body :deep(.news-media-gallery > *) {
+  min-width: 0;
+  margin: 0;
+  scroll-snap-align: start;
+}
+
+.nd-article-body :deep(.news-media-gallery img) {
+  width: 100%;
+  aspect-ratio: 8 / 5;
+  height: auto;
+  margin: 0;
+  object-fit: cover;
+}
+
+.nd-article-body :deep(.news-story-grid) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  margin: 2.4em 0;
+}
+
+.nd-article-body :deep(.news-story-grid figure) {
+  margin: 0;
+}
+
+.nd-article-body :deep(.news-story-grid figure:first-child:last-child) {
+  grid-column: 1 / -1;
+}
+
+.nd-article-body :deep(.news-project-facts) {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1px;
+  margin: 0 0 2.5em;
+  border: 1px solid #ded5c8;
+  background: #ded5c8;
+}
+
+.nd-article-body :deep(.news-project-facts > div) {
+  padding: 20px 22px;
+  background: #f8f5f0;
+}
+
+.nd-article-body :deep(.news-project-facts span) {
+  display: block;
+  margin-bottom: 5px;
+  color: #aa8453;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+}
+
+.nd-article-body :deep(.news-project-facts strong) {
+  display: block;
+  color: #26211c;
+  font-family: 'Gilda Display', serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.nd-article-body :deep(.news-media-feature) {
+  margin: 2.6em 0;
+}
+
+.nd-article-body :deep(.news-media-feature img) {
+  height: clamp(360px, 44vw, 560px);
+  margin: 0;
+  object-fit: cover;
+}
+
+.nd-article-body :deep(.news-media-feature--detail img) {
+  height: clamp(320px, 40vw, 500px);
+}
+
+.nd-article-body :deep(.news-editor-note) {
+  margin: 2em 0 2.6em;
+  padding: 24px 28px;
+  border-left: 3px solid #aa8453;
+  background: #f3eee7;
+}
+
+.nd-article-body :deep(.news-editor-note span),
+.nd-article-body :deep(.news-craft-eyebrow) {
+  display: block;
+  margin-bottom: 8px;
+  color: #aa8453;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.nd-article-body :deep(.news-editor-note p) {
+  margin: 0;
+  color: #40382f;
+  font-family: 'Gilda Display', serif;
+  font-size: 20px;
+  line-height: 1.6;
+}
+
+.nd-article-body :deep(.news-design-principles) {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1px;
+  margin: 2.2em 0 2.8em;
+  border: 1px solid #ded5c8;
+  background: #ded5c8;
+}
+
+.nd-article-body :deep(.news-design-principles > div) {
+  padding: 25px 22px;
+  background: #f8f5f0;
+}
+
+.nd-article-body :deep(.news-design-principles > div > span) {
+  display: block;
+  margin-bottom: 18px;
+  color: #aa8453;
+  font-family: 'Gilda Display', serif;
+  font-size: 30px;
+  line-height: 1;
+}
+
+.nd-article-body :deep(.news-design-principles h3) {
+  margin: 0 0 10px;
+  font-size: 21px;
+}
+
+.nd-article-body :deep(.news-design-principles p) {
+  margin: 0;
+  color: #665c51;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.nd-article-body :deep(.news-process-list) {
+  display: grid;
+  gap: 0;
+  padding: 0;
+  margin: 2.1em 0 2.8em;
+  list-style: none;
+  counter-reset: news-process;
+}
+
+.nd-article-body :deep(.news-process-list li) {
+  display: grid;
+  grid-template-columns: 42px minmax(150px, 0.55fr) minmax(0, 1fr);
+  gap: 16px;
+  align-items: baseline;
+  padding: 18px 0;
+  margin: 0;
+  border-bottom: 1px solid #ddd4c8;
+  counter-increment: news-process;
+}
+
+.nd-article-body :deep(.news-process-list li)::before {
+  color: #aa8453;
+  content: '0' counter(news-process);
+  font-family: 'Gilda Display', serif;
+  font-size: 20px;
+}
+
+.nd-article-body :deep(.news-process-list strong) {
+  color: #26211c;
+  font-family: 'Gilda Display', serif;
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.nd-article-body :deep(.news-process-list span) {
+  color: #665c51;
+  font-size: 14px;
+  line-height: 1.65;
+}
+
+.nd-article-body :deep(.news-care-list) {
+  padding: 20px 24px 10px 46px;
+  border-top: 1px solid #ded5c8;
+  border-bottom: 1px solid #ded5c8;
+  background: #fbf9f6;
+}
+
+.nd-article-body :deep(.news-care-list li) {
+  padding-left: 4px;
+  margin-bottom: 12px;
+}
+
+.nd-article-body :deep(.news-craft-feature) {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 30px;
+  align-items: stretch;
+  margin: 3em 0;
+  padding: 34px;
+  background: #1f1c18;
+  color: #f5efe7;
+}
+
+.nd-article-body :deep(.news-craft-feature__copy) {
+  align-self: center;
+}
+
+.nd-article-body :deep(.news-craft-feature h2) {
+  margin: 0 0 14px;
+  color: #fff;
+}
+
+.nd-article-body :deep(.news-craft-feature p) {
+  margin-bottom: 20px;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.nd-article-body :deep(.news-craft-feature ul) {
+  padding-left: 19px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.82);
+}
+
+.nd-article-body :deep(.news-craft-feature li) {
+  margin-bottom: 8px;
+}
+
+.nd-article-body :deep(.news-craft-feature figure) {
+  margin: 0;
+}
+
+.nd-article-body :deep(.news-craft-feature img) {
+  width: 100%;
+  height: 100%;
+  min-height: 360px;
+  margin: 0;
+  object-fit: cover;
+}
+
+.nd-article-body :deep(.news-craft-feature figcaption) {
+  color: rgba(255, 255, 255, 0.58);
+}
+
+.nd-article-body :deep(table) {
   width: 100%;
   margin: 1.4em 0;
   border-collapse: collapse;
 }
 
-.nd-article-body th,
-.nd-article-body td {
+.nd-article-body :deep(th),
+.nd-article-body :deep(td) {
   padding: 10px 14px;
   border: 1px solid #e0d8cc;
   text-align: left;
 }
 
-.nd-article-body th {
+.nd-article-body :deep(th) {
   background: #f0ece6;
   font-family: 'Barlow Condensed', sans-serif;
   font-weight: 600;
@@ -1013,24 +1585,24 @@ watch(
   text-transform: uppercase;
 }
 
-.nd-article-body hr {
+.nd-article-body :deep(hr) {
   margin: 1.8em 0;
   border: 0;
   border-top: 1px solid #e0d8cc;
 }
 
-.nd-article-body strong {
+.nd-article-body :deep(strong) {
   font-weight: 600;
 }
 
-.nd-article-body code {
+.nd-article-body :deep(code) {
   padding: 2px 6px;
   background: #f0ece6;
   font-family: 'Courier New', monospace;
   font-size: 0.9em;
 }
 
-.nd-article-body pre {
+.nd-article-body :deep(pre) {
   overflow-x: auto;
   margin: 1.4em 0;
   padding: 16px 20px;
@@ -1040,7 +1612,7 @@ watch(
   line-height: 1.6;
 }
 
-.nd-article-body pre code {
+.nd-article-body :deep(pre code) {
   padding: 0;
   background: transparent;
   color: inherit;
@@ -1218,6 +1790,16 @@ watch(
   padding-top: 16px;
 }
 
+.nd-sidebar-heading {
+  padding: 0;
+  margin: 0;
+  color: #222;
+  font-family: 'Gilda Display', serif;
+  font-size: 24px;
+  font-weight: 400;
+  line-height: 1.3;
+}
+
 .nd-sidebar-tags {
   display: flex;
   flex-wrap: wrap;
@@ -1254,6 +1836,10 @@ watch(
 }
 
 /* ─── Back to Top ─── */
+:global(body.news-detail-active .progress-wrap) {
+  display: none !important;
+}
+
 .nd-back-to-top {
   position: fixed;
   right: 24px;
@@ -1300,6 +1886,7 @@ watch(
 
 /* ─── Focus & Accessibility ─── */
 .nd-breadcrumb-category:focus-visible,
+.nd-breadcrumb-back:focus-visible,
 .nd-category-btn:focus-visible,
 .nd-share-btn:focus-visible,
 .nd-btn:focus-visible,
@@ -1353,18 +1940,19 @@ watch(
   }
 
   .nd-article-body {
-    font-size: 15px;
+    font-size: 16px;
+    line-height: 1.85;
   }
 
-  .nd-article-body h2 {
+  .nd-article-body :deep(h2) {
     font-size: 24px;
   }
 
-  .nd-article-body h3 {
+  .nd-article-body :deep(h3) {
     font-size: 20px;
   }
 
-  .nd-article-body blockquote {
+  .nd-article-body :deep(blockquote) {
     padding: 16px 18px 16px 32px;
     font-size: 16px;
   }
@@ -1423,6 +2011,57 @@ watch(
     width: 38px;
     height: 38px;
     font-size: 16px;
+  }
+
+  .nd-article-body :deep(.news-story-grid) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nd-article-body :deep(.news-project-facts) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nd-article-body :deep(.news-design-principles) {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .nd-article-body :deep(.news-process-list li) {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 8px 12px;
+  }
+
+  .nd-article-body :deep(.news-process-list span) {
+    grid-column: 2;
+  }
+
+  .nd-article-body :deep(.news-craft-feature) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
+    padding: 24px 18px;
+  }
+
+  .nd-article-body :deep(.news-craft-feature img) {
+    height: auto;
+    min-height: 0;
+    aspect-ratio: 16 / 9;
+  }
+
+  .nd-article-body :deep(.news-media-feature img),
+  .nd-article-body :deep(.news-media-feature--detail img) {
+    height: auto;
+  }
+
+  .nd-article-body :deep(.news-media-gallery) {
+    overflow-x: auto;
+    grid-template-columns: none;
+    grid-auto-columns: 88%;
+    grid-auto-flow: column;
+    gap: 16px;
+    padding-bottom: 14px;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: inline mandatory;
+    scrollbar-color: #aa8453 #eee8df;
+    scrollbar-width: thin;
   }
 }
 </style>

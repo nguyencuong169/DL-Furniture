@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue'
+import { computed, nextTick, reactive, ref } from 'vue'
 import { submitConsultation } from '../api/consultationClient'
 import image1 from '../assets/img/1.jpg'
 import { bookingUseStore } from '../stores/bookingstore'
@@ -27,44 +27,7 @@ type ConsultationForm = {
   website: string
 }
 
-type ConsultationSelect2Collection = {
-  hasClass(className: string): boolean
-  off(events: string): ConsultationSelect2Collection
-  on(
-    events: string,
-    handler: (event: { currentTarget: EventTarget | null }) => void
-  ): ConsultationSelect2Collection
-  select2(
-    options:
-      | {
-          minimumResultsForSearch: number
-          width: string
-          dropdownCssClass: string
-        }
-      | 'destroy'
-  ): ConsultationSelect2Collection
-  trigger(eventName: string): ConsultationSelect2Collection
-  val(value: string): ConsultationSelect2Collection
-}
-
-type ConsultationJQueryStatic = {
-  (selector: string): ConsultationSelect2Collection
-  fn: {
-    select2?: unknown
-  }
-}
-
-const SELECT2_INIT_RETRY_DELAY = 100
-const SELECT2_INIT_MAX_ATTEMPTS = 30
-const CONSULTATION_SELECTORS = [
-  '#consultation-serviceType',
-  '#consultation-propertyType',
-  '#consultation-budget'
-] as const
-
 const bookingStore = bookingUseStore()
-let select2InitAttempts = 0
-let select2InitTimer: number | undefined
 
 const props = withDefaults(
   defineProps<{
@@ -107,84 +70,6 @@ const submitState = ref<'idle' | 'submitting' | 'success' | 'error'>('idle')
 const statusMessage = ref('')
 const isSubmitting = computed(() => submitState.value === 'submitting')
 
-function getConsultationJQuery() {
-  if (typeof window === 'undefined') return null
-
-  const jquery = (window as Window & { jQuery?: ConsultationJQueryStatic }).jQuery
-  return jquery && typeof jquery.fn.select2 === 'function' ? jquery : null
-}
-
-function consultationSelect(selector: string) {
-  const jquery = getConsultationJQuery()
-  return jquery ? jquery(selector) : null
-}
-
-function syncConsultationSelects() {
-  consultationSelect('#consultation-serviceType')?.val(form.serviceType).trigger('change.select2')
-  consultationSelect('#consultation-propertyType')?.val(form.propertyType).trigger('change.select2')
-  consultationSelect('#consultation-budget')?.val(form.budget).trigger('change.select2')
-}
-
-function initializeConsultationSelects() {
-  const selects = CONSULTATION_SELECTORS.map(consultationSelect)
-  if (selects.some((select) => !select)) return false
-
-  selects.forEach((select) => {
-    if (select && !select.hasClass('select2-hidden-accessible')) {
-      select.select2({
-        minimumResultsForSearch: Infinity,
-        width: '100%',
-        dropdownCssClass: 'consultation-select-dropdown'
-      })
-    }
-    select?.off('.consultationForm')
-  })
-
-  const [serviceSelect, propertySelect, budgetSelect] = selects
-  serviceSelect?.on('change.consultationForm', (event) => {
-    form.serviceType = (event.currentTarget as HTMLSelectElement | null)?.value ?? ''
-    clearFieldError('serviceType')
-  })
-  propertySelect?.on('change.consultationForm', (event) => {
-    form.propertyType = (event.currentTarget as HTMLSelectElement | null)?.value ?? ''
-    clearFieldError('propertyType')
-  })
-  budgetSelect?.on('change.consultationForm', (event) => {
-    form.budget = (event.currentTarget as HTMLSelectElement | null)?.value ?? ''
-  })
-
-  syncConsultationSelects()
-  return true
-}
-
-function initializeConsultationSelectsWhenReady() {
-  if (select2InitTimer !== undefined) {
-    window.clearTimeout(select2InitTimer)
-    select2InitTimer = undefined
-  }
-
-  if (initializeConsultationSelects()) {
-    select2InitAttempts = 0
-    return
-  }
-
-  if (select2InitAttempts >= SELECT2_INIT_MAX_ATTEMPTS) return
-
-  select2InitAttempts += 1
-  select2InitTimer = window.setTimeout(
-    initializeConsultationSelectsWhenReady,
-    SELECT2_INIT_RETRY_DELAY
-  )
-}
-
-function destroyConsultationSelects() {
-  CONSULTATION_SELECTORS.forEach((selector) => {
-    const select = consultationSelect(selector)
-    select?.off('.consultationForm')
-    if (select?.hasClass('select2-hidden-accessible')) select.select2('destroy')
-  })
-}
-
 function clearFieldError(field: ConsultationField) {
   errors[field] = ''
   if (submitState.value === 'error') {
@@ -216,7 +101,7 @@ function validateForm() {
     errors.phone = 'Vui lòng nhập số điện thoại hợp lệ.'
   }
 
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
+  if (form.email.trim() && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email.trim())) {
     errors.email = 'Vui lòng nhập email hợp lệ.'
   }
 
@@ -260,19 +145,14 @@ function resetForm() {
     website: ''
   })
   clearErrors()
-  void nextTick(syncConsultationSelects)
 }
 
 function focusConsultationField(field: ConsultationField) {
   const element = document.getElementById(`consultation-${field}`)
   if (!element) return
 
-  if (element.classList.contains('select2-hidden-accessible')) {
-    const select2Control =
-      element.nextElementSibling?.querySelector<HTMLElement>('.select2-selection')
-    select2Control?.focus()
-    return
-  }
+  const optionalDetails = element.closest('details')
+  if (optionalDetails && !optionalDetails.open) optionalDetails.open = true
 
   element.focus()
 }
@@ -323,18 +203,6 @@ async function handleSubmit() {
         : 'Không thể gửi yêu cầu lúc này. Vui lòng gọi hotline để được hỗ trợ.'
   }
 }
-
-onMounted(async () => {
-  window.addEventListener('load', initializeConsultationSelectsWhenReady, { once: true })
-  await nextTick()
-  initializeConsultationSelectsWhenReady()
-})
-
-onBeforeUnmount(() => {
-  window.removeEventListener('load', initializeConsultationSelectsWhenReady)
-  if (select2InitTimer !== undefined) window.clearTimeout(select2InitTimer)
-  destroyConsultationSelects()
-})
 </script>
 
 <template>
@@ -351,7 +219,7 @@ onBeforeUnmount(() => {
       <div class="container">
         <div class="row align-items-center">
           <div class="col-lg-5 consultation-copy">
-            <span class="consultation-eyebrow">Tư vấn chuyên sâu</span>
+            <span class="section-subtitle">Tư vấn chuyên sâu</span>
             <h2 id="consultation-title">Kiến tạo không gian dành riêng cho bạn</h2>
             <p class="consultation-intro">
               Từ ý tưởng ban đầu đến thi công hoàn thiện, đội ngũ D&amp;L Furniture đồng hành để cân
@@ -379,8 +247,8 @@ onBeforeUnmount(() => {
           <div class="col-lg-6 offset-lg-1">
             <div class="booking-box consultation-box">
               <div class="head-box consultation-head">
-                <h6>D&amp;L Furniture</h6>
-                <h4>Đăng ký tư vấn thiết kế &amp; thi công</h4>
+                <span class="consultation-brand">D&amp;L Furniture</span>
+                <h3>Đăng ký tư vấn thiết kế &amp; thi công</h3>
               </div>
 
               <div class="booking-inner clearfix">
@@ -462,50 +330,6 @@ onBeforeUnmount(() => {
                     </div>
 
                     <div class="col-md-6">
-                      <div class="consultation-field" :class="{ 'has-error': errors.email }">
-                        <label class="consultation-label" for="consultation-email">Email</label>
-                        <input
-                          id="consultation-email"
-                          v-model="form.email"
-                          class="form-control input consultation-control"
-                          type="email"
-                          name="email"
-                          placeholder="Email *"
-                          autocomplete="email"
-                          maxlength="255"
-                          :aria-invalid="Boolean(errors.email)"
-                          :aria-describedby="errors.email ? 'consultation-email-error' : undefined"
-                          @input="clearFieldError('email')"
-                        />
-                        <small
-                          v-if="errors.email"
-                          id="consultation-email-error"
-                          class="consultation-error"
-                        >
-                          {{ errors.email }}
-                        </small>
-                      </div>
-                    </div>
-
-                    <div class="col-md-6">
-                      <div class="consultation-field">
-                        <label class="consultation-label" for="consultation-projectLocation">
-                          Địa điểm công trình
-                        </label>
-                        <input
-                          id="consultation-projectLocation"
-                          v-model="form.projectLocation"
-                          class="form-control input consultation-control"
-                          type="text"
-                          name="projectLocation"
-                          placeholder="Địa điểm công trình"
-                          autocomplete="address-level2"
-                          maxlength="255"
-                        />
-                      </div>
-                    </div>
-
-                    <div class="col-md-6">
                       <div
                         class="select1_wrapper consultation-field"
                         :class="{ 'has-error': errors.serviceType }"
@@ -517,9 +341,8 @@ onBeforeUnmount(() => {
                           <select
                             id="consultation-serviceType"
                             v-model="form.serviceType"
-                            class="select2 select consultation-control consultation-select"
+                            class="select consultation-control consultation-select"
                             name="serviceType"
-                            data-dropdown-css-class="consultation-select-dropdown"
                             :aria-invalid="Boolean(errors.serviceType)"
                             :aria-describedby="
                               errors.serviceType ? 'consultation-serviceType-error' : undefined
@@ -555,9 +378,8 @@ onBeforeUnmount(() => {
                           <select
                             id="consultation-propertyType"
                             v-model="form.propertyType"
-                            class="select2 select consultation-control consultation-select"
+                            class="select consultation-control consultation-select"
                             name="propertyType"
-                            data-dropdown-css-class="consultation-select-dropdown"
                             :aria-invalid="Boolean(errors.propertyType)"
                             :aria-describedby="
                               errors.propertyType ? 'consultation-propertyType-error' : undefined
@@ -583,80 +405,140 @@ onBeforeUnmount(() => {
                       </div>
                     </div>
 
-                    <div class="col-md-6">
-                      <div
-                        class="consultation-field"
-                        :class="{ 'has-error': errors.estimatedArea }"
-                      >
-                        <label class="consultation-label" for="consultation-estimatedArea">
-                          Diện tích dự kiến
-                        </label>
-                        <input
-                          id="consultation-estimatedArea"
-                          v-model.number="form.estimatedArea"
-                          class="form-control input consultation-control"
-                          type="number"
-                          name="estimatedArea"
-                          placeholder="Diện tích dự kiến (m²)"
-                          inputmode="decimal"
-                          min="1"
-                          max="100000"
-                          step="1"
-                          :aria-invalid="Boolean(errors.estimatedArea)"
-                          :aria-describedby="
-                            errors.estimatedArea ? 'consultation-estimatedArea-error' : undefined
-                          "
-                          @input="clearFieldError('estimatedArea')"
-                        />
-                        <small
-                          v-if="errors.estimatedArea"
-                          id="consultation-estimatedArea-error"
-                          class="consultation-error"
-                        >
-                          {{ errors.estimatedArea }}
-                        </small>
-                      </div>
-                    </div>
-
-                    <div class="col-md-6">
-                      <div class="select1_wrapper consultation-field">
-                        <label class="consultation-label" for="consultation-budget">
-                          Ngân sách dự kiến
-                        </label>
-                        <div class="select1_inner consultation-select-wrap">
-                          <select
-                            id="consultation-budget"
-                            v-model="form.budget"
-                            class="select2 select consultation-control consultation-select"
-                            name="budget"
-                            data-dropdown-css-class="consultation-select-dropdown"
-                          >
-                            <option value="">Ngân sách dự kiến</option>
-                            <option value="consult">Cần tư vấn</option>
-                            <option value="under-500">Dưới 500 triệu</option>
-                            <option value="500-1000">500 triệu – 1 tỷ</option>
-                            <option value="1000-2000">1 – 2 tỷ</option>
-                            <option value="over-2000">Trên 2 tỷ</option>
-                          </select>
-                        </div>
-                      </div>
-                    </div>
-
                     <div class="col-12">
-                      <div class="consultation-field">
-                        <label class="consultation-label" for="consultation-message">
-                          Mong muốn của bạn
-                        </label>
-                        <textarea
-                          id="consultation-message"
-                          v-model="form.message"
-                          class="form-control input consultation-control consultation-textarea"
-                          name="message"
-                          rows="3"
-                          maxlength="4000"
-                          placeholder="Chia sẻ phong cách, công năng hoặc thời gian dự kiến..."
-                        ></textarea>
-                      </div>
+                      <details class="consultation-more">
+                        <summary>
+                          <span>Thêm thông tin dự án</span>
+                          <small>Không bắt buộc</small>
+                        </summary>
+
+                        <div class="row consultation-more-fields">
+                          <div class="col-md-6">
+                            <div class="consultation-field" :class="{ 'has-error': errors.email }">
+                              <label class="consultation-label" for="consultation-email">
+                                Email
+                              </label>
+                              <input
+                                id="consultation-email"
+                                v-model="form.email"
+                                class="form-control input consultation-control"
+                                type="email"
+                                name="email"
+                                placeholder="Email"
+                                autocomplete="email"
+                                maxlength="255"
+                                :aria-invalid="Boolean(errors.email)"
+                                :aria-describedby="
+                                  errors.email ? 'consultation-email-error' : undefined
+                                "
+                                @input="clearFieldError('email')"
+                              />
+                              <small
+                                v-if="errors.email"
+                                id="consultation-email-error"
+                                class="consultation-error"
+                              >
+                                {{ errors.email }}
+                              </small>
+                            </div>
+                          </div>
+
+                          <div class="col-md-6">
+                            <div class="consultation-field">
+                              <label class="consultation-label" for="consultation-projectLocation">
+                                Địa điểm công trình
+                              </label>
+                              <input
+                                id="consultation-projectLocation"
+                                v-model="form.projectLocation"
+                                class="form-control input consultation-control"
+                                type="text"
+                                name="projectLocation"
+                                placeholder="Địa điểm công trình"
+                                autocomplete="address-level2"
+                                maxlength="255"
+                              />
+                            </div>
+                          </div>
+
+                          <div class="col-md-6">
+                            <div
+                              class="consultation-field"
+                              :class="{ 'has-error': errors.estimatedArea }"
+                            >
+                              <label class="consultation-label" for="consultation-estimatedArea">
+                                Diện tích dự kiến
+                              </label>
+                              <input
+                                id="consultation-estimatedArea"
+                                v-model.number="form.estimatedArea"
+                                class="form-control input consultation-control"
+                                type="number"
+                                name="estimatedArea"
+                                placeholder="Diện tích dự kiến (m²)"
+                                inputmode="decimal"
+                                min="1"
+                                max="100000"
+                                step="1"
+                                :aria-invalid="Boolean(errors.estimatedArea)"
+                                :aria-describedby="
+                                  errors.estimatedArea
+                                    ? 'consultation-estimatedArea-error'
+                                    : undefined
+                                "
+                                @input="clearFieldError('estimatedArea')"
+                              />
+                              <small
+                                v-if="errors.estimatedArea"
+                                id="consultation-estimatedArea-error"
+                                class="consultation-error"
+                              >
+                                {{ errors.estimatedArea }}
+                              </small>
+                            </div>
+                          </div>
+
+                          <div class="col-md-6">
+                            <div class="select1_wrapper consultation-field">
+                              <label class="consultation-label" for="consultation-budget">
+                                Ngân sách dự kiến
+                              </label>
+                              <div class="select1_inner consultation-select-wrap">
+                                <select
+                                  id="consultation-budget"
+                                  v-model="form.budget"
+                                  class="select consultation-control consultation-select"
+                                  name="budget"
+                                >
+                                  <option value="">Ngân sách dự kiến</option>
+                                  <option value="consult">Cần tư vấn</option>
+                                  <option value="under-500">Dưới 500 triệu</option>
+                                  <option value="500-1000">500 triệu – 1 tỷ</option>
+                                  <option value="1000-2000">1 – 2 tỷ</option>
+                                  <option value="over-2000">Trên 2 tỷ</option>
+                                </select>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div class="col-12">
+                            <div class="consultation-field">
+                              <label class="consultation-label" for="consultation-message">
+                                Mong muốn của bạn
+                              </label>
+                              <textarea
+                                id="consultation-message"
+                                v-model="form.message"
+                                class="form-control input consultation-control consultation-textarea"
+                                name="message"
+                                rows="3"
+                                maxlength="4000"
+                                placeholder="Chia sẻ phong cách, công năng hoặc thời gian dự kiến..."
+                              ></textarea>
+                            </div>
+                          </div>
+                        </div>
+                      </details>
                     </div>
 
                     <div class="col-12">
@@ -791,9 +673,39 @@ onBeforeUnmount(() => {
   margin-bottom: 14px;
 }
 
-.consultation-head h4 {
+.consultation-brand {
+  display: block;
+  margin-bottom: 10px;
+  color: #666;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+}
+
+.consultation-head h3 {
   padding-bottom: 12px;
   margin-bottom: 12px;
+  color: #222;
+  font-family: 'Gilda Display', serif;
+  font-size: 27px;
+  font-weight: 400;
+  letter-spacing: 0;
+  line-height: 1.25;
+  text-transform: none;
+}
+
+.consultation-form {
+  --consultation-control-bg: #fff;
+  --consultation-control-bg-muted: #f7f3ee;
+  --consultation-control-border: #e2dbd2;
+  --consultation-control-border-hover: rgba(170, 132, 83, 0.55);
+  --consultation-control-text: #222;
+  --consultation-control-text-muted: #888;
+  --consultation-control-accent: #aa8453;
+  --consultation-control-accent-soft: #f1e7da;
+  --consultation-control-error: #a94a43;
 }
 
 .consultation-form .row {
@@ -832,12 +744,12 @@ onBeforeUnmount(() => {
   min-height: 46px;
   margin: 0;
   padding: 10px 15px;
-  border: 1px solid #e2dbd2;
+  border: 1px solid var(--consultation-control-border);
   border-radius: 0;
   outline: 0;
-  background: #fff;
+  background: var(--consultation-control-bg);
   box-shadow: none;
-  color: #222;
+  color: var(--consultation-control-text);
   font-family: 'Barlow', sans-serif;
   font-size: 14px;
   line-height: 24px;
@@ -847,22 +759,22 @@ onBeforeUnmount(() => {
 }
 
 .consultation-control:hover {
-  border-color: rgba(170, 132, 83, 0.55);
+  border-color: var(--consultation-control-border-hover);
 }
 
 .consultation-control::placeholder {
-  color: #888;
+  color: var(--consultation-control-text-muted);
   opacity: 1;
 }
 
 .consultation-control:focus {
-  border-color: #aa8453;
+  border-color: var(--consultation-control-accent);
   box-shadow: 0 0 0 2px rgba(170, 132, 83, 0.12);
 }
 
 .consultation-field.has-error .consultation-control,
 .consultation-consent-wrap.has-error .consultation-consent input {
-  border-color: #a94a43;
+  border-color: var(--consultation-control-error);
 }
 
 .consultation-select-wrap {
@@ -875,7 +787,7 @@ onBeforeUnmount(() => {
   position: absolute;
   top: 50%;
   right: 17px;
-  color: #aa8453;
+  color: var(--consultation-control-accent);
   content: '\e64b';
   font-family: 'themify';
   font-size: 9px;
@@ -886,56 +798,108 @@ onBeforeUnmount(() => {
 .consultation-select {
   padding-right: 38px;
   appearance: none;
+  color-scheme: light;
   cursor: pointer;
 }
 
-.consultation-form :deep(.select2),
-.consultation-form :deep(.select2-container) {
-  display: block;
-  width: 100% !important;
-  height: 46px;
-  margin-bottom: 0;
-  background: transparent;
-}
-
-.consultation-form :deep(.selection) {
-  display: block;
-  width: 100%;
-  height: 46px;
-}
-
-.consultation-form :deep(.select2-container--default .select2-selection--single) {
-  height: 46px;
-  min-height: 46px;
-  border: 1px solid #e2dbd2;
-  background: #fff;
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.consultation-form :deep(.select2-container--default .select2-selection--single:hover) {
-  border-color: rgba(170, 132, 83, 0.55);
-}
-
-.consultation-form
-  :deep(.select2-container--default .select2-selection--single .select2-selection__rendered) {
-  padding: 10px 38px 10px 15px;
-  color: #222;
-  font-size: 14px;
-  line-height: 24px;
-}
-
-.consultation-form
-  :deep(.select2-container--default.select2-container--focus .select2-selection--single),
-.consultation-form
-  :deep(.select2-container--default.select2-container--open .select2-selection--single) {
-  border-color: #aa8453;
+.consultation-select:open {
+  border-color: var(--consultation-control-accent);
   box-shadow: 0 0 0 2px rgba(170, 132, 83, 0.12);
 }
 
-.consultation-field.has-error :deep(.select2-container--default .select2-selection--single) {
-  border-color: #a94a43;
+.consultation-select:disabled {
+  border-color: var(--consultation-control-border);
+  background: var(--consultation-control-bg-muted);
+  color: var(--consultation-control-text-muted);
+  cursor: not-allowed;
+  opacity: 1;
+}
+
+/* Keep native dropdown items aligned with the form control design tokens. */
+.consultation-select option {
+  padding: 10px 14px;
+  background-color: var(--consultation-control-bg);
+  color: var(--consultation-control-text);
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+.consultation-select option:not(:disabled):hover,
+.consultation-select option:not(:disabled):focus {
+  background-color: var(--consultation-control-accent-soft);
+  color: var(--consultation-control-text);
+}
+
+.consultation-select option:checked {
+  background-color: var(--consultation-control-accent);
+  color: #fff;
+  font-weight: 500;
+}
+
+.consultation-select option:disabled {
+  background-color: var(--consultation-control-bg-muted);
+  color: var(--consultation-control-text-muted);
+}
+
+.consultation-more {
+  margin: 1px 0 12px;
+  border-top: 1px solid #ded5c9;
+  border-bottom: 1px solid #ded5c9;
+}
+
+.consultation-more summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 13px 2px;
+  color: #4e463e;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.7px;
+  list-style: none;
+  cursor: pointer;
+}
+
+.consultation-more summary > span {
+  color: #4e463e !important;
+}
+
+.consultation-more summary::-webkit-details-marker {
+  display: none;
+}
+
+.consultation-more summary::after {
+  flex: 0 0 auto;
+  color: #aa8453;
+  content: '+';
+  font-family: 'Gilda Display', serif;
+  font-size: 21px;
+  line-height: 1;
+}
+
+.consultation-more[open] summary::after {
+  content: '−';
+}
+
+.consultation-more summary small {
+  margin-left: auto;
+  color: #8b8175;
+  font-family: 'Barlow', sans-serif;
+  font-size: 11px;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+.consultation-more summary:focus-visible {
+  outline: 2px solid #aa8453;
+  outline-offset: 3px;
+}
+
+.consultation-more-fields {
+  padding-top: 3px;
 }
 
 .consultation-textarea {
@@ -1091,36 +1055,8 @@ onBeforeUnmount(() => {
     padding: 28px 20px;
   }
 
-  .consultation-head h4 {
+  .consultation-head h3 {
     font-size: 25px;
   }
-}
-</style>
-
-<style>
-.consultation-select-dropdown {
-  overflow: hidden;
-  border: 1px solid #e2dbd2;
-  background: #fff;
-  box-shadow: 0 14px 32px rgba(25, 21, 17, 0.14);
-}
-
-.consultation-select-dropdown .select2-results__options {
-  max-height: 240px;
-}
-
-.consultation-select-dropdown .select2-results__option {
-  overflow: hidden;
-  padding: 9px 14px;
-  border-top-color: #eee8e1;
-  font-size: 14px;
-  line-height: 20px;
-  text-align: left;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.consultation-select-dropdown .select2-results__option[aria-disabled='true'] {
-  display: none;
 }
 </style>

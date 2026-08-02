@@ -27,6 +27,16 @@ onMounted(async () => {
       1000: { items: 2 }
     }
   })
+
+  window.requestAnimationFrame(() => {
+    document.querySelector('.pricing .owl-prev')?.setAttribute('aria-label', 'Xem dịch vụ trước')
+    document
+      .querySelector('.pricing .owl-next')
+      ?.setAttribute('aria-label', 'Xem dịch vụ tiếp theo')
+    document.querySelectorAll('.pricing .owl-dot').forEach((dot, index) => {
+      dot.setAttribute('aria-label', `Đi đến nhóm dịch vụ ${index + 1}`)
+    })
+  })
 })
 </script>
 
@@ -36,11 +46,13 @@ onMounted(async () => {
       <div class="row">
         <div class="col-md-4">
           <div class="section-subtitle"><span>Dịch vụ của chúng tôi</span></div>
-          <div class="section-title"><span>Dịch vụ thi công</span></div>
+          <div class="section-title">
+            <span>Thiết kế &amp;</span><span> thi công trọn gói</span>
+          </div>
           <p class="color-2">
-            <strong>D&L Furniture</strong> tự hào là đơn vị hàng đầu trong lĩnh vực thiết kế thi
-            công nội thất với đội nhân sự lành nghề giàu kinh nghiệm. Công ty đã được rất nhiều
-            khách hàng tin tưởng lựa chọn và đã "trình làng" hàng trăm dự án, công trình khác nhau.
+            <strong>D&amp;L Furniture</strong> đồng hành từ khảo sát, phát triển phương án đến sản
+            xuất và lắp đặt hoàn thiện. Một đầu mối xuyên suốt giúp ý tưởng thiết kế được bảo toàn
+            khi đi vào thực tế.
           </p>
           <div class="reservations mb-30">
             <div class="icon"><span class="flaticon-call"></span></div>
@@ -51,11 +63,22 @@ onMounted(async () => {
           </div>
         </div>
         <div class="col-md-8">
-          <div class="owl-carousel owl-theme">
+          <div
+            class="owl-carousel owl-theme"
+            role="region"
+            aria-label="Các nhóm dịch vụ của D&L Furniture"
+          >
             <div class="pricing-card" v-for="service in services" :key="service.id">
-              <img :src="service.image" :alt="service.name" />
+              <img
+                :src="service.image"
+                :alt="service.name"
+                width="900"
+                height="700"
+                loading="lazy"
+                decoding="async"
+              />
               <div class="desc">
-                <div class="name">{{ service.name }}</div>
+                <h3 class="name">{{ service.name }}</h3>
                 <span>{{ service.description }}</span>
               </div>
             </div>

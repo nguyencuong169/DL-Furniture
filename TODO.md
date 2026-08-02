@@ -1,35 +1,21 @@
-# Fix "Invalid column name" errors for Testimonials / Team / Services API
+# TODO — Rà soát & Polish toàn bộ SQL → thư mục /sqls
 
-## Root cause
+## Mục tiêu
 
-EF Core entities (`Testimonial`, `TeamMember`, `ServiceItem`) and `AppDbContext`
-mappings expect audit/soft-delete columns that do not exist in the actual SQL
-Server tables (`del_flag`, `hidden`, `avatar_image`, `created_date`,
-`created_user`, `customer_name`, `sort_order`, ...).
+- Rà soát & polish tất cả file SQL.
+- Tạo file DDL + DML riêng cho từng table trong `/sqls`.
+- Merge tất cả feature-fixed SQL thành 1 file.
+- Mọi trường datetime → `datetimeoffset`.
+- Conflict → lấy định nghĩa DB hiện tại (API `DLFurniture.Api` + Models) làm chuẩn.
+- Xóa các file SQL thừa ở root.
 
-## Steps
+## Các bước
 
-- [x] Step 1: Check `sqlcmd` availability and SQL Server connectivity
-- [x] Step 2: Create `database-about-api-migration.sql` (idempotent migration for
-      `testimonials`, `team_members`, `services`)
-- [x] Step 3: Run the migration against the local `DLFurniture` database
-- [x] Step 4: Update original schema files (`database-schema-mssql.sql`,
-      `CreateDatabase.sql`, `database-schema.sql`) to include the new columns
-- [x] Step 5: Build API (`dotnet build`) and verify endpoints
-      (`/api/testimonials`, `/api/team-members`, `/api/services`)
-
-## CSS fix — Services & Team carousels hidden after async API data
-
-- [x] Root cause: `.owl-carousel { display: none }` default; `custom.js` initialises
-      carousels on document ready — before async API data renders — so carousels never
-      init on the newly rendered `.item` elements and stay hidden.
-- [x] `src/utils/carousel.ts` — reusable `initOwlCarousel()` helper: re-initialises an
-      Owl Carousel after Vue renders async content; destroys existing instance first;
-      retries briefly if DOM/jQuery not ready.
-- [x] `src/template/05_PricingComponent.vue` — re-init `.pricing .owl-carousel`
-      (items: 1/1/2) after `fetchServices()`.
-- [x] `src/template/14_TeamComponent.vue` — re-init `.team .owl-carousel`
-      (items: 1/2/3) after `fetchTeamMembers()`.
-- [x] `src/template/08_TestiominalsComponent.vue` — re-init `.testimonials .owl-carousel`
-      (items: 1/1/1) after `fetchTestimonials()`.
-- [x] `vue-tsc` — no new type errors (only pre-existing errors in `src/generated/`).
+- [x] 1. Rà soát toàn bộ file SQL + Models/AppDbContext (đã xong)
+- [x] 2. Tạo `sqls/00_CreateDatabase.sql`
+- [x] 3. Tạo 18 file DDL trong `sqls/01_DDL/` (mỗi bảng 1 file, datetime → datetimeoffset, kèm index + trigger)
+- [x] 4. Tạo 18 file DML trong `sqls/02_DML/` (mỗi bảng 1 file seed, theo cột DB hiện tại)
+- [x] 5. ~~Tạo `sqls/03_FeatureFixes.sql` (merge 4 script feature)~~ — Không cần, DDL đã là trạng thái mới nhất
+- [x] 6. Tạo `sqls/99_Master_Build.sql` + `sqls/README.md`
+- [x] 7. Xóa 11 file SQL cũ ở root
+- [x] 8. Kiểm tra tổng thể & hướng dẫn chạy

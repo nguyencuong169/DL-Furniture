@@ -187,13 +187,13 @@ watch(
   <div class="widget news-archives-widget">
     <div class="widget-title news-archives-title">
       <div class="news-archives-title-copy">
-        <h6>Lưu trữ</h6>
+        <h2 class="news-archives-heading">Lưu trữ</h2>
         <p>Khám phá bài viết theo thời gian</p>
       </div>
       <button
         type="button"
         class="news-archives-latest"
-        :class="{ active: !activeYear || !activeMonth }"
+        :class="{ active: !activeYear }"
         @click="emit('clear')"
       >
         <i class="ti-reload" aria-hidden="true"></i>
@@ -326,10 +326,13 @@ watch(
   padding-bottom: 12px;
 }
 
-.news-archives-title h6 {
+.news-archives-heading {
   padding: 0;
   margin: 0;
+  color: #222;
+  font-family: 'Gilda Display', serif;
   font-size: 24px;
+  font-weight: 400;
   line-height: 1.3;
 }
 

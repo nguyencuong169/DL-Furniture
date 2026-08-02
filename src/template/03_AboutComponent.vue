@@ -13,13 +13,16 @@
             <i class="star-rating"></i>
           </span>
           <div class="section-subtitle">D&L Furniture</div>
-          <div class="section-title">Không gian sống đích thực</div>
+          <div class="section-title">Không gian được thiết kế từ cách bạn sống</div>
           <p>
-            Chuyên thiết kế thi công nội thất căn hộ chung cư, biệt thự, văn phòng, showroom... Với
-            sứ mệnh “thổi hồn” vào những công trình kiến trúc tạo nên không gian sống tiện nghi,
-            thẩm mỹ.
-            <strong>D&L Furniture</strong> luôn đi đầu nắm bắt những xu thế mới cho ra đời các mẫu
-            thiết kế nội thất đẹp – độc – lạ làm hài lòng mọi khách hàng.
+            Mỗi dự án bắt đầu bằng việc lắng nghe nhu cầu, khảo sát hiện trạng và nhận diện những
+            thói quen tạo nên nhịp sống riêng của gia chủ. Từ đó,
+            <strong>D&L Furniture</strong> phát triển giải pháp cân bằng giữa thẩm mỹ, công năng và
+            cảm giác sử dụng lâu dài.
+          </p>
+          <p>
+            Vật liệu, tỷ lệ và từng điểm tiếp xúc được đặt trong cùng một hệ ngôn ngữ để nội thất
+            trở thành một phần tự nhiên của kiến trúc — chỉn chu nhưng không phô trương.
           </p>
           <!-- call -->
           <div class="reservations">

@@ -134,7 +134,7 @@ public partial class BookingRequestsController : ControllerBase
         var bookingRequest = new BookingRequest
         {
             FullName = request.FullName.Trim(),
-            Email = request.Email.Trim(),
+            Email = request.Email?.Trim() ?? string.Empty,
             Phone = phone,
             Message = string.Join(Environment.NewLine, details),
             Source = "consultation_form",
@@ -171,10 +171,9 @@ public class CreateConsultationRequest
     [StringLength(255, MinimumLength = 2)]
     public string FullName { get; set; } = string.Empty;
 
-    [Required]
     [EmailAddress]
     [StringLength(255)]
-    public string Email { get; set; } = string.Empty;
+    public string? Email { get; set; }
 
     [Required]
     [StringLength(50)]

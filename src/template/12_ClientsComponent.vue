@@ -1,28 +1,28 @@
 <script setup lang="ts"></script>
 
 <template>
-  <section class="clients">
+  <section class="clients" aria-hidden="true">
     <div class="container">
       <div class="row">
         <div class="col-md-7">
           <div class="owl-carousel owl-theme">
             <div class="clients-logo">
-              <a href="#0"><img src="../assets/img/clients/1.png" alt="" /></a>
+              <img src="../assets/img/clients/1.png" alt="" width="180" height="80" loading="lazy" />
             </div>
             <div class="clients-logo">
-              <a href="#0"><img src="../assets/img/clients/2.png" alt="" /></a>
+              <img src="../assets/img/clients/2.png" alt="" width="180" height="80" loading="lazy" />
             </div>
             <div class="clients-logo">
-              <a href="#0"><img src="../assets/img/clients/3.png" alt="" /></a>
+              <img src="../assets/img/clients/3.png" alt="" width="180" height="80" loading="lazy" />
             </div>
             <div class="clients-logo">
-              <a href="#0"><img src="../assets/img/clients/4.png" alt="" /></a>
+              <img src="../assets/img/clients/4.png" alt="" width="180" height="80" loading="lazy" />
             </div>
             <div class="clients-logo">
-              <a href="#0"><img src="../assets/img/clients/5.png" alt="" /></a>
+              <img src="../assets/img/clients/5.png" alt="" width="180" height="80" loading="lazy" />
             </div>
             <div class="clients-logo">
-              <a href="#0"><img src="../assets/img/clients/6.png" alt="" /></a>
+              <img src="../assets/img/clients/6.png" alt="" width="180" height="80" loading="lazy" />
             </div>
           </div>
         </div>

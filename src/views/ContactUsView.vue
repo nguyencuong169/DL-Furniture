@@ -4,6 +4,7 @@ import PricingComponent from '../template/05_PricingComponent.vue'
 import FaciltiesComponent from '../template/07_FaciltiesComponent.vue'
 import TeamComponent from '../template/14_TeamComponent.vue'
 import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
+import bannerImage from '/media/gallery/artisan-walnut-chair.webp'
 </script>
 
 <template>
@@ -12,7 +13,7 @@ import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
     <div
       class="banner-header section-padding valign bg-img bg-fixed"
       data-overlay-dark="4"
-      data-background="https://dl-furniture.netlify.app/assets/1-vdnilppx.jpg"
+      :style="{ backgroundImage: `url(${bannerImage})` }"
     >
       <div class="container">
         <div class="row">
@@ -113,4 +114,8 @@ import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
   </main>
 </template>
 
-<style></style>
+<style scoped>
+.bg-fixed {
+  background-attachment: unset;
+}
+</style>
