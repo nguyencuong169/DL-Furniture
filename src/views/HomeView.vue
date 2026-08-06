@@ -105,7 +105,7 @@ onBeforeUnmount(() => {
     <FaciltiesComponent />
     <TestiominalsComponent />
     <ServicesComponent />
-    <NewsComponent :loop="false" />
+    <NewsComponent :loop="true" />
     <BookingFormComponent />
     <ClientsComponent />
   </main>

@@ -16,8 +16,11 @@ import {
 import type { CategoryDto } from '../api/newsSidebarClient'
 import { getNewsDate, handleNewsImageError, resolveNewsImage } from '../utils/news'
 import NewsArchives from '../components/NewsArchives.vue'
+import NewsCategories from '../components/NewsCategories.vue'
 import NewsFilterSelect from '../components/NewsFilterSelect.vue'
 import NewsRelatedList from '../components/NewsRelatedList.vue'
+import NewsSidebarSearch from '../components/NewsSidebarSearch.vue'
+import NewsTags from '../components/NewsTags.vue'
 import BookingFormComponent from '../template/11_BookingFormComponent.vue'
 import ClientsComponent from '../template/12_ClientsComponent.vue'
 
@@ -982,30 +985,13 @@ onMounted(async () => {
           <aside v-if="viewMode === 'list'" class="col-md-4 news-sidebar-column">
             <div class="news2-sidebar row">
               <div class="col-md-12">
-                <div class="widget search">
-                  <form role="search" @submit.prevent="submitSearch">
-                    <input
-                      v-model="searchInput"
-                      type="search"
-                      name="search"
-                      placeholder="Tìm kiếm bài viết..."
-                      aria-label="Tìm kiếm bài viết"
-                      @keydown.enter.prevent="submitSearch"
-                    />
-                    <button
-                      v-if="searchInput"
-                      type="button"
-                      class="news-search-clear"
-                      aria-label="Xóa nội dung tìm kiếm"
-                      @click="clearSearchInput"
-                    >
-                      <i class="ti-close" aria-hidden="true"></i>
-                    </button>
-                    <button class="news-search-submit" type="submit" aria-label="Tìm kiếm">
-                      <i class="ti-search" aria-hidden="true"></i>
-                    </button>
-                  </form>
-                </div>
+                <NewsSidebarSearch
+                  v-model="searchInput"
+                  placeholder="Tìm kiếm bài viết..."
+                  label="Tìm kiếm bài viết"
+                  @submit="submitSearch"
+                  @clear="clearSearchInput"
+                />
               </div>
 
               <div
@@ -1026,100 +1012,32 @@ onMounted(async () => {
               </div>
 
               <div class="col-md-12">
-                <div class="widget news-category-widget">
-                  <div class="widget-title">
-                    <h6>Chuyên mục</h6>
-                    <p v-if="totalPublishedCount">
-                      {{ totalPublishedCount }} bài viết trong {{ categoriesWithPosts }} chủ đề
-                    </p>
-                  </div>
-
-                  <p v-if="loadingCategories" class="news-category-status">
-                    Đang tải chuyên mục...
-                  </p>
-                  <p v-else-if="categoryLoadError" class="news-category-status is-error">
-                    Chưa thể tải chuyên mục.
-                    <button type="button" @click="retrySidebar">Thử lại</button>
-                  </p>
-                  <p v-else-if="!sidebar.categories.length" class="news-category-status">
-                    Chưa có chuyên mục tin tức.
-                  </p>
-
-                  <ul v-else class="news-category-list">
-                    <li>
-                      <button
-                        type="button"
-                        class="news-category-link"
-                        :class="{ active: !hasActiveFilters }"
-                        :aria-pressed="!hasActiveFilters"
-                        @click="clearFilters"
-                      >
-                        <span class="news-category-name">
-                          <i class="ti-layout-grid2" aria-hidden="true"></i>
-                          Tất cả bài viết
-                        </span>
-                        <span class="news-category-count">{{ totalPublishedCount }}</span>
-                      </button>
-                    </li>
-                    <li v-for="category in sidebar.categories" :key="category.id">
-                      <button
-                        type="button"
-                        class="news-category-link"
-                        :class="{
-                          active: uiState.categoryId === category.id,
-                          'is-empty': category.publishedCount === 0
-                        }"
-                        :disabled="category.publishedCount === 0"
-                        :aria-pressed="uiState.categoryId === category.id"
-                        :title="
-                          category.publishedCount === 0
-                            ? 'Chuyên mục chưa có bài viết công khai'
-                            : `${category.publishedCount} bài viết`
-                        "
-                        @click="selectCategory(category.id)"
-                      >
-                        <span class="news-category-name">
-                          <i class="ti-angle-right" aria-hidden="true"></i>
-                          {{ category.name }}
-                        </span>
-                        <span class="news-category-count">{{ category.publishedCount }}</span>
-                      </button>
-                    </li>
-                  </ul>
-                </div>
+                <NewsCategories
+                  :categories="sidebar.categories"
+                  :loading="loadingCategories"
+                  :error="categoryLoadError"
+                  :active-category-id="uiState.categoryId"
+                  :active-all="!hasActiveFilters"
+                  title="Chuyên mục"
+                  :total-count="totalPublishedCount"
+                  :categories-with-posts="categoriesWithPosts"
+                  :show-all-posts-item="true"
+                  :show-total-description="true"
+                  :disable-empty="true"
+                  @select-all="clearFilters"
+                  @select="selectCategory"
+                  @retry="retrySidebar"
+                />
               </div>
 
               <div v-if="sidebar.tags.length" class="col-md-12">
-                <div class="widget">
-                  <div class="widget-title">
-                    <div
-                      class="d-flex align-items-center justify-content-between"
-                      style="width: 100%"
-                    >
-                      <h6 class="mb-0">Thẻ nội dung</h6>
-                      <button
-                        v-if="sidebar.tags.length > 12"
-                        type="button"
-                        class="view-more"
-                        @click="uiState.showAllTags = !uiState.showAllTags"
-                      >
-                        {{ uiState.showAllTags ? 'Thu gọn' : 'Xem thêm' }}
-                      </button>
-                    </div>
-                  </div>
-                  <ul class="tags">
-                    <li v-for="tag in displayedTags" :key="tag.name">
-                      <button
-                        type="button"
-                        :class="{ active: uiState.tag === tag.name }"
-                        :title="`${tag.count} bài viết`"
-                        @click="selectTag(tag.name)"
-                      >
-                        {{ tag.name }}
-                      </button>
-                    </li>
-                  </ul>
-                </div>
+                <NewsTags
+                  :tags="sidebar.tags"
+                  :active-tag="uiState.tag"
+                  title="Thẻ nội dung"
+                  :max-visible="12"
+                  @select="selectTag"
+                />
               </div>
 
               <div v-if="sidebarLoadError" class="col-md-12 news-sidebar-retry">

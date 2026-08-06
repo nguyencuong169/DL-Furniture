@@ -24,9 +24,14 @@
         <li>Kiểm soát mối ghép, cạnh tiếp xúc và bề mặt chạm.</li>
         <li>Hiệu chỉnh tại công trình theo điều kiện sử dụng thực tế.</li>
       </ul>
-      <RouterLink to="/thu-vien" class="home-craft-link">
+      <!-- <RouterLink to="" class="home-craft-link">
         Khám phá thư viện vật liệu <i class="ti-arrow-right" aria-hidden="true"></i>
-      </RouterLink>
+      </RouterLink> -->
+      <div class="butn-light mt-60 mb-30">
+        <a href="/thu-vien" data-scroll-nav="1"
+          ><span>Khám phá thư viện vật liệu <i class="ti-arrow-right" aria-hidden="true"></i></span
+        ></a>
+      </div>
     </div>
   </section>
 </template>
