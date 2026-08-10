@@ -1,5 +1,33 @@
 <script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import { useRoute } from 'vue-router'
+import { fetchProductById, formatPrice, type ProductResponse } from '../api/productClient'
 import PricingComponent from '../template/05_PricingComponent.vue'
+
+const route = useRoute()
+
+const product = ref<ProductResponse | null>(null)
+const loading = ref(true)
+
+const productId = computed(() => Number(route.params.id))
+
+onMounted(async () => {
+  product.value = await fetchProductById(productId.value)
+  loading.value = false
+})
+
+const mainImage = computed(() => {
+  if (!product.value) return ''
+  return product.value.mainImage || product.value.images[0]?.imageUrl || ''
+})
+
+const galleryImages = computed(() => {
+  if (!product.value) return []
+  const primary = product.value.mainImage || product.value.images[0]?.imageUrl
+  const images = product.value.images.map((image) => image.imageUrl)
+  if (primary && !images.includes(primary)) images.unshift(primary)
+  return images
+})
 </script>
 
 <template>
@@ -7,336 +35,174 @@ import PricingComponent from '../template/05_PricingComponent.vue'
     <!-- Room Page Slider -->
     <header class="header slider">
       <div class="owl-carousel owl-theme">
-        <!-- The opacity on the image is made with "data-overlay-dark="number". You can change it using the numbers 0-9. -->
         <div
           class="text-center item bg-img"
           data-overlay-dark="3"
-          data-background="/src/assets/img/slider/3.jpg"
-        ></div>
-        <div
-          class="text-center item bg-img"
-          data-overlay-dark="3"
-          data-background="/src/assets/img/slider/2.jpg"
-        ></div>
-        <div
-          class="text-center item bg-img"
-          data-overlay-dark="3"
-          data-background="/src/assets/img/slider/5.jpg"
+          :data-background="mainImage || '/src/assets/img/slider/3.jpg'"
         ></div>
       </div>
       <!-- arrow down -->
       <div class="arrow bounce text-center">
-        <a href="#" data-scroll-nav="1" class=""> <i class="ti-arrow-down"></i> </a>
+        <a href="#" data-scroll-nav="1" class=""><i class="ti-arrow-down"></i></a>
       </div>
     </header>
+
     <!-- Room Content -->
     <section class="rooms-page section-padding" data-scroll-index="1">
       <div class="container">
-        <!-- project content -->
         <div class="row">
-          <div class="col-md-12">
-            <span>
-              <i class="star-rating"></i>
-              <i class="star-rating"></i>
-              <i class="star-rating"></i>
-              <i class="star-rating"></i>
-              <i class="star-rating"></i>
-            </span>
-            <div class="section-subtitle">D&L Furniture</div>
-            <div class="section-title">Giường óc chó</div>
+          <div class="col-md-12" v-if="loading">
+            <div class="product-detail-loading">Đang tải sản phẩm…</div>
           </div>
-          <div class="col-md-8">
-            <p class="mb-30">
-              Nét cuốn hút của các đường vân gỗ cùng sắc nâu sang trọng của gỗ óc chó chắc chắn sẽ
-              khiến căn phòng tỏa sáng hơn bao giờ hết. Không những vậy, các sản phẩm nội thất gỗ óc
-              chó tự nhiên có sắc độ nâu vừa phải nên không khiến cho không gian bị ngộp hay bí
-              bách.
-            </p>
-            <p class="mb-30">
-              Màu sắc và chất liệu gỗ rất quan trọng trong việc tạo dựng phong cách cho các không
-              gian. Với chất gỗ mịn, thớ dày dặn cùng màu sắc không trùng lặp, gỗ óc chó tự nhiên
-              cực phù hợp để trang trí cho các không gian mang phong cách thiết kế hiện đại.
-            </p>
-            <div class="row">
-              <div class="col-md-6">
-                <h6>Check-in</h6>
-                <ul class="list-unstyled page-list mb-30">
-                  <li>
-                    <div class="page-list-icon"><span class="ti-check"></span></div>
-                    <div class="page-list-text">
-                      <p>Check-in from 9:00 AM - anytime</p>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="page-list-icon"><span class="ti-check"></span></div>
-                    <div class="page-list-text">
-                      <p>Early check-in subject to availability</p>
-                    </div>
-                  </li>
-                </ul>
+
+          <template v-else-if="product">
+            <div class="col-md-12">
+              <span>
+                <i class="star-rating"></i>
+                <i class="star-rating"></i>
+                <i class="star-rating"></i>
+                <i class="star-rating"></i>
+                <i class="star-rating"></i>
+              </span>
+              <div class="section-subtitle">
+                D&L Furniture — {{ product.categoryName || 'Sản phẩm' }}
               </div>
-              <div class="col-md-6">
-                <h6>Check-out</h6>
-                <ul class="list-unstyled page-list mb-30">
-                  <li>
-                    <div class="page-list-icon"><span class="ti-check"></span></div>
-                    <div class="page-list-text">
-                      <p>Check-out before noon</p>
-                    </div>
-                  </li>
-                  <li>
-                    <div class="page-list-icon"><span class="ti-check"></span></div>
-                    <div class="page-list-text">
-                      <p>Express check-out</p>
-                    </div>
-                  </li>
-                </ul>
+              <div class="section-title">{{ product.name }}</div>
+            </div>
+
+            <!-- Gallery -->
+            <div class="col-md-5" v-if="galleryImages.length">
+              <div class="product-gallery">
+                <img
+                  v-for="(image, index) in galleryImages"
+                  :key="index"
+                  :src="image"
+                  :alt="product.name"
+                  loading="lazy"
+                />
               </div>
-              <div class="col-md-12">
-                <h6>Special check-in instructions</h6>
-                <p>
-                  Guests will receive an email 5 days before arrival with check-in instructions;
-                  front desk staff will greet guests on arrival For more details, please contact the
-                  property using the information on the booking confirmation.
-                </p>
+            </div>
+
+            <div :class="galleryImages.length ? 'col-md-7' : 'col-md-12'">
+              <p class="mb-30" v-if="product.summary">{{ product.summary }}</p>
+              <p class="mb-30" v-if="product.description">{{ product.description }}</p>
+              <p class="mb-30" v-else>
+                Chế tác từ gỗ óc chó tự nhiên, sản phẩm được tuyển chọn và hoàn thiện thủ công để
+                giữ trọn vẹn vân gỗ cùng độ bền theo năm tháng.
+              </p>
+
+              <div class="product-detail-price">
+                <span class="label">Giá niêm yết</span>
+                <span class="value">{{ formatPrice(product) }}</span>
               </div>
-              <div class="col-md-12">
-                <h6>Pets</h6>
-                <p>Pets not allowed</p>
-              </div>
-              <div class="col-md-12">
-                <h6>Children and extra beds</h6>
-                <p>
-                  Children are welcome Kids stay free! Children stay free when using existing
-                  bedding; children may not be eligible for complimentary breakfast Rollaway/extra
-                  beds are available for $ 10 per day.
-                </p>
-              </div>
-              <div class="col-md-12">
-                <div class="butn-dark mt-15 mb-30">
-                  <a href="rooms2.html"><span>Check Now</span></a>
+
+              <div class="row mt-30">
+                <div class="col-md-6" v-if="product.sku">
+                  <h6>Mã sản phẩm</h6>
+                  <ul class="list-unstyled page-list mb-30">
+                    <li>
+                      <div class="page-list-icon"><span class="ti-check"></span></div>
+                      <div class="page-list-text">
+                        <p>{{ product.sku }}</p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                <div class="col-md-6" v-if="product.categoryName">
+                  <h6>Chất liệu</h6>
+                  <ul class="list-unstyled page-list mb-30">
+                    <li>
+                      <div class="page-list-icon"><span class="ti-check"></span></div>
+                      <div class="page-list-text">
+                        <p>Gỗ óc chó tự nhiên</p>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
+                <div class="col-md-12">
+                  <h6>Tư vấn &amp; báo giá</h6>
+                  <p>
+                    Liên hệ đội ngũ D&amp;L Furniture để nhận tư vấn thiết kế miễn phí và báo giá
+                    theo hiện trạng công trình của bạn.
+                  </p>
+                  <div class="butn-dark mt-15 mb-30">
+                    <a href="/lien-he"><span>Liên hệ tư vấn</span></a>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
-          <div class="col-md-3 offset-md-1">
-            <h6>Amenities</h6>
-            <ul class="list-unstyled page-list mb-30">
-              <li>
-                <div class="page-list-icon"><span class="flaticon-group"></span></div>
-                <div class="page-list-text">
-                  <p>1-2 Persons</p>
-                </div>
-              </li>
-              <li>
-                <div class="page-list-icon"><span class="flaticon-wifi"></span></div>
-                <div class="page-list-text">
-                  <p>Free Wifi</p>
-                </div>
-              </li>
-              <li>
-                <div class="page-list-icon"><span class="flaticon-clock-1"></span></div>
-                <div class="page-list-text">
-                  <p>200 sqft room</p>
-                </div>
-              </li>
-              <li>
-                <div class="page-list-icon"><span class="flaticon-breakfast"></span></div>
-                <div class="page-list-text">
-                  <p>Breakfast</p>
-                </div>
-              </li>
-              <li>
-                <div class="page-list-icon"><span class="flaticon-towel"></span></div>
-                <div class="page-list-text">
-                  <p>Towels</p>
-                </div>
-              </li>
-              <li>
-                <div class="page-list-icon"><span class="flaticon-swimming"></span></div>
-                <div class="page-list-text">
-                  <p>Swimming Pool</p>
-                </div>
-              </li>
-            </ul>
-          </div>
-        </div>
-      </div>
-    </section>
-    <!-- Similar Room -->
-    <section class="rooms1 section-padding bg-blck">
-      <div class="container">
-        <div class="row">
-          <div class="col-md-12">
-            <div class="section-subtitle"><span>D&L Furniture</span></div>
-            <div class="section-title"><span>Similar Rooms</span></div>
-          </div>
-        </div>
-        <div class="row">
-          <div class="col-md-12">
-            <div class="owl-carousel owl-theme">
-              <div class="item">
-                <div class="position-re o-hidden">
-                  <img src="@/assets/img/rooms/1.jpg" alt="" />
-                </div>
-                <span class="category"><a href="rooms2.html">Book</a></span>
-                <div class="con">
-                  <h6><a href="room-details.html">150$ / Night</a></h6>
-                  <h5><a href="room-details.html">Junior Suite</a></h5>
-                  <div class="line"></div>
-                  <div class="row facilities">
-                    <div class="col col-md-7">
-                      <ul>
-                        <li><i class="flaticon-bed"></i></li>
-                        <li><i class="flaticon-bath"></i></li>
-                        <li><i class="flaticon-breakfast"></i></li>
-                        <li><i class="flaticon-towel"></i></li>
-                      </ul>
-                    </div>
-                    <div class="col col-md-5 text-end">
-                      <div class="permalink">
-                        <a href="room-details.html">Details <i class="ti-arrow-right"></i></a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="item">
-                <div class="position-re o-hidden">
-                  <img src="@/assets/img/rooms/2.jpg" alt="" />
-                </div>
-                <span class="category"><a href="rooms2.html">Book</a></span>
-                <div class="con">
-                  <h6><a href="room-details.html">200$ / Night</a></h6>
-                  <h5><a href="room-details.html">Family Room</a></h5>
-                  <div class="line"></div>
-                  <div class="row facilities">
-                    <div class="col col-md-7">
-                      <ul>
-                        <li><i class="flaticon-bed"></i></li>
-                        <li><i class="flaticon-bath"></i></li>
-                        <li><i class="flaticon-breakfast"></i></li>
-                        <li><i class="flaticon-towel"></i></li>
-                      </ul>
-                    </div>
-                    <div class="col col-md-5 text-end">
-                      <div class="permalink">
-                        <a href="room-details.html">Details <i class="ti-arrow-right"></i></a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="item">
-                <div class="position-re o-hidden">
-                  <img src="@/assets/img/rooms/5.jpg" alt="" />
-                </div>
-                <span class="category"><a href="rooms2.html">Book</a></span>
-                <div class="con">
-                  <h6><a href="room-details.html">250$ / Night</a></h6>
-                  <h5><a href="room-details.html">Double Room</a></h5>
-                  <div class="line"></div>
-                  <div class="row facilities">
-                    <div class="col col-md-7">
-                      <ul>
-                        <li><i class="flaticon-bed"></i></li>
-                        <li><i class="flaticon-bath"></i></li>
-                        <li><i class="flaticon-breakfast"></i></li>
-                        <li><i class="flaticon-towel"></i></li>
-                      </ul>
-                    </div>
-                    <div class="col col-md-5 text-end">
-                      <div class="permalink">
-                        <a href="room-details.html">Details <i class="ti-arrow-right"></i></a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="item">
-                <div class="position-re o-hidden">
-                  <img src="@/assets/img/rooms/6.jpg" alt="" />
-                </div>
-                <span class="category"><a href="rooms2.html">Book</a></span>
-                <div class="con">
-                  <h6><a href="room-details.html">300$ / Night</a></h6>
-                  <h5><a href="room-details.html">Deluxe Room</a></h5>
-                  <div class="line"></div>
-                  <div class="row facilities">
-                    <div class="col col-md-7">
-                      <ul>
-                        <li><i class="flaticon-bed"></i></li>
-                        <li><i class="flaticon-bath"></i></li>
-                        <li><i class="flaticon-breakfast"></i></li>
-                        <li><i class="flaticon-towel"></i></li>
-                      </ul>
-                    </div>
-                    <div class="col col-md-5 text-end">
-                      <div class="permalink">
-                        <a href="room-details.html">Details <i class="ti-arrow-right"></i></a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="item">
-                <div class="position-re o-hidden">
-                  <img src="@/assets/img/rooms/8.jpg" alt="" />
-                </div>
-                <span class="category"><a href="rooms2.html">Book</a></span>
-                <div class="con">
-                  <h6><a href="room-details.html">150$ / Night</a></h6>
-                  <h5><a href="room-details.html">Superior Room</a></h5>
-                  <div class="line"></div>
-                  <div class="row facilities">
-                    <div class="col col-md-7">
-                      <ul>
-                        <li><i class="flaticon-bed"></i></li>
-                        <li><i class="flaticon-bath"></i></li>
-                        <li><i class="flaticon-breakfast"></i></li>
-                        <li><i class="flaticon-towel"></i></li>
-                      </ul>
-                    </div>
-                    <div class="col col-md-5 text-end">
-                      <div class="permalink">
-                        <a href="room-details.html">Details <i class="ti-arrow-right"></i></a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div class="item">
-                <div class="position-re o-hidden">
-                  <img src="@/assets/img/rooms/5.jpg" alt="" />
-                </div>
-                <span class="category"><a href="rooms2.html">Book</a></span>
-                <div class="con">
-                  <h6><a href="room-details.html">400$ / Night</a></h6>
-                  <h5><a href="room-details.html">Wellness Room</a></h5>
-                  <div class="line"></div>
-                  <div class="row facilities">
-                    <div class="col col-md-7">
-                      <ul>
-                        <li><i class="flaticon-bed"></i></li>
-                        <li><i class="flaticon-bath"></i></li>
-                        <li><i class="flaticon-breakfast"></i></li>
-                        <li><i class="flaticon-towel"></i></li>
-                      </ul>
-                    </div>
-                    <div class="col col-md-5 text-end">
-                      <div class="permalink">
-                        <a href="room-details.html">Details <i class="ti-arrow-right"></i></a>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+          </template>
+
+          <div class="col-md-12" v-else>
+            <div class="product-detail-missing">
+              <p>Không tìm thấy sản phẩm. Vui lòng quay lại danh sách sản phẩm.</p>
+              <div class="butn-dark mt-15 mb-30">
+                <a href="/san-pham"><span>Xem sản phẩm</span></a>
               </div>
             </div>
           </div>
         </div>
       </div>
     </section>
+
     <!-- Pricing -->
     <PricingComponent></PricingComponent>
   </main>
 </template>
+
+<style scoped>
+.product-gallery {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 30px;
+}
+
+.product-gallery img {
+  width: 100%;
+  display: block;
+  object-fit: cover;
+  aspect-ratio: 4 / 3;
+}
+
+.product-detail-price {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 18px 22px;
+  background: #f8f5f0;
+  border-left: 3px solid #aa8453;
+  margin-bottom: 22px;
+}
+
+.product-detail-price .label {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: #8a8177;
+}
+
+.product-detail-price .value {
+  font-family: 'Gilda Display', serif;
+  font-size: 30px;
+  color: #aa8453;
+  line-height: 1;
+}
+
+.product-detail-loading,
+.product-detail-missing {
+  text-align: center;
+  padding: 60px 0;
+}
+
+.product-detail-loading {
+  color: #8a8177;
+  font-family: 'Gilda Display', serif;
+  font-size: 22px;
+}
+
+.product-detail-missing p {
+  color: #8a8177;
+}
+</style>

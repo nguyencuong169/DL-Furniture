@@ -18,6 +18,9 @@ public class AppDbContext : DbContext
     public DbSet<Testimonial> Testimonials { get; set; } = null!;
     public DbSet<TeamMember> TeamMembers { get; set; } = null!;
     public DbSet<ServiceItem> Services { get; set; } = null!;
+    public DbSet<Category> Categories { get; set; } = null!;
+    public DbSet<Product> Products { get; set; } = null!;
+    public DbSet<ProductImage> ProductImages { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -427,8 +430,81 @@ public class AppDbContext : DbContext
             .HasMaxLength(255);
 
         modelBuilder.Entity<ServiceItem>()
-            .Property(s => s.UpdatedDate)
-            .HasColumnName("updated_date")
-            .HasColumnType("datetimeoffset");
+                    .Property(s => s.UpdatedDate)
+                    .HasColumnName("updated_date")
+                    .HasColumnType("datetimeoffset");
+
+        // Configure Categories table
+        modelBuilder.Entity<Category>(entity =>
+        {
+            entity.ToTable("categories");
+            entity.HasKey(category => category.Id);
+            entity.Property(category => category.Id).HasColumnName("id");
+            entity.Property(category => category.Name).HasColumnName("name").HasMaxLength(255);
+            entity.Property(category => category.Slug).HasColumnName("slug").HasMaxLength(255);
+            entity.Property(category => category.ParentId).HasColumnName("parent_id");
+            entity.Property(category => category.Description).HasColumnName("description");
+            entity.Property(category => category.DisplayOrder).HasColumnName("display_order").HasDefaultValue(0);
+            entity.Property(category => category.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+            entity.Property(category => category.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(category => category.UpdatedAt)
+                .HasColumnName("updated_at")
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.HasIndex(category => category.Slug).IsUnique();
+        });
+
+        // Configure Products table
+        modelBuilder.Entity<Product>(entity =>
+        {
+            entity.ToTable("products");
+            entity.HasKey(product => product.Id);
+            entity.Property(product => product.Id).HasColumnName("id");
+            entity.Property(product => product.CategoryId).HasColumnName("category_id");
+            entity.Property(product => product.Sku).HasColumnName("sku").HasMaxLength(100);
+            entity.Property(product => product.Slug).HasColumnName("slug").HasMaxLength(255);
+            entity.Property(product => product.Name).HasColumnName("name").HasMaxLength(255);
+            entity.Property(product => product.Summary).HasColumnName("summary");
+            entity.Property(product => product.Description).HasColumnName("description");
+            entity.Property(product => product.Price).HasColumnName("price").HasColumnType("decimal(18,2)");
+            entity.Property(product => product.Currency).HasColumnName("currency").HasMaxLength(10).HasDefaultValue("VND");
+            entity.Property(product => product.MainImage).HasColumnName("main_image").HasMaxLength(1024);
+            entity.Property(product => product.IsActive).HasColumnName("is_active").HasDefaultValue(true);
+            entity.Property(product => product.Hidden).HasColumnName("hidden").HasDefaultValue(false);
+            entity.Property(product => product.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(product => product.UpdatedAt)
+                .HasColumnName("updated_at")
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.HasIndex(product => product.Slug).IsUnique();
+            entity.HasIndex(product => product.Sku);
+            entity.HasIndex(product => product.CategoryId);
+            entity.HasOne(product => product.Category)
+                .WithMany(category => category.Products)
+                .HasForeignKey(product => product.CategoryId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Configure ProductImages table
+        modelBuilder.Entity<ProductImage>(entity =>
+        {
+            entity.ToTable("product_images");
+            entity.HasKey(image => image.Id);
+            entity.Property(image => image.Id).HasColumnName("id");
+            entity.Property(image => image.ProductId).HasColumnName("product_id");
+            entity.Property(image => image.ImageUrl).HasColumnName("image_url").HasMaxLength(1024);
+            entity.Property(image => image.Caption).HasColumnName("caption").HasMaxLength(255);
+            entity.Property(image => image.SortOrder).HasColumnName("sort_order").HasDefaultValue(0);
+            entity.Property(image => image.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.HasOne(image => image.Product)
+                .WithMany(product => product.ProductImages)
+                .HasForeignKey(image => image.ProductId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(image => image.ProductId);
+        });
     }
 }
