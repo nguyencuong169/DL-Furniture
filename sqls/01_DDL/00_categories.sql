@@ -15,6 +15,8 @@ BEGIN
         slug          NVARCHAR(255)   NOT NULL,
         parent_id     BIGINT          NULL,
         description   NVARCHAR(MAX)   NULL,
+        image_url     NVARCHAR(1024)  NULL,
+        image_alt     NVARCHAR(255)   NULL,
         display_order INT             NOT NULL CONSTRAINT DF_categories_display_order DEFAULT (0),
         is_active     BIT             NOT NULL CONSTRAINT DF_categories_is_active DEFAULT (1),
         created_at    DATETIMEOFFSET  NOT NULL CONSTRAINT DF_categories_created_at DEFAULT (SYSUTCDATETIME()),
@@ -26,6 +28,19 @@ BEGIN
         CONSTRAINT FK_categories_parent FOREIGN KEY (parent_id) REFERENCES dbo.categories (id)
     );
     PRINT 'Table categories created.';
+END;
+GO
+
+-- Bổ sung dữ liệu trình bày cho database đã tồn tại từ phiên bản cũ.
+IF COL_LENGTH(N'dbo.categories', N'image_url') IS NULL
+BEGIN
+    ALTER TABLE dbo.categories ADD image_url NVARCHAR(1024) NULL;
+END;
+GO
+
+IF COL_LENGTH(N'dbo.categories', N'image_alt') IS NULL
+BEGIN
+    ALTER TABLE dbo.categories ADD image_alt NVARCHAR(255) NULL;
 END;
 GO
 

@@ -70,6 +70,34 @@ public class ProductsController : ControllerBase
         return Ok(items);
     }
 
+    [HttpGet("categories")]
+    [ProducesResponseType<IEnumerable<ProductCategoryDto>>(StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<ProductCategoryDto>>> GetCategories()
+    {
+        var categories = await _context.Categories
+            .AsNoTracking()
+            .Where(category =>
+                category.IsActive &&
+                category.ParentId == null &&
+                category.ImageUrl != null)
+            .OrderBy(category => category.DisplayOrder)
+            .ThenBy(category => category.Name)
+            .Select(category => new ProductCategoryDto
+            {
+                Id = category.Id,
+                Name = category.Name,
+                Slug = category.Slug,
+                Description = category.Description,
+                ImageUrl = category.ImageUrl!,
+                ImageAlt = category.ImageAlt ?? category.Name,
+                DisplayOrder = category.DisplayOrder,
+                ProductCount = category.Products.Count(product => product.IsActive && !product.Hidden)
+            })
+            .ToListAsync();
+
+        return Ok(categories);
+    }
+
     [HttpGet("{id:long}")]
     [ProducesResponseType<ProductDto>(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -132,4 +160,16 @@ public sealed class ProductImageDto
     public required string ImageUrl { get; init; }
     public string? Caption { get; init; }
     public int SortOrder { get; init; }
+}
+
+public sealed class ProductCategoryDto
+{
+    public required long Id { get; init; }
+    public required string Name { get; init; }
+    public required string Slug { get; init; }
+    public string? Description { get; init; }
+    public required string ImageUrl { get; init; }
+    public required string ImageAlt { get; init; }
+    public int DisplayOrder { get; init; }
+    public int ProductCount { get; init; }
 }

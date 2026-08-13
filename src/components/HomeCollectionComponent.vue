@@ -1,34 +1,16 @@
 <script setup lang="ts">
-const collections = [
-  {
-    title: 'Phòng khách gỗ óc chó',
-    description: 'Tỷ lệ cân bằng, vật liệu có chiều sâu và những điểm chạm được hoàn thiện chỉn chu.',
-    image: '/media/gallery/walnut-villa-living.webp',
-    alt: 'Không gian phòng khách gỗ óc chó với bảng màu sáng',
-    to: '/thu-vien'
-  },
-  {
-    title: 'Phòng ngủ thư thái',
-    description: 'Không gian nghỉ ngơi được tổ chức gọn gàng, ấm áp và phù hợp với nhịp sống riêng.',
-    image: '/media/gallery/villa-bedroom-earth.webp',
-    alt: 'Phòng ngủ với nội thất gỗ và bảng màu trung tính',
-    to: '/thu-vien'
-  },
-  {
-    title: 'Bếp và bàn ăn',
-    description: 'Công năng liền mạch cùng chất liệu tự nhiên tạo nên trải nghiệm sum họp gần gũi.',
-    image: '/media/gallery/arched-dining.jpg',
-    alt: 'Bộ bàn ăn trong không gian nội thất có vòm cong',
-    to: '/thu-vien'
-  },
-  {
-    title: 'Hệ tủ và không gian làm việc',
-    description: 'Giải pháp may đo tích hợp lưu trữ, làm việc và trưng bày trên cùng một mặt đứng.',
-    image: '/media/gallery/walnut-home-library.webp',
-    alt: 'Hệ tủ gỗ óc chó tích hợp bàn làm việc tại gia',
-    to: '/du-an'
-  }
-]
+import { onMounted, ref } from 'vue'
+import { fetchProductCategories, type ProductCategoryResponse } from '../api/productCategoryClient'
+
+const categories = ref<ProductCategoryResponse[]>([])
+
+onMounted(async () => {
+  categories.value = await fetchProductCategories()
+})
+
+const categoryUrl = (category: ProductCategoryResponse) => `/san-pham/${category.slug}`
+
+const categoryNumber = (index: number) => String(index + 1).padStart(2, '0')
 </script>
 
 <template>
@@ -37,35 +19,52 @@ const collections = [
       <div class="home-collection-heading">
         <div>
           <p class="section-subtitle">D&amp;L Furniture</p>
-          <h2 id="home-collection-title" class="section-title">Bộ sưu tập được tuyển chọn</h2>
+          <h2 id="home-collection-title" class="section-title">Khám phá theo không gian</h2>
         </div>
-        <RouterLink class="home-collection-all" to="/thu-vien">
-          Khám phá toàn bộ bộ sưu tập <i class="ti-arrow-right" aria-hidden="true"></i>
+        <RouterLink class="home-collection-all" to="/san-pham">
+          Xem tất cả sản phẩm <i class="ti-arrow-right" aria-hidden="true"></i>
         </RouterLink>
       </div>
 
-      <div class="home-collection-grid">
-        <article v-for="collection in collections" :key="collection.title" class="collection-card">
-          <RouterLink :to="collection.to" class="collection-card-image">
+      <div class="home-collection-panels" aria-label="Danh mục sản phẩm">
+        <article
+          v-for="(category, index) in categories"
+          :key="category.id"
+          class="collection-panel"
+        >
+          <RouterLink
+            :to="categoryUrl(category)"
+            class="collection-panel-link"
+            :aria-label="`Khám phá danh mục ${category.name}`"
+          >
             <img
-              :src="collection.image"
-              :alt="collection.alt"
-              width="1600"
-              height="1100"
+              class="collection-panel-image"
+              :src="category.imageUrl"
+              :alt="category.imageAlt"
+              width="900"
+              height="1200"
               loading="lazy"
               decoding="async"
             />
+            <span class="collection-panel-overlay" aria-hidden="true"></span>
+
+            <span class="collection-panel-index">{{ categoryNumber(index) }}</span>
+
+            <span class="collection-panel-action" aria-hidden="true">
+              <i class="ti-zoom-in"></i>
+            </span>
+
+            <span class="collection-panel-content">
+              <span class="collection-panel-kicker">Không gian sống</span>
+              <span class="collection-panel-title">{{ category.name }}</span>
+              <span v-if="category.description" class="collection-panel-description">
+                {{ category.description }}
+              </span>
+              <span class="collection-panel-cta">
+                Khám phá <i class="ti-arrow-right" aria-hidden="true"></i>
+              </span>
+            </span>
           </RouterLink>
-          <div class="collection-card-content">
-            <p>Sản phẩm nổi bật</p>
-            <h3>
-              <RouterLink :to="collection.to">{{ collection.title }}</RouterLink>
-            </h3>
-            <span>{{ collection.description }}</span>
-            <RouterLink :to="collection.to" class="collection-card-link">
-              Xem chi tiết <i class="ti-arrow-right" aria-hidden="true"></i>
-            </RouterLink>
-          </div>
         </article>
       </div>
     </div>
@@ -75,6 +74,7 @@ const collections = [
 <style scoped>
 .home-collection {
   background: #f8f5f0;
+  overflow: hidden;
 }
 
 .home-collection-heading {
@@ -93,8 +93,7 @@ const collections = [
   margin: 0;
 }
 
-.home-collection-all,
-.collection-card-link {
+.home-collection-all {
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -103,99 +102,215 @@ const collections = [
   font-size: 13px;
   font-weight: 500;
   letter-spacing: 0.14em;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(170, 132, 83, 0.45);
   text-transform: uppercase;
 }
 
-.home-collection-all {
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(170, 132, 83, 0.45);
-}
-
-.home-collection-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 28px;
-}
-
-.collection-card {
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(240px, 0.85fr);
-  min-height: 360px;
+.home-collection-panels {
+  display: flex;
+  height: 640px;
   overflow: hidden;
-  background: #fff;
+  background: #171613;
 }
 
-.collection-card-image {
+.collection-panel {
+  flex: 1 1 0;
   min-width: 0;
   overflow: hidden;
+  transition: flex 0.65s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.collection-card-image img {
+.collection-panel-link {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  color: #fff;
+}
+
+.collection-panel-image {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.6s ease;
+  filter: saturate(0.82) brightness(0.78);
+  transition:
+    filter 0.65s ease,
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.collection-card:hover .collection-card-image img {
-  transform: scale(1.035);
+.collection-panel-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(13, 12, 10, 0.38) 0%, transparent 36%),
+    linear-gradient(0deg, rgba(13, 12, 10, 0.92) 0%, rgba(13, 12, 10, 0.08) 58%);
+  transition: background 0.5s ease;
 }
 
-.collection-card-content {
-  display: flex;
-  align-items: flex-start;
-  flex-direction: column;
-  justify-content: center;
-  padding: 34px 30px;
+.collection-panel-index {
+  position: absolute;
+  top: 30px;
+  left: 30px;
+  color: rgba(255, 255, 255, 0.9);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 15px;
+  letter-spacing: 0.12em;
 }
 
-.collection-card-content > p {
-  margin: 0 0 12px;
-  color: #aa8453;
+.collection-panel-action {
+  position: absolute;
+  top: 48%;
+  left: 50%;
+  display: grid;
+  width: 62px;
+  height: 62px;
+  place-items: center;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 50%;
+  color: #fff;
+  font-size: 20px;
+  opacity: 0;
+  transform: translate(-50%, -38%) scale(0.84);
+  transition:
+    opacity 0.35s ease,
+    transform 0.45s ease;
+}
+
+.collection-panel-content {
+  position: absolute;
+  right: 30px;
+  bottom: 32px;
+  left: 30px;
+  color: #fff;
+}
+
+.collection-panel-kicker {
+  display: block;
+  margin-bottom: 10px;
+  color: #d5b182;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 12px;
-  letter-spacing: 0.22em;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
 }
 
-.collection-card h3 {
-  margin: 0 0 15px;
-  color: #222;
-  font-family: 'Gilda Display', serif;
-  font-size: 28px;
-  font-weight: 400;
-  line-height: 1.2;
-}
-
-.collection-card h3 a {
-  color: inherit;
-}
-
-.collection-card-content > span {
+.collection-panel-title {
   display: block;
-  margin-bottom: 24px;
-  color: #666;
-  font-size: 14px;
-  line-height: 1.75;
+  font-family: 'Gilda Display', serif;
+  font-size: clamp(30px, 2.55vw, 42px);
+  line-height: 1.08;
 }
 
-.collection-card-link {
-  margin-top: auto;
+.collection-panel-description {
+  display: block;
+  max-width: 390px;
+  max-height: 0;
+  margin-top: 0;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 14px;
+  line-height: 1.65;
+  opacity: 0;
+  transform: translateY(12px);
+  transition:
+    max-height 0.5s ease,
+    margin-top 0.5s ease,
+    opacity 0.35s ease 0.08s,
+    transform 0.45s ease 0.08s;
+}
+
+.collection-panel-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  color: #fff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  opacity: 0.78;
+  text-transform: uppercase;
+  transform: translateX(-8px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+}
+
+.collection-panel:hover,
+.collection-panel:focus-within {
+  flex-grow: 1.35;
+}
+
+.collection-panel:hover .collection-panel-image,
+.collection-panel:focus-within .collection-panel-image {
+  filter: saturate(1) brightness(0.9);
+  transform: scale(1.045);
+}
+
+.collection-panel:hover .collection-panel-action,
+.collection-panel:focus-within .collection-panel-action {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.collection-panel:hover .collection-panel-description,
+.collection-panel:focus-within .collection-panel-description {
+  max-height: 100px;
+  margin-top: 14px;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.collection-panel:hover .collection-panel-cta,
+.collection-panel:focus-within .collection-panel-cta {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 @media (max-width: 1199px) {
-  .collection-card {
-    display: block;
+  .home-collection-panels {
+    height: 560px;
   }
 
-  .collection-card-image {
-    display: block;
-    aspect-ratio: 4 / 3;
+  .collection-panel-content {
+    right: 24px;
+    bottom: 26px;
+    left: 24px;
   }
 
-  .collection-card-content {
-    min-height: 270px;
+  .collection-panel-description {
+    display: none;
+  }
+}
+
+@media (max-width: 991px) {
+  .home-collection-panels {
+    display: grid;
+    height: 560px;
+    grid-auto-columns: 72%;
+    grid-auto-flow: column;
+    gap: 12px;
+    margin-right: -30px;
+    padding-right: 30px;
+    overflow-x: auto;
+    background: transparent;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .home-collection-panels::-webkit-scrollbar {
+    display: none;
+  }
+
+  .collection-panel {
+    scroll-snap-align: start;
+  }
+
+  .collection-panel-action {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.92);
   }
 }
 
@@ -219,38 +334,37 @@ const collections = [
     margin-top: 20px;
   }
 
-  .home-collection-grid {
+  .home-collection-panels {
+    height: 510px;
     grid-auto-columns: 86%;
-    grid-auto-flow: column;
-    grid-template-columns: none;
     gap: 14px;
     margin-right: -15px;
     padding-right: 15px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
   }
 
-  .home-collection-grid::-webkit-scrollbar {
-    display: none;
+  .collection-panel-index {
+    top: 24px;
+    left: 22px;
   }
 
-  .collection-card {
-    min-height: 0;
-    scroll-snap-align: start;
+  .collection-panel-content {
+    right: 22px;
+    bottom: 24px;
+    left: 22px;
   }
 
-  .collection-card-image {
-    aspect-ratio: 5 / 4;
+  .collection-panel-title {
+    font-size: 34px;
   }
+}
 
-  .collection-card-content {
-    min-height: 272px;
-    padding: 27px 24px;
-  }
-
-  .collection-card h3 {
-    font-size: 26px;
+@media (prefers-reduced-motion: reduce) {
+  .collection-panel,
+  .collection-panel-action,
+  .collection-panel-cta,
+  .collection-panel-description,
+  .collection-panel-image {
+    transition: none;
   }
 }
 </style>

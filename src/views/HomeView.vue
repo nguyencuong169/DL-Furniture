@@ -2,8 +2,7 @@
 import { onBeforeUnmount, onMounted } from 'vue'
 import SliderComponent from '../template/02_SliderComponent.vue'
 import AboutComponent from '../template/03_AboutComponent.vue'
-// import HomeCollectionComponent from '../components/HomeCollectionComponent.vue'
-import ProductComponent from '../template/04_ProductComponent.vue'
+import HomeCollectionComponent from '../components/HomeCollectionComponent.vue'
 import PricingComponent from '../template/05_PricingComponent.vue'
 import HomeCraftComponent from '../template/06_PromoVideoComponent.vue'
 import FaciltiesComponent from '../template/07_FaciltiesComponent.vue'
@@ -100,8 +99,7 @@ onBeforeUnmount(() => {
   <main>
     <SliderComponent />
     <AboutComponent />
-    <!-- <HomeCollectionComponent /> -->
-    <ProductComponent />
+    <HomeCollectionComponent />
     <PricingComponent />
     <HomeCraftComponent />
     <FaciltiesComponent />

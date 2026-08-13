@@ -444,6 +444,8 @@ public class AppDbContext : DbContext
             entity.Property(category => category.Slug).HasColumnName("slug").HasMaxLength(255);
             entity.Property(category => category.ParentId).HasColumnName("parent_id");
             entity.Property(category => category.Description).HasColumnName("description");
+            entity.Property(category => category.ImageUrl).HasColumnName("image_url").HasMaxLength(1024);
+            entity.Property(category => category.ImageAlt).HasColumnName("image_alt").HasMaxLength(255);
             entity.Property(category => category.DisplayOrder).HasColumnName("display_order").HasDefaultValue(0);
             entity.Property(category => category.IsActive).HasColumnName("is_active").HasDefaultValue(true);
             entity.Property(category => category.CreatedAt)
