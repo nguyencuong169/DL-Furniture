@@ -50,11 +50,12 @@ const currentYear = new Date().getFullYear()
                 </p>
               </div>
               <div class="footer-about-social-list">
-                <a href="#"><i class="ti-instagram"></i></a>
-                <a href="#"><i class="ti-twitter"></i></a>
-                <a href="#"><i class="ti-youtube"></i></a>
-                <a href="#"><i class="ti-facebook"></i></a>
-                <a href="#"><i class="ti-pinterest"></i></a>
+                <a href="mailto:info@dl-furniture.com" aria-label="Gửi email cho D&L Furniture">
+                  <i class="ti-email" aria-hidden="true"></i>
+                </a>
+                <a href="tel:+84961109897" aria-label="Gọi D&L Furniture">
+                  <i class="ti-mobile" aria-hidden="true"></i>
+                </a>
               </div>
             </div>
           </div>

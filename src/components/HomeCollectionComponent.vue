@@ -1,21 +1,35 @@
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { fetchProductCategories, type ProductCategoryResponse } from '../api/productCategoryClient'
 
 const categories = ref<ProductCategoryResponse[]>([])
+const activeIndex = ref(0)
+const isLoading = ref(true)
+
+const activeCategory = computed(() => categories.value[activeIndex.value] ?? null)
+const categoryCount = computed(() => categories.value.length)
+const hasOverflowingRail = computed(() => categoryCount.value > 5)
 
 onMounted(async () => {
-  categories.value = await fetchProductCategories()
+  try {
+    const response = await fetchProductCategories()
+    categories.value = [...response].sort((a, b) => a.displayOrder - b.displayOrder)
+  } finally {
+    isLoading.value = false
+  }
 })
 
 const categoryUrl = (category: ProductCategoryResponse) => `/san-pham/${category.slug}`
-
 const categoryNumber = (index: number) => String(index + 1).padStart(2, '0')
+
+const setActiveCategory = (index: number) => {
+  activeIndex.value = index
+}
 </script>
 
 <template>
-  <section class="home-collection section-padding" aria-labelledby="home-collection-title">
-    <div class="container">
+  <section class="home-collection" aria-labelledby="home-collection-title">
+    <div class="container home-collection-heading-wrap">
       <div class="home-collection-heading">
         <div>
           <p class="section-subtitle">D&amp;L Furniture</p>
@@ -25,56 +39,91 @@ const categoryNumber = (index: number) => String(index + 1).padStart(2, '0')
           Xem tất cả sản phẩm <i class="ti-arrow-right" aria-hidden="true"></i>
         </RouterLink>
       </div>
+    </div>
 
-      <div class="home-collection-panels" aria-label="Danh mục sản phẩm">
-        <article
+    <div v-if="activeCategory" class="collection-stage">
+      <div class="collection-stage-media">
+        <img
           v-for="(category, index) in categories"
           :key="category.id"
-          class="collection-panel"
-        >
-          <RouterLink
-            :to="categoryUrl(category)"
-            class="collection-panel-link"
-            :aria-label="`Khám phá danh mục ${category.name}`"
-          >
-            <img
-              class="collection-panel-image"
-              :src="category.imageUrl"
-              :alt="category.imageAlt"
-              width="900"
-              height="1200"
-              loading="lazy"
-              decoding="async"
-            />
-            <span class="collection-panel-overlay" aria-hidden="true"></span>
-
-            <span class="collection-panel-index">{{ categoryNumber(index) }}</span>
-
-            <span class="collection-panel-action" aria-hidden="true">
-              <i class="ti-zoom-in"></i>
-            </span>
-
-            <span class="collection-panel-content">
-              <span class="collection-panel-kicker">Không gian sống</span>
-              <span class="collection-panel-title">{{ category.name }}</span>
-              <span v-if="category.description" class="collection-panel-description">
-                {{ category.description }}
-              </span>
-              <span class="collection-panel-cta">
-                Khám phá <i class="ti-arrow-right" aria-hidden="true"></i>
-              </span>
-            </span>
-          </RouterLink>
-        </article>
+          class="collection-stage-image"
+          :class="{ 'is-active': index === activeIndex }"
+          :src="category.imageUrl"
+          :alt="index === activeIndex ? category.imageAlt : ''"
+          :aria-hidden="index !== activeIndex"
+          width="1920"
+          height="1080"
+          loading="lazy"
+          decoding="async"
+        />
+        <span class="collection-stage-overlay" aria-hidden="true"></span>
       </div>
+
+      <div class="container collection-stage-inner" aria-live="polite" aria-atomic="true">
+        <div class="collection-stage-count" aria-hidden="true">
+          <span>{{ categoryNumber(activeIndex) }}</span>
+          <span class="collection-stage-count-line"></span>
+          <span>{{ categoryNumber(categoryCount - 1) }}</span>
+        </div>
+
+        <RouterLink
+          :key="activeCategory.id"
+          class="collection-stage-content"
+          :to="categoryUrl(activeCategory)"
+          :aria-label="`Khám phá danh mục ${activeCategory.name}`"
+        >
+          <span class="collection-stage-kicker">Không gian sống</span>
+          <span class="collection-stage-title">{{ activeCategory.name }}</span>
+          <span v-if="activeCategory.description" class="collection-stage-description">
+            {{ activeCategory.description }}
+          </span>
+          <span class="collection-stage-cta">
+            Khám phá không gian <i class="ti-arrow-right" aria-hidden="true"></i>
+          </span>
+        </RouterLink>
+      </div>
+
+      <div
+        class="collection-rail"
+        :class="{ 'collection-rail--overflow': hasOverflowingRail }"
+        role="group"
+        aria-label="Chọn không gian"
+      >
+        <button
+          v-for="(category, index) in categories"
+          :key="category.id"
+          class="collection-rail-item"
+          :class="{ 'is-active': index === activeIndex }"
+          type="button"
+          :aria-pressed="index === activeIndex"
+          :aria-label="`Hiển thị ${category.name}`"
+          @mouseenter="setActiveCategory(index)"
+          @focus="setActiveCategory(index)"
+          @click="setActiveCategory(index)"
+        >
+          <span class="collection-rail-number">{{ categoryNumber(index) }}</span>
+          <span class="collection-rail-name">{{ category.name }}</span>
+          <i class="ti-arrow-right" aria-hidden="true"></i>
+        </button>
+      </div>
+    </div>
+
+    <div v-else class="collection-stage collection-stage--loading" :aria-busy="isLoading">
+      <span class="sr-only">Đang tải danh mục sản phẩm</span>
     </div>
   </section>
 </template>
 
 <style scoped>
 .home-collection {
-  background: #f8f5f0;
+  padding-top: 78px;
+  background: #f7f4ef;
   overflow: hidden;
+}
+
+.home-collection-heading-wrap {
+  position: relative;
+  z-index: 2;
 }
 
 .home-collection-heading {
@@ -82,7 +131,7 @@ const categoryNumber = (index: number) => String(index + 1).padStart(2, '0')
   align-items: flex-end;
   justify-content: space-between;
   gap: 30px;
-  margin-bottom: 42px;
+  margin-bottom: 36px;
 }
 
 .home-collection-heading .section-subtitle {
@@ -96,228 +145,353 @@ const categoryNumber = (index: number) => String(index + 1).padStart(2, '0')
 .home-collection-all {
   display: inline-flex;
   align-items: center;
-  gap: 9px;
-  color: #8e6c41;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.14em;
+  gap: 10px;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(170, 132, 83, 0.45);
+  border-bottom: 1px solid rgba(158, 119, 70, 0.38);
+  color: #89673d;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
+  transition:
+    border-color 0.3s ease,
+    color 0.3s ease;
 }
 
-.home-collection-panels {
-  display: flex;
-  height: 640px;
-  overflow: hidden;
-  background: #171613;
+.home-collection-all:hover,
+.home-collection-all:focus-visible {
+  border-color: #9e7746;
+  color: #5d4428;
 }
 
-.collection-panel {
-  flex: 1 1 0;
-  min-width: 0;
-  overflow: hidden;
-  transition: flex 0.65s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.collection-panel-link {
+.collection-stage {
   position: relative;
-  display: block;
-  width: 100%;
-  height: 100%;
+  height: clamp(620px, 72vh, 720px);
+  isolation: isolate;
   overflow: hidden;
-  color: #fff;
+  background: #191713;
 }
 
-.collection-panel-image {
+.collection-stage-media,
+.collection-stage-image,
+.collection-stage-overlay {
+  position: absolute;
+  inset: 0;
+}
+
+.collection-stage-image {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: saturate(0.82) brightness(0.78);
-  transition:
-    filter 0.65s ease,
-    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.collection-panel-overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(180deg, rgba(13, 12, 10, 0.38) 0%, transparent 36%),
-    linear-gradient(0deg, rgba(13, 12, 10, 0.92) 0%, rgba(13, 12, 10, 0.08) 58%);
-  transition: background 0.5s ease;
-}
-
-.collection-panel-index {
-  position: absolute;
-  top: 30px;
-  left: 30px;
-  color: rgba(255, 255, 255, 0.9);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 15px;
-  letter-spacing: 0.12em;
-}
-
-.collection-panel-action {
-  position: absolute;
-  top: 48%;
-  left: 50%;
-  display: grid;
-  width: 62px;
-  height: 62px;
-  place-items: center;
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  border-radius: 50%;
-  color: #fff;
-  font-size: 20px;
+  object-position: center;
   opacity: 0;
-  transform: translate(-50%, -38%) scale(0.84);
+  filter: saturate(0.86) contrast(1.02);
+  transform: scale(1.025);
   transition:
-    opacity 0.35s ease,
-    transform 0.45s ease;
+    opacity 0.7s ease,
+    transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.collection-panel-content {
+.collection-stage-image.is-active {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.collection-stage-overlay {
+  z-index: 1;
+  background: linear-gradient(
+      90deg,
+      rgba(13, 12, 10, 0.74) 0%,
+      rgba(13, 12, 10, 0.42) 37%,
+      transparent 70%
+    ),
+    linear-gradient(0deg, rgba(13, 12, 10, 0.74) 0%, transparent 48%),
+    linear-gradient(180deg, rgba(13, 12, 10, 0.18) 0%, transparent 30%);
+}
+
+.collection-stage-inner {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  pointer-events: none;
+}
+
+.collection-stage-count {
   position: absolute;
-  right: 30px;
-  bottom: 32px;
-  left: 30px;
-  color: #fff;
-}
-
-.collection-panel-kicker {
-  display: block;
-  margin-bottom: 10px;
-  color: #d5b182;
+  top: 42px;
+  right: 12px;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  color: rgba(255, 255, 255, 0.78);
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 12px;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.15em;
+}
+
+.collection-stage-count-line {
+  display: block;
+  width: 42px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.collection-stage-content {
+  position: absolute;
+  bottom: 148px;
+  left: 12px;
+  display: block;
+  max-width: 570px;
+  color: #fff;
+  pointer-events: auto;
+  animation: collection-content-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.collection-stage-kicker {
+  display: block;
+  margin-bottom: 13px;
+  color: #d3ad7b;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.24em;
   text-transform: uppercase;
 }
 
-.collection-panel-title {
+.collection-stage-title {
   display: block;
   font-family: 'Gilda Display', serif;
-  font-size: clamp(30px, 2.55vw, 42px);
-  line-height: 1.08;
+  font-size: clamp(54px, 5.4vw, 78px);
+  line-height: 1;
+  letter-spacing: -0.025em;
 }
 
-.collection-panel-description {
+.collection-stage-description {
   display: block;
-  max-width: 390px;
-  max-height: 0;
-  margin-top: 0;
-  overflow: hidden;
-  color: rgba(255, 255, 255, 0.78);
-  font-size: 14px;
-  line-height: 1.65;
-  opacity: 0;
-  transform: translateY(12px);
-  transition:
-    max-height 0.5s ease,
-    margin-top 0.5s ease,
-    opacity 0.35s ease 0.08s,
-    transform 0.45s ease 0.08s;
+  max-width: 500px;
+  margin-top: 20px;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 15px;
+  line-height: 1.75;
 }
 
-.collection-panel-cta {
+.collection-stage-cta {
   display: inline-flex;
   align-items: center;
-  gap: 10px;
-  margin-top: 20px;
+  gap: 13px;
+  margin-top: 28px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.45);
   color: #fff;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 12px;
-  letter-spacing: 0.16em;
-  opacity: 0.78;
+  font-weight: 500;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  transform: translateX(-8px);
   transition:
-    opacity 0.35s ease,
-    transform 0.35s ease;
+    border-color 0.3s ease,
+    gap 0.3s ease;
 }
 
-.collection-panel:hover,
-.collection-panel:focus-within {
-  flex-grow: 1.35;
+.collection-stage-content:hover .collection-stage-cta,
+.collection-stage-content:focus-visible .collection-stage-cta {
+  gap: 18px;
+  border-color: #fff;
 }
 
-.collection-panel:hover .collection-panel-image,
-.collection-panel:focus-within .collection-panel-image {
-  filter: saturate(1) brightness(0.9);
-  transform: scale(1.045);
+.collection-stage-content:focus-visible {
+  outline: 1px solid rgba(255, 255, 255, 0.88);
+  outline-offset: 10px;
 }
 
-.collection-panel:hover .collection-panel-action,
-.collection-panel:focus-within .collection-panel-action {
-  opacity: 1;
-  transform: translate(-50%, -50%) scale(1);
+.collection-rail {
+  position: absolute;
+  z-index: 3;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  display: flex;
+  height: 104px;
+  overflow-x: auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(17, 16, 14, 0.76);
+  backdrop-filter: blur(14px);
+  scrollbar-width: none;
 }
 
-.collection-panel:hover .collection-panel-description,
-.collection-panel:focus-within .collection-panel-description {
-  max-height: 100px;
-  margin-top: 14px;
-  opacity: 1;
-  transform: translateY(0);
+.collection-rail::-webkit-scrollbar {
+  display: none;
 }
 
-.collection-panel:hover .collection-panel-cta,
-.collection-panel:focus-within .collection-panel-cta {
-  opacity: 1;
+.collection-rail-item {
+  position: relative;
+  display: grid;
+  flex: 1 1 0;
+  min-width: 0;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 18px;
+  padding: 0 clamp(24px, 3vw, 52px);
+  border: 0;
+  border-right: 1px solid rgba(255, 255, 255, 0.12);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.58);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background 0.35s ease,
+    color 0.35s ease;
+}
+
+.collection-rail--overflow .collection-rail-item {
+  flex: 0 0 clamp(210px, 20vw, 300px);
+}
+
+.collection-rail-item::before {
+  position: absolute;
+  top: -1px;
+  right: 50%;
+  left: 50%;
+  height: 2px;
+  background: #c29a68;
+  content: '';
+  transition:
+    right 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    left 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.collection-rail-item:hover,
+.collection-rail-item:focus-visible,
+.collection-rail-item.is-active {
+  background: rgba(255, 255, 255, 0.055);
+  color: #fff;
+}
+
+.collection-rail-item.is-active::before {
+  right: 0;
+  left: 0;
+}
+
+.collection-rail-item:focus-visible {
+  z-index: 1;
+  outline: 1px solid rgba(255, 255, 255, 0.8);
+  outline-offset: -5px;
+}
+
+.collection-rail-number {
+  color: #c29a68;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.15em;
+}
+
+.collection-rail-name {
+  overflow: hidden;
+  font-family: 'Gilda Display', serif;
+  font-size: clamp(18px, 1.45vw, 22px);
+  line-height: 1.15;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.collection-rail-item i {
+  font-size: 11px;
+  opacity: 0;
+  transform: translateX(-7px);
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.collection-rail-item.is-active i {
+  opacity: 0.72;
   transform: translateX(0);
 }
 
+.collection-stage--loading {
+  background: linear-gradient(
+      100deg,
+      transparent 30%,
+      rgba(255, 255, 255, 0.055) 50%,
+      transparent 70%
+    ),
+    #1b1916;
+  background-size: 220% 100%;
+  animation: collection-loading 1.5s ease-in-out infinite;
+}
+
+@keyframes collection-content-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes collection-loading {
+  to {
+    background-position: -220% 0;
+  }
+}
+
 @media (max-width: 1199px) {
-  .home-collection-panels {
-    height: 560px;
+  .collection-stage {
+    height: 650px;
   }
 
-  .collection-panel-content {
-    right: 24px;
-    bottom: 26px;
-    left: 24px;
+  .collection-stage-content {
+    right: 12px;
+    bottom: 142px;
   }
 
-  .collection-panel-description {
-    display: none;
+  .collection-rail-item {
+    gap: 13px;
+    padding: 0 24px;
   }
 }
 
 @media (max-width: 991px) {
-  .home-collection-panels {
-    display: grid;
-    height: 560px;
-    grid-auto-columns: 72%;
-    grid-auto-flow: column;
-    gap: 12px;
-    margin-right: -30px;
-    padding-right: 30px;
-    overflow-x: auto;
-    background: transparent;
-    scroll-snap-type: x mandatory;
-    scrollbar-width: none;
+  .home-collection {
+    padding-top: 78px;
   }
 
-  .home-collection-panels::-webkit-scrollbar {
-    display: none;
+  .collection-stage {
+    height: 630px;
   }
 
-  .collection-panel {
-    scroll-snap-align: start;
+  .collection-stage-overlay {
+    background: linear-gradient(
+        90deg,
+        rgba(13, 12, 10, 0.68) 0%,
+        rgba(13, 12, 10, 0.25) 60%,
+        transparent 100%
+      ),
+      linear-gradient(0deg, rgba(13, 12, 10, 0.82) 0%, transparent 62%);
   }
 
-  .collection-panel-action {
-    opacity: 1;
-    transform: translate(-50%, -50%) scale(0.92);
+  .collection-stage-content {
+    left: 30px;
+    max-width: 520px;
+  }
+
+  .collection-stage-count {
+    right: 30px;
+  }
+
+  .collection-rail-item,
+  .collection-rail--overflow .collection-rail-item {
+    flex: 0 0 44%;
   }
 }
 
 @media (max-width: 767px) {
   .home-collection {
-    padding: 78px 0;
-    overflow: hidden;
+    padding-top: 68px;
   }
 
   .home-collection-heading {
@@ -326,45 +500,100 @@ const categoryNumber = (index: number) => String(index + 1).padStart(2, '0')
   }
 
   .home-collection-heading .section-title {
+    max-width: 330px;
     font-size: 40px;
-    line-height: 1.14;
+    line-height: 1.12;
   }
 
   .home-collection-all {
     margin-top: 20px;
   }
 
-  .home-collection-panels {
-    height: 510px;
-    grid-auto-columns: 86%;
-    gap: 14px;
-    margin-right: -15px;
-    padding-right: 15px;
+  .collection-stage {
+    height: 600px;
   }
 
-  .collection-panel-index {
+  .collection-stage-image {
+    object-position: center;
+  }
+
+  .collection-stage-overlay {
+    background: linear-gradient(
+        0deg,
+        rgba(13, 12, 10, 0.9) 0%,
+        rgba(13, 12, 10, 0.36) 58%,
+        rgba(13, 12, 10, 0.08) 100%
+      ),
+      linear-gradient(90deg, rgba(13, 12, 10, 0.28) 0%, transparent 75%);
+  }
+
+  .collection-stage-count {
     top: 24px;
-    left: 22px;
+    right: 15px;
   }
 
-  .collection-panel-content {
-    right: 22px;
-    bottom: 24px;
-    left: 22px;
+  .collection-stage-content {
+    right: 20px;
+    bottom: 120px;
+    left: 20px;
+    max-width: none;
   }
 
-  .collection-panel-title {
-    font-size: 34px;
+  .collection-stage-kicker {
+    margin-bottom: 10px;
+    font-size: 11px;
+  }
+
+  .collection-stage-title {
+    font-size: clamp(44px, 14vw, 58px);
+  }
+
+  .collection-stage-description {
+    display: -webkit-box;
+    max-width: 340px;
+    margin-top: 14px;
+    overflow: hidden;
+    font-size: 14px;
+    line-height: 1.6;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .collection-stage-cta {
+    margin-top: 20px;
+  }
+
+  .collection-rail {
+    height: 92px;
+    scroll-snap-type: x proximity;
+  }
+
+  .collection-rail-item,
+  .collection-rail--overflow .collection-rail-item {
+    flex-basis: 76%;
+    gap: 13px;
+    padding: 0 20px;
+    scroll-snap-align: start;
+  }
+
+  .collection-rail-name {
+    font-size: 20px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .collection-panel,
-  .collection-panel-action,
-  .collection-panel-cta,
-  .collection-panel-description,
-  .collection-panel-image {
+  .collection-stage-image,
+  .collection-stage-content,
+  .collection-stage-cta,
+  .collection-rail-item,
+  .collection-rail-item::before,
+  .collection-rail-item i {
+    animation: none;
     transition: none;
+  }
+
+  .collection-stage--loading {
+    animation: none;
   }
 }
 </style>

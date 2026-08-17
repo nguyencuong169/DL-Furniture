@@ -24,14 +24,9 @@
         <li>Kiểm soát mối ghép, cạnh tiếp xúc và bề mặt chạm.</li>
         <li>Hiệu chỉnh tại công trình theo điều kiện sử dụng thực tế.</li>
       </ul>
-      <!-- <RouterLink to="" class="home-craft-link">
+      <RouterLink to="/thu-vien" class="home-craft-link">
         Khám phá thư viện vật liệu <i class="ti-arrow-right" aria-hidden="true"></i>
-      </RouterLink> -->
-      <div class="butn-light mt-60 mb-30">
-        <a href="/thu-vien" data-scroll-nav="1"
-          ><span>Khám phá thư viện vật liệu <i class="ti-arrow-right" aria-hidden="true"></i></span
-        ></a>
-      </div>
+      </RouterLink>
     </div>
   </section>
 </template>
@@ -40,12 +35,12 @@
 .home-craft {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(420px, 0.9fr);
-  min-height: 620px;
+  min-height: 540px;
   background: #1f1d1a;
 }
 
 .home-craft-media {
-  min-height: 620px;
+  min-height: 540px;
   overflow: hidden;
 }
 
@@ -61,7 +56,7 @@
   align-items: flex-start;
   flex-direction: column;
   justify-content: center;
-  padding: 82px clamp(46px, 6vw, 104px);
+  padding: 62px clamp(46px, 6vw, 90px);
 }
 
 .home-craft-eyebrow {
@@ -87,7 +82,7 @@
 .home-craft-content > p:not(.home-craft-eyebrow) {
   max-width: 590px;
   margin: 28px 0 0;
-  color: rgba(255, 255, 255, 0.68);
+  color: rgba(255, 255, 255, 0.74);
   font-size: 16px;
   line-height: 1.85;
 }
@@ -104,7 +99,7 @@
   position: relative;
   padding-left: 23px;
   color: rgba(255, 255, 255, 0.82);
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .home-craft li::before {

@@ -3,14 +3,13 @@ import { onBeforeUnmount, onMounted } from 'vue'
 import SliderComponent from '../template/02_SliderComponent.vue'
 import AboutComponent from '../template/03_AboutComponent.vue'
 import HomeCollectionComponent from '../components/HomeCollectionComponent.vue'
+import HomeFeaturedProjectsComponent from '../components/HomeFeaturedProjectsComponent.vue'
 import PricingComponent from '../template/05_PricingComponent.vue'
 import HomeCraftComponent from '../template/06_PromoVideoComponent.vue'
-import FaciltiesComponent from '../template/07_FaciltiesComponent.vue'
 import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
 import ServicesComponent from '../template/09_ServicesComponent.vue'
 import NewsComponent from '../template/10_NewsComponent.vue'
 import BookingFormComponent from '../template/11_BookingFormComponent.vue'
-import ClientsComponent from '../template/12_ClientsComponent.vue'
 
 const HOME_SEO_MARKER = 'data-dl-home-seo'
 const defaultTitle = document.title
@@ -100,14 +99,13 @@ onBeforeUnmount(() => {
     <SliderComponent />
     <AboutComponent />
     <HomeCollectionComponent />
+    <HomeFeaturedProjectsComponent />
     <PricingComponent />
     <HomeCraftComponent />
-    <FaciltiesComponent />
-    <TestiominalsComponent />
     <ServicesComponent />
-    <NewsComponent :loop="true" />
+    <TestiominalsComponent />
+    <NewsComponent :loop="false" variant="grid" />
     <BookingFormComponent />
-    <ClientsComponent />
   </main>
 </template>
 

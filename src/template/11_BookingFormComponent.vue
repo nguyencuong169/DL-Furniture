@@ -207,6 +207,7 @@ async function handleSubmit() {
 
 <template>
   <section
+    id="consultation"
     v-show="bookingStore.isDisplay"
     class="testimonials consultation-section"
     aria-labelledby="consultation-title"
@@ -595,8 +596,12 @@ async function handleSubmit() {
                         class="btn-form1-submit consultation-submit"
                         :disabled="isSubmitting"
                       >
-                        {{ isSubmitting ? 'Đang gửi yêu cầu...' : 'Nhận tư vấn miễn phí' }}
+                        {{ isSubmitting ? 'Đang gửi yêu cầu...' : 'Đặt lịch tư vấn' }}
                       </button>
+                      <p class="consultation-privacy-note">
+                        <i class="ti-lock" aria-hidden="true"></i>
+                        Thông tin chỉ được dùng để liên hệ và chuẩn bị nội dung tư vấn cho dự án.
+                      </p>
                     </div>
                   </div>
                 </form>
@@ -610,6 +615,25 @@ async function handleSubmit() {
 </template>
 
 <style scoped>
+.consultation-section {
+  scroll-margin-top: 110px;
+}
+
+.consultation-privacy-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin: 11px 0 0;
+  color: #6f6a64;
+  font-size: 12px;
+  line-height: 1.55;
+}
+
+.consultation-privacy-note i {
+  margin-top: 3px;
+  color: #aa8453;
+}
+
 .consultation-copy {
   padding-bottom: 75px;
 }
@@ -635,6 +659,7 @@ async function handleSubmit() {
 .consultation-intro {
   margin-bottom: 24px;
   color: rgba(255, 255, 255, 0.82);
+  font-size: 16px;
   line-height: 1.8;
 }
 
@@ -650,7 +675,7 @@ async function handleSubmit() {
   gap: 10px;
   margin-bottom: 10px;
   color: #fff;
-  font-size: 14px;
+  font-size: 15px;
 }
 
 .consultation-benefits i {
@@ -740,8 +765,8 @@ async function handleSubmit() {
   box-sizing: border-box;
   display: block;
   width: 100%;
-  height: 46px;
-  min-height: 46px;
+  height: 48px;
+  min-height: 48px;
   margin: 0;
   padding: 10px 15px;
   border: 1px solid var(--consultation-control-border);
@@ -751,7 +776,7 @@ async function handleSubmit() {
   box-shadow: none;
   color: var(--consultation-control-text);
   font-family: 'Barlow', sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 24px;
   transition:
     border-color 0.2s ease,
@@ -821,7 +846,7 @@ async function handleSubmit() {
   background-color: var(--consultation-control-bg);
   color: var(--consultation-control-text);
   font-family: 'Barlow', sans-serif;
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 400;
   line-height: 1.5;
 }

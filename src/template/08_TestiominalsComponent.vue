@@ -7,9 +7,9 @@ import { initOwlCarousel } from '../utils/carousel'
 const testimonials = ref<TestimonialResponse[]>([])
 
 onMounted(async () => {
-  testimonials.value = await fetchTestimonials()
+  testimonials.value = (await fetchTestimonials()).sort((a, b) => a.sortOrder - b.sortOrder)
   await nextTick()
-  initOwlCarousel('.testimonials .owl-carousel', {
+  initOwlCarousel('.home-testimonials .owl-carousel', {
     loop: true,
     margin: 30,
     mouseDrag: true,
@@ -32,7 +32,11 @@ onMounted(async () => {
 </script>
 
 <template>
-  <section class="testimonials">
+  <section
+    v-if="testimonials.length"
+    class="testimonials home-testimonials"
+    aria-labelledby="testimonials-title"
+  >
     <div
       class="background bg-img bg-fixed section-padding pb-0"
       :style="{ backgroundImage: `url(${testimonialBg})` }"
@@ -40,27 +44,30 @@ onMounted(async () => {
     >
       <div class="container">
         <div class="row">
-          <div class="col-md-8 offset-md-2">
+          <div class="col-lg-8 offset-lg-2 col-md-10 offset-md-1">
             <div class="testimonials-box">
               <div class="head-box">
                 <h6>Khách hàng đánh giá</h6>
-                <h4>Khách hàng nói gì về chúng tôi?</h4>
+                <h2 id="testimonials-title">Khách hàng nói gì về chúng tôi?</h2>
                 <div class="line"></div>
               </div>
               <div class="owl-carousel owl-theme">
                 <div class="item" v-for="item in testimonials" :key="item.id">
                   <span class="quote"><img src="../assets/img/quot.png" alt="Trích dẫn" /></span>
-                  <p v-html="item.content"></p>
+                  <div class="testimonial-rating" :aria-label="`${item.rating} trên 5 sao`">
+                    <i
+                      v-for="star in Math.max(0, Math.min(5, Math.round(item.rating)))"
+                      :key="star"
+                      class="star-rating"
+                      aria-hidden="true"
+                    ></i>
+                  </div>
+                  <p>{{ item.content }}</p>
                   <div class="info">
                     <div class="author-img">
                       <img :src="item.avatarImage" :alt="item.customerName" />
                     </div>
                     <div class="cont">
-                      <span
-                        ><i class="star-rating"></i><i class="star-rating"></i
-                        ><i class="star-rating"></i><i class="star-rating"></i
-                        ><i class="star-rating"></i
-                      ></span>
                       <h6>{{ item.customerName }}</h6>
                       <span>{{ item.location }}</span>
                     </div>

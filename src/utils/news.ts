@@ -22,7 +22,12 @@ function fallbackImageFor(key: number | string = 0) {
 
 export function resolveNewsImage(image?: string, key: number | string = 0) {
   const fallback = fallbackImageFor(key)
-  if (!image || image.startsWith(legacyRemoteImagePrefix)) return fallback
+  if (
+    !image ||
+    image.startsWith(legacyRemoteImagePrefix) ||
+    image.trim().toLowerCase().startsWith('data:image/svg+xml')
+  )
+    return fallback
 
   const localPrefix = '/src/assets/img/news/'
   if (!image.startsWith(localPrefix)) return image

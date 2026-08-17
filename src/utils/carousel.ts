@@ -8,11 +8,14 @@
 // hidden. This helper re-runs the plugin initialisation after the items exist.
 
 export interface OwlCarouselOptions {
+  items?: number
   loop?: boolean
   margin?: number
   mouseDrag?: boolean
   autoplay?: boolean
+  autoplayTimeout?: number
   autoplayHoverPause?: boolean
+  animateOut?: string
   dots?: boolean
   nav?: boolean
   navText?: string[]
