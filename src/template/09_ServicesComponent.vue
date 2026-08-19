@@ -123,7 +123,7 @@ const processSteps = [
 
 .home-process-heading > p {
   margin: 0 0 5px;
-  color: #6c675f;
+  color: #4f4a43;
   font-size: 16px;
   line-height: 1.8;
 }
@@ -217,7 +217,7 @@ const processSteps = [
 
 .home-process-list p {
   margin: 0;
-  color: #625d56;
+  color: #48433d;
   font-size: 15px;
   line-height: 1.75;
 }
@@ -261,7 +261,7 @@ const processSteps = [
 
 .home-process-link--muted {
   border-color: transparent;
-  color: #5e5952;
+  color: #4f4a43;
 }
 
 .home-process-link:hover,

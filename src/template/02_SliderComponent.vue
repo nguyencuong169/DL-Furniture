@@ -9,11 +9,14 @@ const state = reactive({
   overlayDark: 3
 })
 const semanticTimers: number[] = []
+let carouselObserver: MutationObserver | null = null
 
 const syncCarouselSemantics = () => {
   document.querySelectorAll('.slider-fade .owl-item').forEach((item) => {
     const isClone = item.classList.contains('cloned')
-    item.setAttribute('aria-hidden', isClone ? 'true' : 'false')
+    const isCurrent = item.classList.contains('active') && !item.classList.contains('owl-animated-out')
+    const isHidden = isClone || !isCurrent
+    item.setAttribute('aria-hidden', isHidden ? 'true' : 'false')
 
     item.querySelectorAll('h1').forEach((heading) => {
       if (!isClone) return
@@ -22,9 +25,23 @@ const syncCarouselSemantics = () => {
     })
 
     item.querySelectorAll('a').forEach((link) => {
-      if (link instanceof HTMLElement) link.tabIndex = isClone ? -1 : 0
+      if (link instanceof HTMLElement) link.tabIndex = isHidden ? -1 : 0
     })
   })
+}
+
+const observeCarouselState = () => {
+  const stage = document.querySelector('.slider-fade .owl-stage')
+  if (!stage) return
+
+  carouselObserver?.disconnect()
+  carouselObserver = new MutationObserver(syncCarouselSemantics)
+  carouselObserver.observe(stage, {
+    subtree: true,
+    attributes: true,
+    attributeFilter: ['class']
+  })
+  syncCarouselSemantics()
 }
 
 onMounted(async () => {
@@ -50,11 +67,12 @@ onMounted(async () => {
     }
   })
   ;[0, 250, 750].forEach((delay) => {
-    semanticTimers.push(window.setTimeout(syncCarouselSemantics, delay))
+    semanticTimers.push(window.setTimeout(observeCarouselState, delay))
   })
 })
 
 onBeforeUnmount(() => {
+  carouselObserver?.disconnect()
   semanticTimers.forEach((timer) => window.clearTimeout(timer))
 })
 </script>
@@ -188,6 +206,41 @@ onBeforeUnmount(() => {
 <style scoped>
 .header {
   position: relative;
+}
+
+.header :deep(.owl-item .caption) {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+  transition:
+    opacity 180ms ease-out,
+    visibility 0s linear 180ms;
+}
+
+.header :deep(.owl-item .caption > .container) {
+  transform: translateY(10px);
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+
+.header :deep(.owl-item.active:not(.owl-animated-out) .caption) {
+  visibility: visible;
+  opacity: 1;
+  pointer-events: auto;
+  transition:
+    opacity 180ms ease-out,
+    visibility 0s linear;
+}
+
+.header :deep(.owl-item.active:not(.owl-animated-out) .caption > .container) {
+  transform: translateY(0);
+}
+
+.header :deep(.owl-item.owl-animated-out .caption) {
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  transition: none !important;
 }
 
 .header .caption .hero-title {
@@ -399,6 +452,15 @@ onBeforeUnmount(() => {
 @media (prefers-reduced-motion: reduce) {
   .hero-cta {
     transition: none;
+  }
+
+  .header :deep(.owl-item .caption),
+  .header :deep(.owl-item .caption > .container) {
+    transition: none;
+  }
+
+  .header :deep(.owl-item .caption > .container) {
+    transform: none;
   }
 }
 </style>

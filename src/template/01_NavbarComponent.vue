@@ -286,7 +286,9 @@ watch(
   align-items: center;
   justify-content: center;
   padding: 0 20px;
-  border: 1px solid rgba(255, 255, 255, 0.62);
+  border: 1px solid #aa8453;
+  background: #aa8453;
+  box-shadow: 0 8px 22px rgba(67, 46, 24, 0.14);
   color: #fff;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 12px;
@@ -296,19 +298,22 @@ watch(
   transition:
     border-color 0.3s ease,
     background 0.3s ease,
-    color 0.3s ease;
+    box-shadow 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s ease;
 }
 
 .navbar-consultation:hover,
-.navbar-consultation:focus-visible,
-.navbar-consultation--active {
-  border-color: #aa8453;
-  background: #aa8453;
+.navbar-consultation:focus-visible {
+  border-color: #c49a66;
+  background: #c49a66;
+  box-shadow: 0 12px 28px rgba(67, 46, 24, 0.24);
   color: #fff;
+  transform: translateY(-2px);
 }
 
 .navbar-consultation:focus-visible {
-  outline: 2px solid #fff;
+  outline: 2px solid #e0bd8e;
   outline-offset: 3px;
 }
 
@@ -316,6 +321,23 @@ watch(
   border-color: #aa8453;
   background: #aa8453;
   color: #fff;
+}
+
+.nav-scroll .navbar-consultation:hover,
+.nav-scroll .navbar-consultation:focus-visible {
+  border-color: #c49a66;
+  background: #c49a66;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .navbar-consultation {
+    transition: none;
+  }
+
+  .navbar-consultation:hover,
+  .navbar-consultation:focus-visible {
+    transform: none;
+  }
 }
 
 @media (max-width: 1199.98px) and (min-width: 992px) {

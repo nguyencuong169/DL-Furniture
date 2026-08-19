@@ -567,7 +567,7 @@ $(document).ready(function () {
   })
 
   // Slider owlCarousel (Homepage Slider)
-  $('.slider-fade .owl-carousel').owlCarousel({
+  owl.owlCarousel({
     items: 1,
     loop: true,
     dots: true,
@@ -592,21 +592,6 @@ $(document).ready(function () {
         dots: true
       }
     }
-  })
-  owl.on('changed.owl.carousel', function (event) {
-    var item = event.item.index - 2 // Position of the current item
-    $('span').removeClass('animated fadeInUp')
-    $('h4').removeClass('animated fadeInUp')
-    $('h1').removeClass('animated fadeInUp')
-    $('p').removeClass('animated fadeInUp')
-    $('.butn-light').removeClass('animated fadeInUp')
-    $('.butn-dark').removeClass('animated fadeInUp')
-    $('.owl-item').not('.cloned').eq(item).find('span').addClass('animated fadeInUp')
-    $('.owl-item').not('.cloned').eq(item).find('h4').addClass('animated fadeInUp')
-    $('.owl-item').not('.cloned').eq(item).find('h1').addClass('animated fadeInUp')
-    $('.owl-item').not('.cloned').eq(item).find('p').addClass('animated fadeInUp')
-    $('.owl-item').not('.cloned').eq(item).find('.butn-light').addClass('animated fadeInUp')
-    $('.owl-item').not('.cloned').eq(item).find('.butn-dark').addClass('animated fadeInUp')
   })
 })
 
