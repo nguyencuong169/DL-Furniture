@@ -263,6 +263,23 @@ public class NewsController : ControllerBase
             .ThenByDescending(x => x.Id)
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
+            .Select(x => new NewsItem
+            {
+                Id = x.Id,
+                NewsId = x.NewsId,
+                Titles = x.Titles,
+                Summary = x.Summary,
+                NewsImage = x.NewsImage,
+                ViewCount = x.ViewCount,
+                Hidden = x.Hidden,
+                DelFlag = x.DelFlag,
+                CreatedUser = x.CreatedUser,
+                CreatedDate = x.CreatedDate,
+                UpdatedUser = x.UpdatedUser,
+                UpdatedDate = x.UpdatedDate,
+                NewsCategoryId = x.NewsCategoryId,
+                Tags = x.Tags
+            })
             .ToListAsync();
 
         return Ok(new PagedNewsResponse

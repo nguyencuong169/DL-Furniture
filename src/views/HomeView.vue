@@ -104,7 +104,7 @@ onBeforeUnmount(() => {
     <HomeCraftComponent />
     <ServicesComponent />
     <TestiominalsComponent />
-    <NewsComponent :loop="false" variant="grid" />
+    <NewsComponent :limit="6" :loop="false" variant="grid" />
     <BookingFormComponent />
   </main>
 </template>

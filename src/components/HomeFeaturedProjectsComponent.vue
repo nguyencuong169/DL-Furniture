@@ -186,8 +186,8 @@ const projects = [
   filter: saturate(0.82) contrast(1.02);
   transform: scale(1.01);
   transition:
-    filter 0.6s ease,
-    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+    filter 0.5s ease,
+    transform 0.5s ease;
 }
 
 .featured-card-overlay {
@@ -269,8 +269,11 @@ const projects = [
 
 .featured-card:hover img,
 .featured-card:focus-visible img {
-  filter: saturate(0.95) contrast(1.04);
-  transform: scale(1.045);
+  filter: brightness(75%);
+  transform: scale(1.09);
+  transition:
+    filter 1s ease,
+    transform 1s ease;
 }
 
 .featured-card:hover .featured-card-link,

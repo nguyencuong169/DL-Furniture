@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import testimonialBg from '../assets/img/slider/2.jpg'
+import testimonialBg from '../assets/img/slider/slider_2.jpg'
 import { ref, onMounted, nextTick } from 'vue'
 import { fetchTestimonials, type TestimonialResponse } from '../api/testimonialClient'
 import { initOwlCarousel } from '../utils/carousel'

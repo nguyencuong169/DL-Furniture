@@ -191,12 +191,23 @@ const setActiveCategory = (index: number) => {
   transform: scale(1.025);
   transition:
     opacity 0.7s ease,
-    transform 1.4s cubic-bezier(0.22, 1, 0.36, 1);
+    filter 0.5s ease,
+    transform 0.5s ease;
 }
 
 .collection-stage-image.is-active {
   opacity: 1;
   transform: scale(1);
+}
+
+.collection-stage:hover .collection-stage-image.is-active,
+.collection-stage:focus-within .collection-stage-image.is-active {
+  filter: brightness(75%);
+  transform: scale(1.09);
+  transition:
+    opacity 0.7s ease,
+    filter 1s ease,
+    transform 1s ease;
 }
 
 .collection-stage-overlay {

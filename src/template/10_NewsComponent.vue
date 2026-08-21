@@ -2,7 +2,7 @@
 import { computed, nextTick, onBeforeUnmount, onMounted, reactive, ref, watch } from 'vue'
 import dayjs from 'dayjs'
 import 'dayjs/locale/vi'
-import { newsApi } from '../api/newsClient'
+import { getNewsPaged } from '../api/newsPagedClient'
 import type { News } from '../generated/api-client/models'
 import { handleNewsImageError, resolveNewsImage } from '../utils/news'
 
@@ -24,6 +24,7 @@ const props = withDefaults(
     title?: string
     subtitle?: string
     items?: News[]
+    limit?: number
     loop?: boolean
     variant?: 'carousel' | 'grid'
   }>(),
@@ -31,6 +32,7 @@ const props = withDefaults(
     title: 'Tin tức nội thất',
     subtitle: 'D&L Furniture News',
     items: undefined,
+    limit: 3,
     loop: true,
     variant: 'carousel'
   }
@@ -41,8 +43,11 @@ const state = reactive({
 })
 
 const carouselElement = ref<HTMLElement | null>(null)
+const canScrollPrevious = ref(false)
+const canScrollNext = ref(false)
 let isComponentActive = true
 const isGrid = computed(() => props.variant === 'grid')
+const itemLimit = computed(() => Math.max(1, Math.min(12, Math.floor(props.limit))))
 
 const getPublishedDate = (newsItem: News) => newsItem.createdDate ?? newsItem.updatedDate
 
@@ -181,30 +186,51 @@ const initializeCarousel = async () => {
   window.requestAnimationFrame(updateCarouselAccessibility)
 }
 
+const syncNewsRail = () => {
+  const element = carouselElement.value
+  if (!element || !isGrid.value) return
+
+  const maxScrollLeft = element.scrollWidth - element.clientWidth
+  canScrollPrevious.value = element.scrollLeft > 4
+  canScrollNext.value = maxScrollLeft - element.scrollLeft > 4
+}
+
+const scrollNews = (direction: -1 | 1) => {
+  const element = carouselElement.value
+  if (!element) return
+
+  element.scrollBy({
+    left: direction * Math.max(280, element.clientWidth * 0.85),
+    behavior: 'smooth'
+  })
+}
+
 const loadItems = async () => {
   if (props.items) {
-    state.items = selectDiverseItems(props.items)
+    state.items = selectDiverseItems(props.items, itemLimit.value)
     await initializeCarousel()
+    await nextTick()
+    syncNewsRail()
     return
   }
 
   try {
-    const res = await newsApi.newsGetAll()
+    const res = await getNewsPaged(1, itemLimit.value)
     if (!isComponentActive) return
-    state.items = selectDiverseItems((res.data ?? []) as News[])
+    state.items = selectDiverseItems(res.items, itemLimit.value)
     await initializeCarousel()
+    await nextTick()
+    syncNewsRail()
   } catch {
     state.items = []
   }
 }
 
 watch(
-  () => props.items,
+  () => [props.items, props.limit],
   () => {
-    if (props.items) {
-      destroyCarousel()
-      void loadItems()
-    }
+    destroyCarousel()
+    void loadItems()
   },
   { deep: true }
 )
@@ -239,43 +265,65 @@ onBeforeUnmount(() => {
       </div>
       <div class="row">
         <div class="col-md-12">
-          <div
-            v-if="state.items.length"
-            ref="carouselElement"
-            :class="isGrid ? 'home-news-grid' : 'owl-carousel owl-theme'"
-            role="region"
-            :aria-roledescription="isGrid ? undefined : 'carousel'"
-            :aria-label="title"
-          >
-            <div class="item" v-for="item in state.items" :key="item.id">
-              <div class="position-re o-hidden">
-                <img
-                  :src="resolveNewsImage(item.newsImage, item.id)"
-                  :alt="item.titles || 'Tin tức'"
-                  width="900"
-                  height="1200"
-                  loading="lazy"
-                  decoding="async"
-                  @error="handleNewsImageError($event, item.id)"
-                />
-                <div class="date">
-                  <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
-                    <span>{{ dayjs(getPublishedDate(item)).locale('vi').format('MMM') }}</span>
-                    <i>{{ dayjs(getPublishedDate(item)).format('DD') }}</i>
-                  </RouterLink>
+          <div v-if="state.items.length" :class="isGrid ? 'home-news-grid-wrap' : ''">
+            <button
+              v-if="isGrid"
+              class="home-news-arrow home-news-arrow--previous"
+              type="button"
+              aria-label="Xem tin trước"
+              :disabled="!canScrollPrevious"
+              @click="scrollNews(-1)"
+            >
+              <i class="ti-angle-left" aria-hidden="true"></i>
+            </button>
+            <div
+              ref="carouselElement"
+              :class="isGrid ? 'home-news-grid' : 'owl-carousel owl-theme'"
+              role="region"
+              :aria-roledescription="isGrid ? undefined : 'carousel'"
+              :aria-label="isGrid ? `${title}, có thể cuộn ngang` : title"
+              @scroll.passive="syncNewsRail"
+            >
+              <div class="item" v-for="item in state.items" :key="item.id">
+                <div class="position-re o-hidden">
+                  <img
+                    :src="resolveNewsImage(item.newsImage, item.id)"
+                    :alt="item.titles || 'Tin tức'"
+                    width="900"
+                    height="1200"
+                    loading="lazy"
+                    decoding="async"
+                    @error="handleNewsImageError($event, item.id)"
+                  />
+                  <div class="date">
+                    <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                      <span>{{ dayjs(getPublishedDate(item)).locale('vi').format('MMM') }}</span>
+                      <i>{{ dayjs(getPublishedDate(item)).format('DD') }}</i>
+                    </RouterLink>
+                  </div>
+                </div>
+                <div class="con">
+                  <span class="category">
+                    <RouterLink :to="{ name: 'news' }">TIN TỨC</RouterLink>
+                  </span>
+                  <h3 class="news-card-title">
+                    <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
+                      {{ item.titles }}
+                    </RouterLink>
+                  </h3>
                 </div>
               </div>
-              <div class="con">
-                <span class="category">
-                  <RouterLink :to="{ name: 'news' }">TIN TỨC</RouterLink>
-                </span>
-                <h3 class="news-card-title">
-                  <RouterLink :to="{ name: 'news-detail', params: { id: item.id } }">
-                    {{ item.titles }}
-                  </RouterLink>
-                </h3>
-              </div>
             </div>
+            <button
+              v-if="isGrid"
+              class="home-news-arrow home-news-arrow--next"
+              type="button"
+              aria-label="Xem tin tiếp theo"
+              :disabled="!canScrollNext"
+              @click="scrollNews(1)"
+            >
+              <i class="ti-angle-right" aria-hidden="true"></i>
+            </button>
           </div>
         </div>
       </div>
@@ -323,14 +371,81 @@ onBeforeUnmount(() => {
 }
 
 .home-news-grid {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  position: relative;
+  display: flex;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
   gap: 24px;
+  padding-bottom: 0;
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.home-news-grid::-webkit-scrollbar {
+  display: none;
+}
+
+.home-news-grid-wrap {
+  position: relative;
+}
+
+.home-news-arrow {
+  position: absolute;
+  z-index: 2;
+  top: 45%;
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 50%;
+  background: rgba(25, 23, 20, 0.3);
+  color: #fff;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-50%);
+  transition:
+    border-color 0.25s ease,
+    background 0.25s ease,
+    color 0.25s ease,
+    opacity 0.25s ease;
+}
+
+.home-news-grid-wrap:hover .home-news-arrow:not(:disabled),
+.home-news-arrow:focus-visible:not(:disabled) {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.home-news-arrow--previous {
+  left: 12px;
+}
+
+.home-news-arrow--next {
+  right: 12px;
+}
+
+.home-news-arrow:hover:not(:disabled),
+.home-news-arrow:focus-visible:not(:disabled) {
+  border-color: #aa8453;
+  background: rgba(25, 23, 20, 0.72);
+  color: #d3ad7b;
+}
+
+.home-news-arrow:disabled {
+  cursor: default;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .home-news-grid .item {
+  flex: 0 0 calc((100% - 48px) / 3);
   min-width: 0;
   margin: 0;
+  scroll-snap-align: start;
 }
 
 .home-news-grid .item .position-re {
@@ -338,8 +453,8 @@ onBeforeUnmount(() => {
 }
 
 .home-news-grid .item .con {
-  height: 154px;
-  padding: 25px 27px 27px;
+  height: 132px;
+  padding: 20px 24px 22px;
 }
 
 .home-news-grid .item .con .news-card-title {
@@ -354,6 +469,18 @@ onBeforeUnmount(() => {
 .home-news-all:focus-visible {
   outline: 2px solid #d3ad7b;
   outline-offset: 5px;
+}
+
+@media (max-width: 767.98px) {
+  .home-news-grid {
+    gap: 16px;
+    margin-right: -15px;
+    padding-right: 15px;
+  }
+
+  .home-news-grid .item {
+    flex-basis: min(82vw, 340px);
+  }
 }
 
 .home-news .item .position-re {
@@ -371,7 +498,7 @@ onBeforeUnmount(() => {
 
 .home-news .item .con {
   box-sizing: border-box;
-  height: 165px;
+  height: 132px;
 }
 
 .home-news .item .con .news-card-title {
@@ -411,19 +538,8 @@ onBeforeUnmount(() => {
   }
 
   .home-news-grid {
-    grid-auto-columns: 84%;
-    grid-auto-flow: column;
-    grid-template-columns: none;
     gap: 14px;
-    padding-bottom: 13px;
-    overflow-x: auto;
     scroll-snap-type: x mandatory;
-    scrollbar-width: none;
-    -ms-overflow-style: none;
-  }
-
-  .home-news-grid::-webkit-scrollbar {
-    display: none;
   }
 
   .home-news-grid .item {
@@ -431,7 +547,39 @@ onBeforeUnmount(() => {
   }
 
   .home-news-grid .item .con .news-card-title {
+    height: 70px;
     font-size: 23px;
   }
+
+  .home-news-grid .item .con .news-card-title a {
+    -webkit-line-clamp: 2;
+  }
+  .home-news-arrow {
+    top: 34%;
+    width: 38px;
+    height: 38px;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .home-news-arrow--previous {
+    left: 8px;
+  }
+
+  .home-news-arrow--next {
+    right: 8px;
+  }
+}
+
+.home-news-grid .item .con .news-card-title {
+  height: 58px;
+  max-height: 58px;
+}
+
+.home-news-grid .item .con .news-card-title a {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
 }
 </style>

@@ -1,4 +1,4 @@
-import fallbackNewsImage from '../assets/img/restaurant/2.png'
+import fallbackNewsImage from '../assets/img/news/1.jpg'
 import type { NewsItem } from '../types/news'
 
 const bundledNewsImages = import.meta.glob('../assets/img/news/*.{jpg,jpeg,png,webp}', {

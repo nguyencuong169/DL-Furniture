@@ -49,6 +49,19 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: brightness(100%);
+  transition:
+    filter 0.5s ease,
+    transform 0.5s ease;
+}
+
+.home-craft:hover .home-craft-media img,
+.home-craft:focus-within .home-craft-media img {
+  filter: brightness(75%);
+  transform: scale(1.09);
+  transition:
+    filter 1s ease,
+    transform 1s ease;
 }
 
 .home-craft-content {
@@ -160,6 +173,12 @@
 
   .home-craft-content > p:not(.home-craft-eyebrow) {
     font-size: 15px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home-craft-media img {
+    transition: none;
   }
 }
 </style>

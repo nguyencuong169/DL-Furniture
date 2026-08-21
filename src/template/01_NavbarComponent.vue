@@ -75,21 +75,21 @@ watch(
       <div id="navbar" ref="navbarCollapse" class="collapse navbar-collapse">
         <ul class="navbar-nav ms-auto" @click="handleNavbarClick">
           <li class="nav-item">
-            <a
+            <RouterLink
               :class="currentRouteName == 'home' || currentRouteName == '' ? 'active' : ''"
               class="nav-link"
-              href="/"
-              >Trang chủ</a
+              to="/"
+              >Trang chủ</RouterLink
             >
           </li>
           <li class="nav-item">
-            <a
+            <RouterLink
               class="nav-link"
-              href="/gioi-thieu"
+              to="/gioi-thieu"
               :class="
                 currentRouteName == 'about' || route.path.startsWith('/about') ? 'active' : ''
               "
-              >Giới thiệu</a
+              >Giới thiệu</RouterLink
             >
           </li>
           <li class="nav-item dropdown">
@@ -119,18 +119,18 @@ watch(
                 ></a>
                 <ul class="dropdown-menu" :class="{ show: activeProductSubmenu === 'living' }">
                   <li>
-                    <a href="/san-pham/phong-khach/sofa" class="dropdown-item"
-                      ><span>Sofa gỗ</span></a
+                    <RouterLink to="/san-pham/phong-khach/sofa" class="dropdown-item"
+                      ><span>Sofa gỗ</span></RouterLink
                     >
                   </li>
                   <li>
-                    <a href="/san-pham/phong-khach/ban-tra" class="dropdown-item"
-                      ><span>Bàn trà</span></a
+                    <RouterLink to="/san-pham/phong-khach/ban-tra" class="dropdown-item"
+                      ><span>Bàn trà</span></RouterLink
                     >
                   </li>
                   <li>
-                    <a href="/san-pham/phong-khach/ke-ti-vi" class="dropdown-item"
-                      ><span>Kệ ti vi</span></a
+                    <RouterLink to="/san-pham/phong-khach/ke-ti-vi" class="dropdown-item"
+                      ><span>Kệ ti vi</span></RouterLink
                     >
                   </li>
                 </ul>
@@ -149,18 +149,18 @@ watch(
                 ></a>
                 <ul class="dropdown-menu" :class="{ show: activeProductSubmenu === 'bedroom' }">
                   <li>
-                    <a href="/san-pham/phong-ngu/giuong-ngu" class="dropdown-item"
-                      ><span>Giường ngủ</span></a
+                    <RouterLink to="/san-pham/phong-ngu/giuong-ngu" class="dropdown-item"
+                      ><span>Giường ngủ</span></RouterLink
                     >
                   </li>
                   <li>
-                    <a href="/san-pham/phong-ngu/tu-quan-ao" class="dropdown-item"
-                      ><span>Tủ quần áo</span></a
+                    <RouterLink to="/san-pham/phong-ngu/tu-quan-ao" class="dropdown-item"
+                      ><span>Tủ quần áo</span></RouterLink
                     >
                   </li>
                   <li>
-                    <a href="/san-pham/phong-ngu/ke-trang-diem" class="dropdown-item"
-                      ><span>Kệ trang điểm</span></a
+                    <RouterLink to="/san-pham/phong-ngu/ke-trang-diem" class="dropdown-item"
+                      ><span>Kệ trang điểm</span></RouterLink
                     >
                   </li>
                 </ul>
@@ -179,22 +179,22 @@ watch(
                 ></a>
                 <ul class="dropdown-menu" :class="{ show: activeProductSubmenu === 'kitchen' }">
                   <li>
-                    <a href="/san-pham/phong-bep/ban-an" class="dropdown-item"
-                      ><span>Bàn ăn</span></a
+                    <RouterLink to="/san-pham/phong-bep/ban-an" class="dropdown-item"
+                      ><span>Bàn ăn</span></RouterLink
                     >
                   </li>
                   <li>
-                    <a href="/san-pham/phong-bep/tu-bep" class="dropdown-item"
-                      ><span>Tủ bếp<picture></picture></span
-                    ></a>
+                    <RouterLink to="/san-pham/phong-bep/tu-bep" class="dropdown-item"
+                      ><span>Tủ bếp</span></RouterLink
+                    >
                   </li>
                 </ul>
               </li>
             </ul>
           </li>
           <li class="nav-item">
-            <a class="nav-link" :class="currentRouteName == 'project' ? 'active' : ''" href="/du-an"
-              >Dự án</a
+            <RouterLink class="nav-link" :class="currentRouteName == 'project' ? 'active' : ''" to="/du-an"
+              >Dự án</RouterLink
             >
           </li>
           <li class="nav-item">
@@ -206,16 +206,16 @@ watch(
             >
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="/tin-tuc" :class="currentRouteName == 'news' ? 'active' : ''"
-              >Tin tức</a
+            <RouterLink class="nav-link" to="/tin-tuc" :class="currentRouteName == 'news' ? 'active' : ''"
+              >Tin tức</RouterLink
             >
           </li>
           <li class="nav-item">
-            <a
+            <RouterLink
               class="nav-link"
               :class="currentRouteName == 'contacts' ? 'active' : ''"
-              href="/lien-he"
-              >Liên hệ</a
+              to="/lien-he"
+              >Liên hệ</RouterLink
             >
           </li>
           <li class="nav-item navbar-consultation-item">

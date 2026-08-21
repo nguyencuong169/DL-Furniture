@@ -14,12 +14,14 @@ let carouselObserver: MutationObserver | null = null
 const syncCarouselSemantics = () => {
   document.querySelectorAll('.slider-fade .owl-item').forEach((item) => {
     const isClone = item.classList.contains('cloned')
-    const isCurrent = item.classList.contains('active') && !item.classList.contains('owl-animated-out')
+    const isCurrent =
+      item.classList.contains('active') && !item.classList.contains('owl-animated-out')
     const isHidden = isClone || !isCurrent
     item.setAttribute('aria-hidden', isHidden ? 'true' : 'false')
 
     item.querySelectorAll('h1').forEach((heading) => {
       if (!isClone) return
+      heading.removeAttribute('id')
       heading.setAttribute('role', 'presentation')
       heading.setAttribute('aria-hidden', 'true')
     })
@@ -84,7 +86,7 @@ onBeforeUnmount(() => {
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        :data-background="slider2"
+        :style="{ backgroundImage: `url(${slider2})` }"
       >
         <div class="v-middle caption">
           <div class="container">
@@ -121,7 +123,7 @@ onBeforeUnmount(() => {
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        :data-background="slider1"
+        :style="{ backgroundImage: `url(${slider1})` }"
       >
         <div class="v-middle caption">
           <div class="container">
@@ -157,7 +159,7 @@ onBeforeUnmount(() => {
       <div
         class="text-center item bg-img"
         :data-overlay-dark="state.overlayDark"
-        :data-background="slider3"
+        :style="{ backgroundImage: `url(${slider3})` }"
       >
         <div class="v-middle caption">
           <div class="container">
@@ -397,9 +399,10 @@ onBeforeUnmount(() => {
   }
 
   .header .caption .hero-title {
-    font-size: clamp(31px, 9vw, 40px);
-    letter-spacing: 3px;
-    line-height: 1.25;
+    max-width: 330px;
+    font-size: clamp(30px, 8.5vw, 38px);
+    letter-spacing: 1px;
+    line-height: 1.18;
   }
 
   .header .caption .hero-title--compact {
@@ -438,12 +441,12 @@ onBeforeUnmount(() => {
   }
 
   .hero-assurances li {
-    min-height: 63px;
+    min-height: 68px;
     gap: 5px;
     flex-direction: column;
-    padding: 8px 6px;
-    font-size: 9px;
-    letter-spacing: 0.05em;
+    padding: 9px 5px;
+    font-size: 10px;
+    letter-spacing: 0.02em;
     line-height: 1.35;
     text-align: center;
   }
