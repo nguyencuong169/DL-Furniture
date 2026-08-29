@@ -17,13 +17,7 @@ const state = reactive({
       <div class="container">
         <div class="row">
           <div class="col-md-12 caption mt-90">
-            <span>
-              <i class="star-rating"></i>
-              <i class="star-rating"></i>
-              <i class="star-rating"></i>
-              <i class="star-rating"></i>
-              <i class="star-rating"></i>
-            </span>
+            <span class="hero-line" aria-hidden="true"></span>
             <h5>D&L Furniture</h5>
             <h1>Các dự án đã thực hiện</h1>
           </div>

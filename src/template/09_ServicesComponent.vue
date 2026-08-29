@@ -21,8 +21,7 @@ const processSteps = [
   {
     number: '04',
     title: 'Sản xuất & kiểm soát',
-    description:
-      'Kiểm tra kích thước, mối ghép, bề mặt hoàn thiện và sự đồng đều giữa các module.'
+    description: 'Kiểm tra kích thước, mối ghép, bề mặt hoàn thiện và sự đồng đều giữa các module.'
   },
   {
     number: '05',
@@ -33,24 +32,19 @@ const processSteps = [
   {
     number: '06',
     title: 'Nghiệm thu & đồng hành',
-    description:
-      'Bàn giao hướng dẫn sử dụng, phạm vi bảo hành và đầu mối tiếp nhận khi cần hỗ trợ.'
+    description: 'Bàn giao hướng dẫn sử dụng, phạm vi bảo hành và đầu mối tiếp nhận khi cần hỗ trợ.'
   }
 ]
 </script>
 
 <template>
   <section id="home-process" class="home-process section-padding" aria-labelledby="process-title">
-    <div class="container">
+    <div class="container home-process-container">
       <header class="home-process-heading">
-        <div>
-          <p class="section-subtitle">Từ ý tưởng đến bàn giao</p>
-          <h2 id="process-title" class="section-title">Một quy trình, một đầu mối xuyên suốt</h2>
+        <div class="home-process-title-wrap">
+          <p class="section-subtitle"><span>Quy trình kiểm soát</span></p>
+          <h2 id="process-title" class="section-title">Từ ý tưởng đến bàn giao</h2>
         </div>
-        <p>
-          Mỗi giai đoạn có mục tiêu và điểm kiểm soát rõ ràng để ý tưởng thiết kế không bị đứt gãy
-          khi chuyển sang sản xuất và thi công.
-        </p>
       </header>
 
       <div class="home-process-layout">
@@ -63,80 +57,74 @@ const processSteps = [
             loading="lazy"
             decoding="async"
           />
+          <span class="home-process-media-number" aria-hidden="true">06</span>
           <figcaption>
             <span>Kỹ nghệ D&amp;L</span>
             Kiểm soát từ bản vẽ đến bề mặt hoàn thiện.
           </figcaption>
         </figure>
 
-        <ol class="home-process-list">
-          <li v-for="step in processSteps" :key="step.number">
-            <span class="home-process-number" aria-hidden="true">{{ step.number }}</span>
-            <div>
-              <h3>{{ step.title }}</h3>
-              <p>{{ step.description }}</p>
-            </div>
-          </li>
-        </ol>
-      </div>
+        <div class="home-process-body">
+          <p class="home-process-intro">
+            Mỗi giai đoạn có một mục tiêu, một đầu ra và một điểm kiểm soát rõ ràng. Nhờ đó, ý tưởng
+            thiết kế được bảo toàn khi chuyển sang sản xuất, lắp đặt và bàn giao.
+          </p>
 
-      <footer class="home-process-footer">
-        <p>Bạn đã có mặt bằng hoặc ý tưởng ban đầu?</p>
-        <div>
-          <RouterLink class="home-process-link" :to="{ name: 'home', hash: '#consultation' }">
-            Đặt lịch tư vấn <i class="ti-arrow-right" aria-hidden="true"></i>
-          </RouterLink>
-          <RouterLink class="home-process-link home-process-link--muted" to="/du-an">
-            Xem dự án đã hoàn thiện
-          </RouterLink>
+          <ol class="home-process-list">
+            <li v-for="step in processSteps" :key="step.number">
+              <span class="home-process-number" aria-hidden="true">{{ step.number }}</span>
+              <div>
+                <h3>{{ step.title }}</h3>
+                <p>{{ step.description }}</p>
+              </div>
+            </li>
+          </ol>
+
+          <footer class="home-process-footer">
+            <p>Bạn đã có mặt bằng hoặc ý tưởng ban đầu?</p>
+            <div>
+              <RouterLink class="home-process-link" :to="{ name: 'home', hash: '#consultation' }">
+                Đặt lịch tư vấn <i class="ti-arrow-right" aria-hidden="true"></i>
+              </RouterLink>
+              <RouterLink class="home-process-link home-process-link--muted" to="/du-an">
+                Xem dự án đã hoàn thiện
+              </RouterLink>
+            </div>
+          </footer>
         </div>
-      </footer>
+      </div>
     </div>
   </section>
 </template>
 
 <style scoped>
 .home-process {
-  padding: 78px 0 82px;
+  padding: 108px 0 110px;
   scroll-margin-top: 100px;
-  background: #f7f4ef;
-}
-
-.home-process > .container {
-  width: min(1280px, calc(100% - 60px));
-  max-width: none;
-  padding: 0;
+  background: #f1ede6;
 }
 
 .home-process-heading {
-  display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(300px, 0.75fr);
-  align-items: end;
-  gap: 70px;
-  margin-bottom: 32px;
+  padding-bottom: 41px;
+  border-bottom: 1px solid #d1c8bb;
 }
 
-.home-process-heading .section-title {
-  max-width: 720px;
+.home-process-title-wrap .section-title {
   margin-bottom: 0;
-}
-
-.home-process-heading > p {
-  margin: 0 0 5px;
-  color: #4f4a43;
-  font-size: 16px;
-  line-height: 1.8;
 }
 
 .home-process-layout {
   display: grid;
-  grid-template-columns: minmax(320px, 0.78fr) minmax(0, 1.22fr);
-  gap: 50px;
+  grid-template-columns: minmax(330px, 0.68fr) minmax(0, 1.32fr);
+  align-items: start;
+  gap: clamp(48px, 6vw, 84px);
+  margin-top: 56px;
 }
 
 .home-process-media {
-  position: relative;
-  min-height: 550px;
+  position: sticky;
+  top: 118px;
+  min-height: 730px;
   margin: 0;
   overflow: hidden;
   background: #24211d;
@@ -144,8 +132,8 @@ const processSteps = [
 
 .home-process-media::after {
   position: absolute;
-  inset: 45% 0 0;
-  background: linear-gradient(0deg, rgba(14, 12, 10, 0.82), transparent);
+  inset: 35% 0 0;
+  background: linear-gradient(0deg, rgba(14, 12, 10, 0.86), transparent);
   content: '';
   pointer-events: none;
 }
@@ -154,95 +142,130 @@ const processSteps = [
   display: block;
   width: 100%;
   height: 100%;
+  min-height: 730px;
   object-fit: cover;
+  filter: saturate(0.84) contrast(1.03);
+  transition:
+    filter 0.5s ease,
+    transform 0.5s ease;
+}
+
+.home-process-media:hover img,
+.home-process-media:focus-within img {
+  filter: brightness(75%);
+  transform: scale(1.09);
+  transition:
+    filter 1s ease,
+    transform 1s ease;
+}
+
+.home-process-media-number {
+  position: absolute;
+  z-index: 1;
+  top: 26px;
+  right: 29px;
+  color: rgba(255, 255, 255, 0.42);
+  font-family: 'Gilda Display', serif;
+  font-size: 78px;
+  line-height: 1;
 }
 
 .home-process-media figcaption {
   position: absolute;
   z-index: 1;
-  right: 34px;
-  bottom: 31px;
-  left: 34px;
-  color: rgba(255, 255, 255, 0.82);
+  right: 36px;
+  bottom: 34px;
+  left: 36px;
+  color: rgba(255, 255, 255, 0.86);
   font-family: 'Gilda Display', serif;
-  font-size: 21px;
+  font-size: 24px;
   line-height: 1.35;
 }
 
 .home-process-media figcaption span {
   display: block;
-  margin-bottom: 8px;
+  margin-bottom: 9px;
   color: #d5ae7c;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 11px;
-  letter-spacing: 0.18em;
+  letter-spacing: 0.19em;
   text-transform: uppercase;
+}
+
+.home-process-intro {
+  max-width: 760px;
+  margin: 0 0 34px;
+  color: #59534c;
+  font-size: 16px;
+  line-height: 1.85;
 }
 
 .home-process-list {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  align-content: start;
-  gap: 0 34px;
   padding: 0;
   margin: 0;
+  border-top: 1px solid #d1c8bb;
+  border-left: 1px solid #d1c8bb;
   list-style: none;
 }
 
 .home-process-list li {
   display: grid;
-  min-height: 175px;
-  grid-template-columns: 44px 1fr;
-  gap: 15px;
-  padding: 24px 0;
-  border-top: 1px solid #dbd3c9;
+  min-height: 218px;
+  grid-template-columns: 52px minmax(0, 1fr);
+  gap: 18px;
+  padding: 34px 29px 31px;
+  border-right: 1px solid #d1c8bb;
+  border-bottom: 1px solid #d1c8bb;
 }
 
 .home-process-number {
-  padding-top: 3px;
-  color: #aa8453;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.17em;
+  color: rgba(158, 119, 70, 0.58);
+  font-family: 'Gilda Display', serif;
+  font-size: 32px;
+  line-height: 1;
 }
 
 .home-process-list h3 {
-  margin: 0 0 12px;
+  margin: 0 0 13px;
   color: #28241f;
   font-family: 'Gilda Display', serif;
-  font-size: 24px;
+  font-size: 25px;
   font-weight: 400;
-  line-height: 1.25;
+  line-height: 1.22;
 }
 
 .home-process-list p {
   margin: 0;
-  color: #48433d;
-  font-size: 15px;
-  line-height: 1.75;
+  color: #5f5951;
+  font-size: 14px;
+  line-height: 1.72;
 }
 
 .home-process-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 36px;
-  padding-top: 32px;
-  margin-top: 0;
-  border-top: 1px solid #d5ccc0;
+  gap: 34px;
+  padding-top: 34px;
+  margin-top: 35px;
+  border-top: 1px solid #d1c8bb;
 }
 
 .home-process-footer > p {
+  /* max-width: 390px; */
   margin: 0;
   color: #2c2924;
   font-family: 'Gilda Display', serif;
-  font-size: 22px;
+  font-size: 24px;
+  line-height: 1.25;
 }
 
 .home-process-footer > div {
   display: flex;
   align-items: center;
-  gap: 25px;
+  gap: 24px;
 }
 
 .home-process-link {
@@ -250,13 +273,17 @@ const processSteps = [
   align-items: center;
   gap: 10px;
   padding-bottom: 7px;
-  border-bottom: 1px solid rgba(170, 132, 83, 0.5);
+  border-bottom: 1px solid rgba(137, 103, 61, 0.48);
   color: #89673d;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 500;
-  letter-spacing: 0.13em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  transition:
+    gap 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease;
 }
 
 .home-process-link--muted {
@@ -266,8 +293,9 @@ const processSteps = [
 
 .home-process-link:hover,
 .home-process-link:focus-visible {
-  border-color: #aa8453;
-  color: #aa8453;
+  gap: 15px;
+  border-color: #8e6738;
+  color: #8e6738;
 }
 
 .home-process-link:focus-visible {
@@ -275,34 +303,77 @@ const processSteps = [
   outline-offset: 5px;
 }
 
+@media (max-width: 1199.98px) {
+  .home-process-heading {
+    grid-template-columns: minmax(0, 1fr) minmax(220px, 0.38fr);
+  }
+
+  .home-process-layout {
+    grid-template-columns: minmax(300px, 0.62fr) minmax(0, 1.38fr);
+    gap: 42px;
+  }
+
+  .home-process-media,
+  .home-process-media img {
+    min-height: 690px;
+  }
+
+  .home-process-list li {
+    grid-template-columns: 42px minmax(0, 1fr);
+    padding: 29px 22px 27px;
+  }
+}
+
 @media (max-width: 991.98px) {
   .home-process-heading {
     grid-template-columns: 1fr;
-    gap: 18px;
   }
 
   .home-process-layout {
     grid-template-columns: 1fr;
-    gap: 34px;
   }
 
   .home-process-media {
+    position: relative;
+    top: auto;
     min-height: 0;
     aspect-ratio: 16 / 9;
+  }
+
+  .home-process-media img {
+    min-height: 0;
   }
 }
 
 @media (max-width: 767.98px) {
   .home-process {
-    padding: 68px 0;
+    padding: 76px 0;
   }
 
-  .home-process > .container {
-    width: calc(100% - 30px);
+  .home-process-heading {
+    padding-bottom: 31px;
   }
 
-  .home-process-heading .section-title {
-    font-size: 40px;
+  .home-process-layout {
+    gap: 38px;
+    margin-top: 42px;
+  }
+
+  .home-process-media {
+    aspect-ratio: 4 / 3;
+  }
+
+  .home-process-media-number {
+    top: 19px;
+    right: 21px;
+    font-size: 58px;
+  }
+
+  .home-process-media figcaption {
+    right: 24px;
+    bottom: 22px;
+    left: 24px;
+    font-size: 19px;
   }
 
   .home-process-list {
@@ -311,6 +382,8 @@ const processSteps = [
 
   .home-process-list li {
     min-height: 0;
+    grid-template-columns: 45px minmax(0, 1fr);
+    padding: 27px 20px 25px;
   }
 
   .home-process-footer,
@@ -324,16 +397,10 @@ const processSteps = [
   }
 }
 
-@media (max-width: 575.98px) {
-  .home-process-media {
-    aspect-ratio: 4 / 3;
-  }
-
-  .home-process-media figcaption {
-    right: 24px;
-    bottom: 22px;
-    left: 24px;
-    font-size: 18px;
+@media (prefers-reduced-motion: reduce) {
+  .home-process-media img,
+  .home-process-link {
+    transition: none;
   }
 }
 </style>

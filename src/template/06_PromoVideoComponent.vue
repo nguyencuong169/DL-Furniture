@@ -13,8 +13,8 @@
       />
     </div>
     <div class="home-craft-content">
-      <p class="home-craft-eyebrow">Kỹ nghệ D&amp;L Furniture</p>
-      <h2 id="home-craft-title">Kỹ nghệ phía sau bề mặt hoàn thiện</h2>
+      <p class="section-subtitle"><span>Kỹ nghệ D&amp;L Furniture</span></p>
+      <h2 id="home-craft-title" class="section-title"><span>Kỹ nghệ phía sau bề mặt hoàn thiện</span></h2>
       <p>
         Một chi tiết đẹp không chỉ được nhìn thấy. Nó được cảm nhận qua hướng vân, độ mịn của bề
         mặt, sự chính xác của mối ghép và chuyển động nhẹ nhàng trong từng thao tác sử dụng.
@@ -72,27 +72,12 @@
   padding: 62px clamp(46px, 6vw, 90px);
 }
 
-.home-craft-eyebrow {
-  margin: 0 0 18px;
-  color: #c39a62;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-}
-
 .home-craft h2 {
   max-width: 570px;
-  margin: 0;
-  color: #fff;
-  font-family: 'Gilda Display', serif;
-  font-size: clamp(44px, 4vw, 62px);
-  font-weight: 400;
-  line-height: 1.1;
+  margin-bottom: 0;
 }
 
-.home-craft-content > p:not(.home-craft-eyebrow) {
+.home-craft-content > p:not(.section-subtitle) {
   max-width: 590px;
   margin: 28px 0 0;
   color: rgba(255, 255, 255, 0.74);
@@ -167,11 +152,7 @@
     padding: 58px 24px 64px;
   }
 
-  .home-craft h2 {
-    font-size: 40px;
-  }
-
-  .home-craft-content > p:not(.home-craft-eyebrow) {
+  .home-craft-content > p:not(.section-subtitle) {
     font-size: 15px;
   }
 }

@@ -6,6 +6,11 @@
 // data renders — the carousels are never initialised on the freshly rendered
 // items, and the default `.owl-carousel { display: none }` CSS keeps them
 // hidden. This helper re-runs the plugin initialisation after the items exist.
+//
+// custom.js also inits carousels by a parent class selector (e.g.
+// `.pricing .owl-carousel`), which will match Vue-rendered sections too and
+// may init on an empty container before async data resolves. initOwlCarousel
+// detects that (`owl-loaded` class) and destroys it before re-initialising.
 
 export interface OwlCarouselOptions {
   items?: number
@@ -23,16 +28,20 @@ export interface OwlCarouselOptions {
   responsive?: Record<string, { items?: number; dots?: boolean; nav?: boolean; margin?: number }>
 }
 
-export function initOwlCarousel(selector: string, options: OwlCarouselOptions, retries = 10): void {
+function getJQuery(): any {
   const w = window as unknown as { $?: any }
-  const $ = w.$
+  return w.$
+}
+
+export function initOwlCarousel(selector: string, options: OwlCarouselOptions, retries = 10): void {
+  const $ = getJQuery()
 
   if ($ && typeof $.fn?.owlCarousel === 'function') {
     const $el = $(selector)
     if ($el.length) {
-      // If custom.js already initialised this carousel (e.g. fallback data
-      // rendered before document ready), tear it down first so we can re-init
-      // with the freshly rendered items.
+      // If custom.js already initialised this carousel (e.g. it matched by a
+      // parent class selector before the Vue items existed), tear it down
+      // first so we can re-init with the freshly rendered items.
       if ($el.hasClass('owl-loaded')) {
         $el.trigger('destroy.owl.carousel')
       }
@@ -44,5 +53,18 @@ export function initOwlCarousel(selector: string, options: OwlCarouselOptions, r
   // jQuery/owl plugin or the target DOM may not be ready yet — retry briefly.
   if (retries > 0) {
     window.setTimeout(() => initOwlCarousel(selector, options, retries - 1), 100)
+  }
+}
+
+// Call on component unmount to avoid leaking owl-carousel's internal timers
+// (autoplay) and event listeners once Vue removes the DOM node (e.g. on SPA
+// route change away from the page while the carousel is mounted).
+export function destroyOwlCarousel(selector: string): void {
+  const $ = getJQuery()
+  if (!$) return
+
+  const $el = $(selector)
+  if ($el.length && $el.hasClass('owl-loaded')) {
+    $el.trigger('destroy.owl.carousel')
   }
 }

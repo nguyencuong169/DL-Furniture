@@ -29,7 +29,7 @@ const FALLBACK_SERVICES: ServiceResponse[] = [
     id: 1,
     name: 'Nội thất biệt thự',
     description:
-      'Kiến tạo nên tính thẩm mỹ cá tính với đa phong cách thiết kế và cung cấp những tiện ích sống xứng tầm đẳng cấp',
+      'Thiết kế & thi công không gian biệt thự sang trọng từ gỗ óc chó, cân chỉnh tỷ lệ và chi tiết theo kiến trúc của gia chủ.',
     image: serviceImg1,
     category: 'Thi công',
     sortOrder: 0
@@ -38,27 +38,27 @@ const FALLBACK_SERVICES: ServiceResponse[] = [
     id: 2,
     name: 'Nội thất chung cư',
     description:
-      'Chuyên thiết kế nội thất chung cư trọn gói, chuyên nghiệp với nhiều phong cách thiết kế khác nhau',
+      'Trọn gói từ khảo sát hiện trường đến lắp đặt: tối ưu công năng, lưu trữ và thẩm mỹ cho diện tích căn hộ.',
     image: serviceImg2,
     category: 'Thi công',
-    sortOrder: 0
+    sortOrder: 1
   },
   {
     id: 3,
-    name: 'Nội thất văn phòng',
+    name: 'Văn phòng & Showroom',
     description:
-      'Cung cấp các mẫu thiết kế nội thất văn phòng đa dạng diện tích và phong cách tạo nên vẻ đẹp và phong cách riêng',
+      'Thiết kế không gian làm việc và trưng bày theo concept riêng, đồng bộ thương hiệu và nhu cầu vận hành của doanh nghiệp.',
     image: serviceImg3,
     category: 'Thi công',
-    sortOrder: 0
+    sortOrder: 2
   },
   {
     id: 4,
-    name: 'Showroom & Trung tâm',
+    name: 'Nội thất theo yêu cầu',
     description:
-      'Xây dựng không gian theo concept riêng, môi trường học tập chuẩn mực, đẹp mắt cho từng đối tượng khác nhau',
+      'Đóng tủ, vách, bàn ghế gỗ óc chó từ đo đạc hiện trường; đồng hành từ chọn phôi đến hoàn thiện tại công trình.',
     image: serviceImg4,
     category: 'Thi công',
-    sortOrder: 0
+    sortOrder: 3
   }
 ]

@@ -2,10 +2,13 @@
 import { onBeforeUnmount, onMounted } from 'vue'
 import SliderComponent from '../template/02_SliderComponent.vue'
 import AboutComponent from '../template/03_AboutComponent.vue'
+import StatsComponent from '../template/12_StatsComponent.vue'
 import HomeCollectionComponent from '../components/HomeCollectionComponent.vue'
 import HomeFeaturedProjectsComponent from '../components/HomeFeaturedProjectsComponent.vue'
 import PricingComponent from '../template/05_PricingComponent.vue'
+import StatementComponent from '../template/13_StatementComponent.vue'
 import HomeCraftComponent from '../template/06_PromoVideoComponent.vue'
+import FaciltiesComponent from '../template/07_FaciltiesComponent.vue'
 import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
 import ServicesComponent from '../template/09_ServicesComponent.vue'
 import NewsComponent from '../template/10_NewsComponent.vue'
@@ -98,10 +101,13 @@ onBeforeUnmount(() => {
   <main>
     <SliderComponent />
     <AboutComponent />
+    <StatsComponent />
     <HomeCollectionComponent />
-    <HomeFeaturedProjectsComponent />
     <PricingComponent />
+    <StatementComponent />
+    <HomeFeaturedProjectsComponent />
     <HomeCraftComponent />
+    <FaciltiesComponent />
     <ServicesComponent />
     <TestiominalsComponent />
     <NewsComponent :limit="6" :loop="false" variant="grid" />

@@ -57,13 +57,7 @@ const galleryImages = computed(() => {
 
           <template v-else-if="product">
             <div class="col-md-12">
-              <span>
-                <i class="star-rating"></i>
-                <i class="star-rating"></i>
-                <i class="star-rating"></i>
-                <i class="star-rating"></i>
-                <i class="star-rating"></i>
-              </span>
+              <span class="hero-line" aria-hidden="true"></span>
               <div class="section-subtitle">
                 D&L Furniture — {{ product.categoryName || 'Sản phẩm' }}
               </div>

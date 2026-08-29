@@ -215,7 +215,9 @@ const loadItems = async () => {
   }
 
   try {
-    const res = await getNewsPaged(1, itemLimit.value)
+    // Lấy pool rộng hơn (tối đa 12) để selectDiverseItems có đủ nguồn lọc ra
+    // những bài không trùng ảnh/tiêu đề — tránh section lặp tin giống nhau.
+    const res = await getNewsPaged(1, Math.min(12, itemLimit.value * 2))
     if (!isComponentActive) return
     state.items = selectDiverseItems(res.items, itemLimit.value)
     await initializeCarousel()
@@ -246,7 +248,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section v-if="state.items.length" class="news home-news section-padding bg-blck">
+  <section v-if="state.items.length" class="news home-news section-padding bg-cream">
     <div class="container">
       <div class="row align-items-end home-news-heading">
         <div class="col-md-8">
@@ -334,12 +336,7 @@ onBeforeUnmount(() => {
 <style scoped>
 .home-news {
   padding: 90px 0 94px;
-}
-
-.home-news > .container {
-  width: min(1280px, calc(100% - 60px));
-  max-width: none;
-  padding: 0;
+  background: #f8f5f0;
 }
 
 .home-news-heading {
@@ -350,13 +347,17 @@ onBeforeUnmount(() => {
   margin-bottom: 0;
 }
 
+.home-news-heading .section-title span {
+  color: #221f1a;
+}
+
 .home-news-all {
   display: inline-flex;
   align-items: center;
   gap: 10px;
   padding-bottom: 7px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.32);
-  color: rgba(255, 255, 255, 0.82);
+  border-bottom: 1px solid rgba(90, 70, 45, 0.35);
+  color: #4f4a43;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 12px;
   font-weight: 500;
@@ -366,8 +367,8 @@ onBeforeUnmount(() => {
 
 .home-news-all:hover,
 .home-news-all:focus-visible {
-  border-color: #d3ad7b;
-  color: #d3ad7b;
+  border-color: #8a6a3f;
+  color: #8a6a3f;
 }
 
 .home-news-grid {
@@ -399,10 +400,10 @@ onBeforeUnmount(() => {
   height: 42px;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(255, 255, 255, 0.72);
+  border: 1px solid rgba(79, 74, 67, 0.4);
   border-radius: 50%;
-  background: rgba(25, 23, 20, 0.3);
-  color: #fff;
+  background: #fff;
+  color: #4f4a43;
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
@@ -431,7 +432,7 @@ onBeforeUnmount(() => {
 .home-news-arrow:hover:not(:disabled),
 .home-news-arrow:focus-visible:not(:disabled) {
   border-color: #aa8453;
-  background: rgba(25, 23, 20, 0.72);
+  background: #1f1d1a;
   color: #d3ad7b;
 }
 
@@ -499,6 +500,9 @@ onBeforeUnmount(() => {
 .home-news .item .con {
   box-sizing: border-box;
   height: 132px;
+  background: #fff !important;
+  border-color: #efe8de;
+  box-shadow: 0 12px 32px rgba(34, 29, 22, 0.06);
 }
 
 .home-news .item .con .news-card-title {
@@ -524,13 +528,29 @@ onBeforeUnmount(() => {
   color: #aa8453;
 }
 
+.home-news .item .position-re img {
+  transition:
+    filter 0.5s ease,
+    transform 0.5s ease;
+}
+
+.home-news .item:hover .position-re img,
+.home-news .item:focus-within .position-re img {
+  filter: brightness(75%);
+  transform: scale(1.08);
+  transition:
+    filter 1s ease,
+    transform 1s ease;
+}
+
+.home-news .item .con .news-card-title a:focus-visible {
+  outline: 2px solid #d3ad7b;
+  outline-offset: 4px;
+}
+
 @media (max-width: 767.98px) {
   .home-news {
     padding: 76px 0 80px;
-  }
-
-  .home-news > .container {
-    width: calc(100% - 30px);
   }
 
   .home-news-all {

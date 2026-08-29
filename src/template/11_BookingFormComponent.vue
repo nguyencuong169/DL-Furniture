@@ -209,7 +209,7 @@ async function handleSubmit() {
   <section
     id="consultation"
     v-show="bookingStore.isDisplay"
-    class="testimonials consultation-section"
+    class="consultation-section"
     aria-labelledby="consultation-title"
   >
     <div
@@ -730,7 +730,7 @@ async function handleSubmit() {
   --consultation-control-text-muted: #888;
   --consultation-control-accent: #aa8453;
   --consultation-control-accent-soft: #f1e7da;
-  --consultation-control-error: #a94a43;
+  --consultation-control-error: #9c6a58;
 }
 
 .consultation-form .row {
@@ -936,7 +936,7 @@ async function handleSubmit() {
 .consultation-error {
   display: block;
   margin: 3px 0 0 2px;
-  color: #a94a43;
+  color: #9c6a58;
   font-size: 10px;
   line-height: 1.3;
 }
@@ -1005,23 +1005,23 @@ async function handleSubmit() {
 }
 
 .consultation-status.is-success {
-  border-color: #5f8a64;
-  background: linear-gradient(90deg, #eaf4eb 0%, #f5faf5 100%);
-  color: #2f5b35;
+  border-color: #8a9277;
+  background: linear-gradient(90deg, #f0f1e9 0%, #f8f8f3 100%);
+  color: #4c5641;
 }
 
 .consultation-status.is-success i {
-  background: rgba(47, 91, 53, 0.1);
+  background: rgba(76, 86, 65, 0.12);
 }
 
 .consultation-status.is-error {
-  border-color: #a94a43;
-  background: linear-gradient(90deg, #f8e9e7 0%, #fcf5f4 100%);
-  color: #7c3732;
+  border-color: #b08a78;
+  background: linear-gradient(90deg, #f5eae3 0%, #faf6f1 100%);
+  color: #7d5a4a;
 }
 
 .consultation-status.is-error i {
-  background: rgba(124, 55, 50, 0.1);
+  background: rgba(125, 90, 74, 0.12);
 }
 
 .consultation-submit {

@@ -475,6 +475,19 @@ color: #aa8453;
   transform: rotate(35deg);
 }
 
+.hero-line {
+  display: block;
+  width: 64px;
+  height: 2px;
+  margin-bottom: 24px;
+  background: linear-gradient(90deg, #aa8453, #d7b98a);
+}
+
+.banner-header .hero-line {
+  margin-right: auto;
+  margin-left: auto;
+}
+
 
 /* ======= Selection style ======= */
 ::-webkit-selection {
@@ -1190,11 +1203,6 @@ color: #aa8453;
     font-size: 30px;
 }
 
-.header .caption span i.star-rating {
-    -webkit-animation-delay: .8s;
-    animation-delay: .8s;
-}
-
 .header .caption h4 {
     font-family: 'Barlow Condensed', serif;
     font-size: 15px;
@@ -1342,7 +1350,23 @@ hr {
 }
 @media screen and (max-width: 768px) {
     .slider-fade .owl-nav {
-        display: none;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        bottom: 4%;
+        right: 50%;
+        transform: translateX(50%);
+    }
+
+    .slider-fade .owl-prev,
+    .slider-fade .owl-next {
+        float: none;
+    }
+
+    .slider-fade .owl-theme .owl-nav [class*=owl-] {
+        width: 36px;
+        height: 36px;
+        line-height: 30px;
     }
 }
 /* owl-dots for slider */
@@ -4028,6 +4052,36 @@ button.mfp-arrow {
   color: #666;
 }
 
+/* Hover đồng nhất với hệ card homepage: nâng nhẹ + làm mờ ảnh nhẹ */
+.pricing-card {
+  overflow: hidden;
+  -webkit-transition: -webkit-transform 0.4s ease, -webkit-box-shadow 0.4s ease;
+  transition:
+    transform 0.4s ease,
+    box-shadow 0.4s ease;
+}
+
+.pricing-card img {
+  -webkit-transition: -webkit-filter 0.5s ease, -webkit-transform 0.5s ease;
+  transition:
+    filter 0.5s ease,
+    transform 0.5s ease;
+}
+
+.pricing-card:hover {
+  -webkit-box-shadow: 0 18px 42px rgba(19, 16, 12, 0.36);
+  box-shadow: 0 18px 42px rgba(19, 16, 12, 0.36);
+  -webkit-transform: translateY(-5px);
+  transform: translateY(-5px);
+}
+
+.pricing-card:hover img {
+  -webkit-filter: brightness(78%);
+  filter: brightness(78%);
+  -webkit-transform: scale(1.05);
+  transform: scale(1.05);
+}
+
 
 
 /* ======= Careers style ======= */
@@ -5142,6 +5196,12 @@ button.mfp-arrow {
 }
 .butn-light2:hover span {
     color: #222;
+}
+
+.butn-light a:focus-visible,
+.butn-light2 a:focus-visible {
+    outline: 2px solid #aa8453;
+    outline-offset: 4px;
 }
 
 

@@ -30,13 +30,7 @@ const cateTitle = computed(() => {
       <div class="container">
         <div class="row">
           <div class="col-md-12 caption mt-90">
-            <span>
-              <i class="star-rating"></i>
-              <i class="star-rating"></i>
-              <i class="star-rating"></i>
-              <i class="star-rating"></i>
-              <i class="star-rating"></i>
-            </span>
+            <span class="hero-line" aria-hidden="true"></span>
             <h5>{{ cateTitle }}</h5>
             <h1>Sofa gỗ</h1>
           </div>

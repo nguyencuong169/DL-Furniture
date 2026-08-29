@@ -31,13 +31,10 @@ const setActiveCategory = (index: number) => {
   <section class="home-collection" aria-labelledby="home-collection-title">
     <div class="container home-collection-heading-wrap">
       <div class="home-collection-heading">
-        <div>
-          <p class="section-subtitle">D&amp;L Furniture</p>
+        <div class="home-collection-title-wrap">
+          <p class="section-subtitle"><span>D&amp;L Furniture</span></p>
           <h2 id="home-collection-title" class="section-title">Khám phá theo không gian</h2>
         </div>
-        <RouterLink class="home-collection-all" to="/san-pham">
-          Xem tất cả sản phẩm <i class="ti-arrow-right" aria-hidden="true"></i>
-        </RouterLink>
       </div>
     </div>
 
@@ -116,8 +113,8 @@ const setActiveCategory = (index: number) => {
 
 <style scoped>
 .home-collection {
-  padding-top: 78px;
-  background: #f7f4ef;
+  padding: 104px 0 24px;
+  background: #f1ede6;
   overflow: hidden;
 }
 
@@ -127,47 +124,14 @@ const setActiveCategory = (index: number) => {
 }
 
 .home-collection-heading {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 30px;
-  margin-bottom: 36px;
-}
-
-.home-collection-heading .section-subtitle {
-  margin-bottom: 6px;
-}
-
-.home-collection-heading .section-title {
-  margin: 0;
-}
-
-.home-collection-all {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  padding-bottom: 8px;
-  border-bottom: 1px solid rgba(158, 119, 70, 0.38);
-  color: #89673d;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-  transition:
-    border-color 0.3s ease,
-    color 0.3s ease;
-}
-
-.home-collection-all:hover,
-.home-collection-all:focus-visible {
-  border-color: #9e7746;
-  color: #5d4428;
+  margin-bottom: 22px;
 }
 
 .collection-stage {
   position: relative;
-  height: clamp(620px, 72vh, 720px);
+  width: min(1560px, calc(100% - 40px));
+  height: clamp(650px, 74vh, 760px);
+  margin: 0 auto;
   isolation: isolate;
   overflow: hidden;
   background: #191713;
@@ -452,6 +416,7 @@ const setActiveCategory = (index: number) => {
 
 @media (max-width: 1199px) {
   .collection-stage {
+    width: calc(100% - 30px);
     height: 650px;
   }
 
@@ -468,7 +433,7 @@ const setActiveCategory = (index: number) => {
 
 @media (max-width: 991px) {
   .home-collection {
-    padding-top: 78px;
+    padding-top: 86px;
   }
 
   .collection-stage {
@@ -502,25 +467,15 @@ const setActiveCategory = (index: number) => {
 
 @media (max-width: 767px) {
   .home-collection {
-    padding-top: 68px;
+    padding: 74px 0 0;
   }
 
   .home-collection-heading {
-    display: block;
-    margin-bottom: 30px;
-  }
-
-  .home-collection-heading .section-title {
-    max-width: 330px;
-    font-size: 40px;
-    line-height: 1.12;
-  }
-
-  .home-collection-all {
-    margin-top: 20px;
+    margin-bottom: 32px;
   }
 
   .collection-stage {
+    width: 100%;
     height: 600px;
   }
 
