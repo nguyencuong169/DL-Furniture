@@ -154,54 +154,79 @@ onBeforeUnmount(() => {
 
 <style scoped>
 /* ── Caption animation (homepage slider) ───────────────────────────────────
-   Hiệu ứng vào/ra cho nội dung caption mỗi slide: khi một slide trở thành
-   `.active`, caption fade in + container trượt lên nhẹ; khi slide bị ẩn đi
-   (không còn active hoặc đang fadeOut) caption ẩn hẳn. Class `.active` do
-   Owl Carousel gán theo đúng slide đang hiển thị, nên hiệu ứng này chạy cho
-   CẢ slide đầu tiên lúc load trang lẫn mỗi lần chuyển slide — không cần JS. */
+   Mô phỏng đúng hiệu ứng slider-fade gốc của theme Cappa: các phần tử trong
+   caption KHÔNG hiện cùng lúc mà xuất hiện lần lượt theo delay so le khi
+   slide nhận class `.active` (do Owl Carousel gán):
+     hero-line → fadeDown 0.3s → h4 fadeDown 0.5s → h1 fadeUp 0.7s
+     → nút fadeUp 0.9s.
+   `animation-fill-mode: both` giữ phần tử ẩn trong thời gian delay và cho
+   phép chúng trở về ẩn khi slide mất `.active`, nên mỗi lần chuyển slide
+   (hoặc quay lại trang chủ) chuỗi hiệu ứng chạy lại từ đầu. */
 .header :deep(.owl-item .caption) {
-  visibility: hidden;
-  opacity: 0;
   pointer-events: none;
-  transition:
-    opacity 180ms ease-out,
-    visibility 0s linear 180ms;
 }
 
-.header :deep(.owl-item .caption > .container) {
-  transform: translateY(10px);
-  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
-}
-
-.header :deep(.owl-item.active:not(.owl-animated-out) .caption) {
-  visibility: visible;
-  opacity: 1;
+.header :deep(.owl-item.active .caption) {
   pointer-events: auto;
-  transition:
-    opacity 180ms ease-out,
-    visibility 0s linear;
 }
 
-.header :deep(.owl-item.active:not(.owl-animated-out) .caption > .container) {
-  transform: translateY(0);
+/* Trạng thái mặc định: ẩn — tránh nhấp nháy trước khi Owl init xong. */
+.header :deep(.owl-item .caption .hero-line),
+.header :deep(.owl-item .caption h4),
+.header :deep(.owl-item .caption h1),
+.header :deep(.owl-item .caption .butn-light) {
+  opacity: 0;
 }
 
-.header :deep(.owl-item.owl-animated-out .caption) {
-  visibility: hidden !important;
-  opacity: 0 !important;
-  pointer-events: none !important;
-  transition: none !important;
+/* Slide đang hiển thị: từng phần tử vào theo thứ tự so le như Cappa. */
+.header :deep(.owl-item.active .caption .hero-line) {
+  animation: hero-fade-down 0.8s ease 0.3s both;
+}
+
+.header :deep(.owl-item.active .caption h4) {
+  animation: hero-fade-down 1s ease 0.5s both;
+}
+
+.header :deep(.owl-item.active .caption h1) {
+  animation: hero-fade-up 1s ease 0.7s both;
+}
+
+.header :deep(.owl-item.active .caption .butn-light) {
+  animation: hero-fade-up 1s ease 0.9s both;
+}
+
+@keyframes hero-fade-down {
+  0% {
+    opacity: 0;
+    transform: translateY(-40px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes hero-fade-up {
+  0% {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .header :deep(.owl-item .caption),
-  .header :deep(.owl-item .caption > .container) {
-    transition: none;
-  }
-
-  .header :deep(.owl-item .caption > .container) {
+  .header :deep(.owl-item .caption .hero-line),
+  .header :deep(.owl-item .caption h4),
+  .header :deep(.owl-item .caption h1),
+  .header :deep(.owl-item .caption .butn-light) {
+    opacity: 1;
     transform: none;
+    animation: none;
   }
 }
 

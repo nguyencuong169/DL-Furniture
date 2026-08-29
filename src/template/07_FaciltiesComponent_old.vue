@@ -1,7 +1,4 @@
-<script setup lang="ts">
-// Đồng bộ 1 bộ icon outline duy nhất (Lucide) với phần Quy trình (09)
-import { Globe, Hammer, Paintbrush, PencilRuler, ShieldCheck, Thermometer } from 'lucide-vue-next'
-</script>
+<script setup lang="ts"></script>
 
 <template>
   <section class="facilties section-padding">
@@ -15,74 +12,74 @@ import { Globe, Hammer, Paintbrush, PencilRuler, ShieldCheck, Thermometer } from
       <div class="row">
         <div class="col-md-4">
           <div class="single-facility animate-box" data-animate-effect="fadeInUp">
-            <span><Globe :size="44" :stroke-width="1.5" /></span>
+            <span class="flaticon-world"></span>
             <span class="facility-tag">Nguyên liệu</span>
             <h5>Gỗ óc chó Bắc Mỹ, chuẩn FAS</h5>
             <p>
               100% gỗ óc chó nhập khẩu loại 1 từ vùng Bắc Mỹ, sở hữu sắc trầm và vân gỗ cuộn sóng
               độc bản.
             </p>
-            <div class="facility-shape"><span><Globe :size="140" :stroke-width="1" /></span></div>
+            <div class="facility-shape"><span class="flaticon-world"></span></div>
           </div>
         </div>
         <div class="col-md-4">
           <div class="single-facility animate-box" data-animate-effect="fadeInUp">
-            <span><Hammer :size="44" :stroke-width="1.5" /></span>
+            <span class="flaticon-man"></span>
             <span class="facility-tag">Chế tác</span>
             <h5>Kỹ thuật nghệ nhân</h5>
             <p>
               Gia công thủ công bởi những nghệ nhân hơn 15 năm kinh nghiệm, xử lý mượt mà từng
               đường bo và góc cạnh.
             </p>
-            <div class="facility-shape"><span><Hammer :size="140" :stroke-width="1" /></span></div>
+            <div class="facility-shape"><span class="flaticon-man"></span></div>
           </div>
         </div>
         <div class="col-md-4">
           <div class="single-facility animate-box" data-animate-effect="fadeInUp">
-            <span><Paintbrush :size="44" :stroke-width="1.5" /></span>
+            <span class="ti-paint-roller"></span>
             <span class="facility-tag">Hoàn thiện</span>
             <h5>Bề mặt sơn cao cấp</h5>
             <p>
               Hệ sơn nhập khẩu giữ trọn vẻ đẹp tự nhiên của gỗ, không mùi, an toàn cho sức khỏe
               gia đình.
             </p>
-            <div class="facility-shape"><span><Paintbrush :size="140" :stroke-width="1" /></span></div>
+            <div class="facility-shape"><span class="ti-paint-roller"></span></div>
           </div>
         </div>
         <div class="col-md-4">
           <div class="single-facility animate-box" data-animate-effect="fadeInUp">
-            <span><PencilRuler :size="44" :stroke-width="1.5" /></span>
+            <span class="ti-ruler-pencil"></span>
             <span class="facility-tag">Cá nhân hóa</span>
             <h5>Thiết kế riêng theo gia chủ</h5>
             <p>
               Đo đạc và thiết kế dựa trên phong thủy, tỉ lệ nhân trắc học và kiến trúc riêng của
               từng không gian.
             </p>
-            <div class="facility-shape"><span><PencilRuler :size="140" :stroke-width="1" /></span></div>
+            <div class="facility-shape"><span class="ti-ruler-pencil"></span></div>
           </div>
         </div>
         <div class="col-md-4">
           <div class="single-facility animate-box" data-animate-effect="fadeInUp">
-            <span><Thermometer :size="44" :stroke-width="1.5" /></span>
+            <span class="ti-settings"></span>
             <span class="facility-tag">Kỹ thuật</span>
             <h5>Sấy gỗ đạt chuẩn</h5>
             <p>
               Gỗ được tẩm sấy theo công nghệ hiện đại, đạt độ ẩm dưới 12%, hạn chế cong vênh, co
               ngót trong khí hậu Việt Nam.
             </p>
-            <div class="facility-shape"><span><Thermometer :size="140" :stroke-width="1" /></span></div>
+            <div class="facility-shape"><span class="ti-settings"></span></div>
           </div>
         </div>
         <div class="col-md-4">
           <div class="single-facility animate-box" data-animate-effect="fadeInUp">
-            <span><ShieldCheck :size="44" :stroke-width="1.5" /></span>
+            <span class="flaticon-shield"></span>
             <span class="facility-tag">Dịch vụ</span>
             <h5>Đồng hành trọn đời</h5>
             <p>
               Bảo hành 5 năm cùng dịch vụ bảo trì định kỳ, giúp lớp gỗ luôn sáng đẹp theo thời
               gian.
             </p>
-            <div class="facility-shape"><span><ShieldCheck :size="140" :stroke-width="1" /></span></div>
+            <div class="facility-shape"><span class="flaticon-shield"></span></div>
           </div>
         </div>
       </div>
@@ -97,12 +94,6 @@ import { Globe, Hammer, Paintbrush, PencilRuler, ShieldCheck, Thermometer } from
 
 .facilties .section-title {
   margin-bottom: 0;
-}
-
-/* Lucide SVG: bỏ khoảng trắng baseline, kích thước/mtàu kế thừa span (45px/140px qua :size) */
-.facilties .single-facility > span:first-child svg,
-.facilties .single-facility .facility-shape span svg {
-  display: block;
 }
 
 /* Hover đồng nhất với hệ card toàn homepage: nâng nhẹ, viền gold, đổ bóng mảnh */

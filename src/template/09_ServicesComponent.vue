@@ -1,96 +1,213 @@
 <script setup lang="ts">
-const processSteps = [
+import { computed, onBeforeUnmount, onMounted, ref } from 'vue'
+import {
+  BadgeCheck,
+  Cog,
+  DraftingCompass,
+  MessageCircle,
+  Ruler,
+  Wrench,
+  type LucideIcon
+} from 'lucide-vue-next'
+
+interface ProcessStep {
+  number: string
+  icon: LucideIcon
+  title: string
+  description: string
+}
+
+const processSteps: ProcessStep[] = [
   {
     number: '01',
+    icon: MessageCircle,
     title: 'Lắng nghe & định hướng',
     description:
       'Làm rõ nhu cầu, phong cách, công năng ưu tiên và khung đầu tư phù hợp với gia đình.'
   },
   {
     number: '02',
+    icon: Ruler,
     title: 'Khảo sát hiện trạng',
     description:
       'Đo đạc, ghi nhận kiến trúc, hạ tầng kỹ thuật và những điều kiện ảnh hưởng đến phương án.'
   },
   {
     number: '03',
+    icon: DraftingCompass,
     title: 'Phát triển thiết kế',
     description:
       'Thống nhất mặt bằng, ngôn ngữ vật liệu, tỷ lệ và các chi tiết cần kiểm soát khi sản xuất.'
   },
   {
     number: '04',
+    icon: Cog,
     title: 'Sản xuất & kiểm soát',
     description: 'Kiểm tra kích thước, mối ghép, bề mặt hoàn thiện và sự đồng đều giữa các module.'
   },
   {
     number: '05',
+    icon: Wrench,
     title: 'Lắp đặt & hiệu chỉnh',
     description:
       'Tổ chức lắp đặt tại công trình, phối hợp các hạng mục và hiệu chỉnh theo sử dụng thực tế.'
   },
   {
     number: '06',
+    icon: BadgeCheck,
     title: 'Nghiệm thu & đồng hành',
     description: 'Bàn giao hướng dẫn sử dụng, phạm vi bảo hành và đầu mối tiếp nhận khi cần hỗ trợ.'
   }
 ]
+
+const lastStepIndex = processSteps.length - 1
+
+/**
+ * Tiến trình cuộn (0 → 1): bắt đầu khi mép trên timeline vượt ~82% chiều cao
+ * viewport và kết thúc khi đáy timeline lên trên ~40% viewport.
+ * Đường nối + vòng tròn lấp đầy theo đúng % cuộn thực tế (kiểu Apple),
+ * làm mượt bằng transition 450ms thay vì nhảy trạng thái.
+ */
+const timelineEl = ref<HTMLElement | null>(null)
+const pinEl = ref<HTMLElement | null>(null)
+const progress = ref(0)
+const hoverIndex = ref<number | null>(null)
+let frame = 0
+
+/**
+ * Desktop (≥1200px): section được GHIM ở giữa viewport (sticky) trong một
+ * vùng cuộn dài thêm ~1500px — người dùng cuộn tại chỗ để 6 bước lấp đầy
+ * dần; hết 6 bước sticky tự nhả và trang cuộn tiếp như bình thường.
+ * Mobile/tablet: không ghim, tiến trình theo vị trí timeline trong viewport.
+ */
+function updateProgress(): void {
+  const pin = pinEl.value
+  const timeline = timelineEl.value
+  if (!pin || !timeline) return
+  const viewportHeight = window.innerHeight || 1
+
+  if (window.innerWidth >= 1200) {
+    const rect = pin.getBoundingClientRect()
+    const scrollable = rect.height - viewportHeight
+    progress.value =
+      scrollable > 0 ? Math.min(1, Math.max(0, -rect.top / scrollable)) : 1
+    return
+  }
+
+  const rect = timeline.getBoundingClientRect()
+  const start = viewportHeight * 0.82
+  const end = viewportHeight * 0.4
+  const total = rect.height + start - end
+  progress.value = Math.min(1, Math.max(0, (start - rect.top) / total))
+}
+
+function requestUpdate(): void {
+  if (frame) return
+  frame = window.requestAnimationFrame(() => {
+    frame = 0
+    updateProgress()
+  })
+}
+
+/* Bước đang hiển thị mô tả: ưu tiên hover/tap, mặc định theo tiến trình cuộn */
+const activeIndex = computed(() => {
+  if (hoverIndex.value !== null) return hoverIndex.value
+  return Math.min(lastStepIndex, Math.floor(progress.value * lastStepIndex + 1e-4))
+})
+
+function isFilled(index: number): boolean {
+  return progress.value >= index / lastStepIndex - 1e-4
+}
+
+/* Độ lấp đầy của đoạn nối dọc giữa bước index và bước kế tiếp (mobile/tablet) */
+function segmentFill(index: number): number {
+  return Math.min(1, Math.max(0, progress.value * lastStepIndex - index))
+}
+
+onMounted(() => {
+  updateProgress()
+  window.addEventListener('scroll', requestUpdate, { passive: true })
+  window.addEventListener('resize', requestUpdate)
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', requestUpdate)
+  window.removeEventListener('resize', requestUpdate)
+  if (frame) window.cancelAnimationFrame(frame)
+})
 </script>
 
 <template>
   <section id="home-process" class="home-process section-padding" aria-labelledby="process-title">
-    <div class="container home-process-container">
+    <div ref="pinEl" class="home-process-pin">
+      <div class="home-process-sticky">
+        <div class="container home-process-container">
       <header class="home-process-heading">
         <div class="home-process-title-wrap">
           <p class="section-subtitle"><span>Quy trình kiểm soát</span></p>
           <h2 id="process-title" class="section-title">Từ ý tưởng đến bàn giao</h2>
         </div>
+        <p class="home-process-intro">
+          Mỗi giai đoạn có một mục tiêu, một đầu ra và một điểm kiểm soát rõ ràng. Nhờ đó, ý tưởng
+          thiết kế được bảo toàn khi chuyển sang sản xuất, lắp đặt và bàn giao.
+        </p>
       </header>
 
-      <div class="home-process-layout">
-        <figure class="home-process-media">
-          <img
-            src="/media/gallery/walnut-joinery-detail.webp"
-            alt="Chi tiết mối ghép gỗ được kiểm soát trong quá trình sản xuất nội thất"
-            width="960"
-            height="1200"
-            loading="lazy"
-            decoding="async"
-          />
-          <span class="home-process-media-number" aria-hidden="true">06</span>
-          <figcaption>
-            <span>Kỹ nghệ D&amp;L</span>
-            Kiểm soát từ bản vẽ đến bề mặt hoàn thiện.
-          </figcaption>
-        </figure>
+      <ol
+        ref="timelineEl"
+        class="home-process-timeline"
+        :style="{ '--process-progress': String(progress) }"
+      >
+        <!-- Nền đường nối luôn hiển thị mờ: người dùng biết trước có 6 bước -->
+        <span class="home-process-line" aria-hidden="true"></span>
+        <!-- Lớp lấp đầy theo tiến trình cuộn -->
+        <span class="home-process-line-fill" aria-hidden="true"></span>
 
-        <div class="home-process-body">
-          <p class="home-process-intro">
-            Mỗi giai đoạn có một mục tiêu, một đầu ra và một điểm kiểm soát rõ ràng. Nhờ đó, ý tưởng
-            thiết kế được bảo toàn khi chuyển sang sản xuất, lắp đặt và bàn giao.
+        <li
+          v-for="(step, index) in processSteps"
+          :key="step.number"
+          class="home-process-step"
+          :class="{ 'is-filled': isFilled(index), 'is-active': activeIndex === index }"
+          :style="{ '--seg-fill': String(segmentFill(index)) }"
+          tabindex="0"
+          @mouseenter="hoverIndex = index"
+          @mouseleave="hoverIndex = null"
+          @focusin="hoverIndex = index"
+          @focusout="hoverIndex = null"
+        >
+          <span class="home-process-step-icon" aria-hidden="true">
+            <component :is="step.icon" :size="26" :stroke-width="1.5" />
+          </span>
+          <div class="home-process-step-body">
+            <span class="home-process-step-num" aria-hidden="true">Bước {{ step.number }}</span>
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.description }}</p>
+          </div>
+        </li>
+      </ol>
+
+      <!-- Mô tả chi tiết hiển thị cố định dưới timeline, theo bước đang active
+           (hover/tap một mốc để xem mô tả của mốc đó) -->
+      <Transition name="process-fade" mode="out-in">
+        <div :key="activeIndex" class="home-process-summary" aria-live="polite">
+          <p class="home-process-summary-tag">
+            Bước {{ processSteps[activeIndex].number }} — {{ processSteps[activeIndex].title }}
           </p>
+          <p class="home-process-summary-text">{{ processSteps[activeIndex].description }}</p>
+        </div>
+      </Transition>
 
-          <ol class="home-process-list">
-            <li v-for="step in processSteps" :key="step.number">
-              <span class="home-process-number" aria-hidden="true">{{ step.number }}</span>
-              <div>
-                <h3>{{ step.title }}</h3>
-                <p>{{ step.description }}</p>
-              </div>
-            </li>
-          </ol>
-
-          <footer class="home-process-footer">
-            <p>Bạn đã có mặt bằng hoặc ý tưởng ban đầu?</p>
-            <div>
-              <RouterLink class="home-process-link" :to="{ name: 'home', hash: '#consultation' }">
-                Đặt lịch tư vấn <i class="ti-arrow-right" aria-hidden="true"></i>
-              </RouterLink>
-              <RouterLink class="home-process-link home-process-link--muted" to="/du-an">
-                Xem dự án đã hoàn thiện
-              </RouterLink>
-            </div>
-          </footer>
+      <footer class="home-process-footer">
+        <p>Bạn đã có mặt bằng hoặc ý tưởng ban đầu?</p>
+        <div>
+          <RouterLink class="home-process-link" :to="{ name: 'home', hash: '#consultation' }">
+            Đặt lịch tư vấn <i class="ti-arrow-right" aria-hidden="true"></i>
+          </RouterLink>
+          <RouterLink class="home-process-link home-process-link--muted" to="/du-an">
+            Xem dự án đã hoàn thiện
+          </RouterLink>
+        </div>
+      </footer>
         </div>
       </div>
     </div>
@@ -104,157 +221,195 @@ const processSteps = [
   background: #f1ede6;
 }
 
+/* Mở rộng nhẹ chiều rộng timeline (chuẩn xxl của Bootstrap) để 6 bước thở dễ hơn */
+.home-process-container {
+  max-width: 1320px;
+}
+
 .home-process-heading {
   padding-bottom: 41px;
   border-bottom: 1px solid #d1c8bb;
+  text-align: center;
 }
 
 .home-process-title-wrap .section-title {
   margin-bottom: 0;
 }
 
-.home-process-layout {
-  display: grid;
-  grid-template-columns: minmax(330px, 0.68fr) minmax(0, 1.32fr);
-  align-items: start;
-  gap: clamp(48px, 6vw, 84px);
-  margin-top: 56px;
-}
-
-.home-process-media {
-  position: sticky;
-  top: 118px;
-  min-height: 730px;
-  margin: 0;
-  overflow: hidden;
-  background: #24211d;
-}
-
-.home-process-media::after {
-  position: absolute;
-  inset: 35% 0 0;
-  background: linear-gradient(0deg, rgba(14, 12, 10, 0.86), transparent);
-  content: '';
-  pointer-events: none;
-}
-
-.home-process-media img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  min-height: 730px;
-  object-fit: cover;
-  filter: saturate(0.84) contrast(1.03);
-  transition:
-    filter 0.5s ease,
-    transform 0.5s ease;
-}
-
-.home-process-media:hover img,
-.home-process-media:focus-within img {
-  filter: brightness(75%);
-  transform: scale(1.09);
-  transition:
-    filter 1s ease,
-    transform 1s ease;
-}
-
-.home-process-media-number {
-  position: absolute;
-  z-index: 1;
-  top: 26px;
-  right: 29px;
-  color: rgba(255, 255, 255, 0.42);
-  font-family: 'Gilda Display', serif;
-  font-size: 78px;
-  line-height: 1;
-}
-
-.home-process-media figcaption {
-  position: absolute;
-  z-index: 1;
-  right: 36px;
-  bottom: 34px;
-  left: 36px;
-  color: rgba(255, 255, 255, 0.86);
-  font-family: 'Gilda Display', serif;
-  font-size: 24px;
-  line-height: 1.35;
-}
-
-.home-process-media figcaption span {
-  display: block;
-  margin-bottom: 9px;
-  color: #d5ae7c;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px;
-  letter-spacing: 0.19em;
-  text-transform: uppercase;
-}
-
 .home-process-intro {
-  max-width: 760px;
-  margin: 0 0 34px;
+  max-width: 730px;
+  margin: 24px auto 0;
   color: #59534c;
   font-size: 16px;
   line-height: 1.85;
 }
 
-.home-process-list {
+.home-process-timeline {
+  --process-progress: 0;
+  position: relative;
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 34px 22px;
   padding: 0;
-  margin: 0;
-  border-top: 1px solid #d1c8bb;
-  border-left: 1px solid #d1c8bb;
+  margin: 64px 0 0;
   list-style: none;
 }
 
-.home-process-list li {
-  display: grid;
-  min-height: 218px;
-  grid-template-columns: 52px minmax(0, 1fr);
-  gap: 18px;
-  padding: 34px 29px 31px;
-  border-right: 1px solid #d1c8bb;
-  border-bottom: 1px solid #d1c8bb;
+/* Nền đường nối mờ luôn hiển thị + lớp lấp đầy theo tiến trình cuộn */
+.home-process-line,
+.home-process-line-fill {
+  position: absolute;
+  top: 37px;
+  left: 8.3333%;
+  width: 83.3333%;
+  height: 2px;
+  border-radius: 2px;
 }
 
-.home-process-number {
-  color: rgba(158, 119, 70, 0.58);
-  font-family: 'Gilda Display', serif;
-  font-size: 32px;
-  line-height: 1;
+.home-process-line {
+  background: #d1c8bb;
+  opacity: 0.55;
 }
 
-.home-process-list h3 {
-  margin: 0 0 13px;
+.home-process-line-fill {
+  background: #aa8453;
+  transform: scaleX(var(--process-progress));
+  transform-origin: left center;
+  transition: transform 0.45s cubic-bezier(0.25, 0.1, 0.25, 1);
+}
+
+.home-process-step {
+  position: relative;
+  text-align: center;
+  outline: none;
+}
+
+.home-process-step-icon {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 76px;
+  height: 76px;
+  border: 1px solid #d9d0c2;
+  border-radius: 50%;
+  color: #aa8453;
+  background: #f8f5f0;
+  transition:
+    background-color 0.4s ease,
+    border-color 0.4s ease,
+    color 0.4s ease,
+    box-shadow 0.4s ease,
+    transform 0.4s ease;
+}
+
+/* Mốc đã đạt: vòng tròn đặc — mốc chưa tới: viền rỗng */
+.home-process-step.is-filled .home-process-step-icon {
+  border-color: #aa8453;
+  color: #fff;
+  background: #aa8453;
+}
+
+/* Mốc đang active (cuộn tới hoặc hover): quầng vàng nhạt */
+.home-process-step.is-active .home-process-step-icon,
+.home-process-step:focus-visible .home-process-step-icon {
+  box-shadow: 0 0 0 6px rgba(170, 132, 83, 0.16);
+}
+
+.home-process-step:hover .home-process-step-icon {
+  transform: translateY(-4px);
+}
+
+.home-process-step-body {
+  margin-top: 22px;
+}
+
+.home-process-step-num {
+  display: block;
+  margin-bottom: 10px;
+  color: rgba(158, 119, 70, 0.78);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+}
+
+.home-process-step h3 {
+  margin: 0 0 11px;
   color: #28241f;
   font-family: 'Gilda Display', serif;
-  font-size: 25px;
+  font-size: 22px;
   font-weight: 400;
-  line-height: 1.22;
+  line-height: 1.3;
+  transition: color 0.4s ease;
 }
 
-.home-process-list p {
+.home-process-step.is-active h3 {
+  color: #8a6a3f;
+}
+
+.home-process-step p {
   margin: 0;
   color: #5f5951;
   font-size: 14px;
   line-height: 1.72;
 }
 
+/* Desktop: mô tả chi tiết gom về panel cố định dưới timeline */
+.home-process-step p {
+  display: none;
+}
+
+.home-process-summary {
+  max-width: 720px;
+  min-height: 84px;
+  margin: 44px auto 0;
+  text-align: center;
+}
+
+.home-process-summary-tag {
+  margin: 0 0 8px;
+  color: #9e7746;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.home-process-summary-text {
+  margin: 0;
+  color: #59534c;
+  font-size: 16px;
+  line-height: 1.75;
+}
+
+.process-fade-enter-active,
+.process-fade-leave-active {
+  transition:
+    opacity 0.3s ease,
+    transform 0.3s ease;
+}
+
+.process-fade-enter-from,
+.process-fade-leave-to {
+  opacity: 0;
+  transform: translateY(8px);
+}
+
 .home-process-footer {
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: space-between;
-  gap: 34px;
+  gap: 22px;
   padding-top: 34px;
-  margin-top: 35px;
+  margin-top: 56px;
   border-top: 1px solid #d1c8bb;
+  text-align: center;
 }
 
 .home-process-footer > p {
-  /* max-width: 390px; */
   margin: 0;
   color: #2c2924;
   font-family: 'Gilda Display', serif;
@@ -303,45 +458,87 @@ const processSteps = [
   outline-offset: 5px;
 }
 
-@media (max-width: 1199.98px) {
-  .home-process-heading {
-    grid-template-columns: minmax(0, 1fr) minmax(220px, 0.38fr);
+/* Desktop (≥1200px): GHIM section giữa viewport trong vùng cuộn dài thêm
+   ~1500px — cuộn tại chỗ để 6 bước lấp đầy dần; hết tiến trình sticky tự
+   nhả và trang cuộn tiếp bình thường. Navbar là absolute nên top:0 là sạch. */
+@media (min-width: 1200px) {
+  .home-process.section-padding {
+    padding: 0;
   }
 
-  .home-process-layout {
-    grid-template-columns: minmax(300px, 0.62fr) minmax(0, 1.38fr);
-    gap: 42px;
+  .home-process-pin {
+    --pin-scroll: 1500px;
+    height: calc(100vh + var(--pin-scroll));
   }
 
-  .home-process-media,
-  .home-process-media img {
-    min-height: 690px;
-  }
-
-  .home-process-list li {
-    grid-template-columns: 42px minmax(0, 1fr);
-    padding: 29px 22px 27px;
+  .home-process-sticky {
+    position: sticky;
+    top: 0;
+    display: flex;
+    align-items: center;
+    min-height: 100vh;
+    padding: 48px 0;
   }
 }
 
-@media (max-width: 991.98px) {
-  .home-process-heading {
+/* Dưới 1200px: timeline dọc — nền nối mờ từng đoạn + đoạn gold lấp đầy theo cuộn */
+@media (max-width: 1199.98px) {
+  .home-process-timeline {
     grid-template-columns: 1fr;
+    gap: 30px;
+    margin-top: 48px;
   }
 
-  .home-process-layout {
-    grid-template-columns: 1fr;
+  .home-process-line,
+  .home-process-line-fill {
+    display: none;
   }
 
-  .home-process-media {
-    position: relative;
-    top: auto;
-    min-height: 0;
-    aspect-ratio: 16 / 9;
+  .home-process-step {
+    display: grid;
+    grid-template-columns: 76px minmax(0, 1fr);
+    gap: 22px;
+    text-align: left;
   }
 
-  .home-process-media img {
-    min-height: 0;
+  /* Nền mờ: người dùng biết trước hành trình 6 bước */
+  .home-process-step:not(:last-child)::after {
+    position: absolute;
+    top: 88px;
+    bottom: -34px;
+    left: 37px;
+    width: 2px;
+    background: #d1c8bb;
+    opacity: 0.55;
+    content: '';
+  }
+
+  /* Đoạn gold lấp đầy dần theo tiến trình cuộn */
+  .home-process-step:not(:last-child)::before {
+    position: absolute;
+    z-index: 1;
+    top: 88px;
+    bottom: -34px;
+    left: 37px;
+    width: 2px;
+    background: #aa8453;
+    transform: scaleY(var(--seg-fill, 0));
+    transform-origin: top center;
+    transition: transform 0.45s cubic-bezier(0.25, 0.1, 0.25, 1);
+    content: '';
+  }
+
+  .home-process-step-body {
+    margin-top: 4px;
+  }
+
+  /* Mobile/tablet: mô tả hiển thị ngay dưới từng mốc, ẩn panel gom */
+  .home-process-step p {
+    display: block;
+  }
+
+  .home-process-summary {
+    display: none;
   }
 }
 
@@ -354,36 +551,35 @@ const processSteps = [
     padding-bottom: 31px;
   }
 
-  .home-process-layout {
-    gap: 38px;
-    margin-top: 42px;
+  .home-process-timeline {
+    gap: 26px;
+    margin-top: 40px;
   }
 
-  .home-process-media {
-    aspect-ratio: 4 / 3;
+  .home-process-step {
+    grid-template-columns: 60px minmax(0, 1fr);
+    gap: 16px;
   }
 
-  .home-process-media-number {
-    top: 19px;
-    right: 21px;
-    font-size: 58px;
+  .home-process-step:not(:last-child)::after,
+  .home-process-step:not(:last-child)::before {
+    top: 72px;
+    bottom: -30px;
+    left: 29px;
   }
 
-  .home-process-media figcaption {
-    right: 24px;
-    bottom: 22px;
-    left: 24px;
-    font-size: 19px;
+  .home-process-step-icon {
+    width: 60px;
+    height: 60px;
   }
 
-  .home-process-list {
-    grid-template-columns: 1fr;
+  .home-process-step-icon svg {
+    width: 22px;
+    height: 22px;
   }
 
-  .home-process-list li {
-    min-height: 0;
-    grid-template-columns: 45px minmax(0, 1fr);
-    padding: 27px 20px 25px;
+  .home-process-step h3 {
+    font-size: 20px;
   }
 
   .home-process-footer,
@@ -398,8 +594,13 @@ const processSteps = [
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .home-process-media img,
-  .home-process-link {
+  .home-process-line-fill,
+  .home-process-step:not(:last-child)::before,
+  .home-process-step-icon,
+  .home-process-step h3,
+  .home-process-link,
+  .process-fade-enter-active,
+  .process-fade-leave-active {
     transition: none;
   }
 }
