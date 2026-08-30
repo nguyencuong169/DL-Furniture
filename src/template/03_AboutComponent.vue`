@@ -198,7 +198,7 @@ onBeforeUnmount(() => {
   flex-direction: column;
   align-items: center;
   margin-top: 4rem;
-  margin-bottom: 0; /* Xóa margin-bottom để không tạo khoảng trống thừa */
+  margin-bottom: 2rem;
 }
 
 .stats-container {
@@ -207,7 +207,6 @@ onBeforeUnmount(() => {
   flex-wrap: wrap;
   gap: 3rem;
   padding-top: 2rem;
-  padding-bottom: 0; /* Xóa padding bottom để sát hơn với component sau */
   max-width: 1140px;
   margin: 0 auto;
   width: 100%;
@@ -298,8 +297,7 @@ onBeforeUnmount(() => {
     justify-content: center;
     margin-bottom: 1.5rem;
   }
-  .stat-label,
-  .stat-value {
+  .stat-label, .stat-value {
     white-space: normal;
     text-align: center;
   }
