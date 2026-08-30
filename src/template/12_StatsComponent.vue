@@ -35,7 +35,7 @@ const stats = ref<StatItem[]>([
     icon: Ruler,
     value: getFallbackValue('area', 12000),
     suffix: '+',
-    label: 'M² nội thất hoàn thiện'
+    label: 'M² hoàn thiện'
   },
   {
     id: 'satisfaction',
@@ -155,30 +155,39 @@ onBeforeUnmount(() => {
 }
 
 .stats-container {
-  display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  gap: 1.5rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 240px);
+  justify-content: center;
+  align-items: center;
+  gap: clamp(1rem, 3vw, 3rem);
   padding: 2.5rem 0;
-  max-width: 1140px;
+  max-width: 1440px;
   margin: 0 auto;
   width: 100%;
 }
+
 .stat-item {
   display: flex;
   flex-direction: row;
   align-items: center;
   text-align: left;
   gap: 0.75rem;
-  min-width: 200px;
-  flex: 1 1 200px;
   padding: 0.5rem 1rem;
   transition: all 0.3s ease;
   border-radius: 12px;
+  width: 100%;
+  justify-content: center;
 }
+
+.stat-item:nth-child(even) {
+  transform: translateY(20px);
+}
+
 .stat-item:hover {
   background: #fbfaf8;
+  transform: translateY(0) scale(1.02);
 }
+
 .stat-icon-wrapper {
   width: 48px;
   height: 48px;
@@ -231,12 +240,14 @@ onBeforeUnmount(() => {
 
 @media (max-width: 991px) {
   .stats-container {
-    gap: 1rem;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 1.5rem;
     padding: 2rem 1rem;
   }
   .stat-item {
-    flex: 1 1 calc(50% - 1rem);
-    min-width: 180px;
+    flex: 1 1 calc(50% - 1.5rem);
+    min-width: 200px;
   }
 }
 
@@ -246,12 +257,13 @@ onBeforeUnmount(() => {
   }
   .stat-item {
     flex: 1 1 100%;
-    justify-content: flex-start;
+    justify-content: center;
     margin-bottom: 0.5rem;
   }
   .stat-label,
   .stat-value {
     white-space: normal;
+    text-align: center;
   }
   .stat-value {
     font-size: 1.4rem;

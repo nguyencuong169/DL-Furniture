@@ -35,7 +35,7 @@ const stats = ref<StatItem[]>([
     icon: Ruler,
     value: getFallbackValue('area', 12000),
     suffix: '+',
-    label: 'M² nội thất hoàn thiện'
+    label: 'M² hoàn thiện'
   },
   {
     id: 'satisfaction',
