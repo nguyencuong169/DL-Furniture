@@ -100,8 +100,8 @@ onBeforeUnmount(() => {
 <template>
   <main>
     <SliderComponent />
-    <AboutComponent />
     <StatsComponent />
+    <AboutComponent />
     <HomeCollectionComponent />
     <PricingComponent />
     <StatementComponent />

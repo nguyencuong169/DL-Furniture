@@ -1317,10 +1317,22 @@ hr {
     z-index: 9;
 }
 /* slider-fade owl-nav next and prev */
+/* bottom tính theo px (không phải %) để luôn nằm trên stats bar
+   vốn đè lên hero 120px ở desktop / 84px tablet / 64px mobile */
 .slider-fade .owl-nav {
     position: absolute;
-    bottom: 7%;
+    bottom: 176px;
     right: 12%;
+}
+@media (max-width: 991.98px) {
+    .slider-fade .owl-nav {
+        bottom: 140px;
+    }
+}
+@media (max-width: 575.98px) {
+    .slider-fade .owl-nav {
+        bottom: 120px;
+    }
 }
 .slider-fade .owl-prev {
     float: left;
