@@ -89,8 +89,7 @@ function updateProgress(): void {
   if (window.innerWidth >= 1200) {
     const rect = pin.getBoundingClientRect()
     const scrollable = rect.height - viewportHeight
-    progress.value =
-      scrollable > 0 ? Math.min(1, Math.max(0, -rect.top / scrollable)) : 1
+    progress.value = scrollable > 0 ? Math.min(1, Math.max(0, -rect.top / scrollable)) : 1
     return
   }
 
@@ -138,76 +137,80 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section id="home-process" class="home-process section-padding" aria-labelledby="process-title">
+  <section
+    id="home-process"
+    class="home-process section-padding bg-cream"
+    aria-labelledby="process-title"
+  >
     <div ref="pinEl" class="home-process-pin">
       <div class="home-process-sticky">
         <div class="container home-process-container">
-      <header class="home-process-heading">
-        <div class="home-process-title-wrap">
-          <p class="section-subtitle"><span>Quy trình kiểm soát</span></p>
-          <h2 id="process-title" class="section-title">Từ ý tưởng đến bàn giao</h2>
-        </div>
-        <p class="home-process-intro">
-          Mỗi giai đoạn có một mục tiêu, một đầu ra và một điểm kiểm soát rõ ràng. Nhờ đó, ý tưởng
-          thiết kế được bảo toàn khi chuyển sang sản xuất, lắp đặt và bàn giao.
-        </p>
-      </header>
+          <header class="home-process-heading">
+            <div class="home-process-title-wrap">
+              <p class="section-subtitle"><span>Quy trình kiểm soát</span></p>
+              <h2 id="process-title" class="section-title">Từ ý tưởng đến bàn giao</h2>
+            </div>
+            <p class="home-process-intro">
+              Mỗi giai đoạn có một mục tiêu, một đầu ra và một điểm kiểm soát rõ ràng. Nhờ đó, ý
+              tưởng thiết kế được bảo toàn khi chuyển sang sản xuất, lắp đặt và bàn giao.
+            </p>
+          </header>
 
-      <ol
-        ref="timelineEl"
-        class="home-process-timeline"
-        :style="{ '--process-progress': String(progress) }"
-      >
-        <!-- Nền đường nối luôn hiển thị mờ: người dùng biết trước có 6 bước -->
-        <span class="home-process-line" aria-hidden="true"></span>
-        <!-- Lớp lấp đầy theo tiến trình cuộn -->
-        <span class="home-process-line-fill" aria-hidden="true"></span>
+          <ol
+            ref="timelineEl"
+            class="home-process-timeline"
+            :style="{ '--process-progress': String(progress) }"
+          >
+            <!-- Nền đường nối luôn hiển thị mờ: người dùng biết trước có 6 bước -->
+            <span class="home-process-line" aria-hidden="true"></span>
+            <!-- Lớp lấp đầy theo tiến trình cuộn -->
+            <span class="home-process-line-fill" aria-hidden="true"></span>
 
-        <li
-          v-for="(step, index) in processSteps"
-          :key="step.number"
-          class="home-process-step"
-          :class="{ 'is-filled': isFilled(index), 'is-active': activeIndex === index }"
-          :style="{ '--seg-fill': String(segmentFill(index)) }"
-          tabindex="0"
-          @mouseenter="hoverIndex = index"
-          @mouseleave="hoverIndex = null"
-          @focusin="hoverIndex = index"
-          @focusout="hoverIndex = null"
-        >
-          <span class="home-process-step-icon" aria-hidden="true">
-            <component :is="step.icon" :size="26" :stroke-width="1.5" />
-          </span>
-          <div class="home-process-step-body">
-            <span class="home-process-step-num" aria-hidden="true">Bước {{ step.number }}</span>
-            <h3>{{ step.title }}</h3>
-            <p>{{ step.description }}</p>
-          </div>
-        </li>
-      </ol>
+            <li
+              v-for="(step, index) in processSteps"
+              :key="step.number"
+              class="home-process-step"
+              :class="{ 'is-filled': isFilled(index), 'is-active': activeIndex === index }"
+              :style="{ '--seg-fill': String(segmentFill(index)) }"
+              tabindex="0"
+              @mouseenter="hoverIndex = index"
+              @mouseleave="hoverIndex = null"
+              @focusin="hoverIndex = index"
+              @focusout="hoverIndex = null"
+            >
+              <span class="home-process-step-icon" aria-hidden="true">
+                <component :is="step.icon" :size="26" :stroke-width="1.5" />
+              </span>
+              <div class="home-process-step-body">
+                <span class="home-process-step-num" aria-hidden="true">Bước {{ step.number }}</span>
+                <h3>{{ step.title }}</h3>
+                <p>{{ step.description }}</p>
+              </div>
+            </li>
+          </ol>
 
-      <!-- Mô tả chi tiết hiển thị cố định dưới timeline, theo bước đang active
+          <!-- Mô tả chi tiết hiển thị cố định dưới timeline, theo bước đang active
            (hover/tap một mốc để xem mô tả của mốc đó) -->
-      <Transition name="process-fade" mode="out-in">
-        <div :key="activeIndex" class="home-process-summary" aria-live="polite">
-          <p class="home-process-summary-tag">
-            Bước {{ processSteps[activeIndex].number }} — {{ processSteps[activeIndex].title }}
-          </p>
-          <p class="home-process-summary-text">{{ processSteps[activeIndex].description }}</p>
-        </div>
-      </Transition>
+          <Transition name="process-fade" mode="out-in">
+            <div :key="activeIndex" class="home-process-summary" aria-live="polite">
+              <p class="home-process-summary-tag">
+                Bước {{ processSteps[activeIndex].number }} — {{ processSteps[activeIndex].title }}
+              </p>
+              <p class="home-process-summary-text">{{ processSteps[activeIndex].description }}</p>
+            </div>
+          </Transition>
 
-      <footer class="home-process-footer">
-        <p>Bạn đã có mặt bằng hoặc ý tưởng ban đầu?</p>
-        <div>
-          <RouterLink class="home-process-link" :to="{ name: 'home', hash: '#consultation' }">
-            Đặt lịch tư vấn <i class="ti-arrow-right" aria-hidden="true"></i>
-          </RouterLink>
-          <RouterLink class="home-process-link home-process-link--muted" to="/du-an">
-            Xem dự án đã hoàn thiện
-          </RouterLink>
-        </div>
-      </footer>
+          <footer class="home-process-footer">
+            <p>Bạn đã có mặt bằng hoặc ý tưởng ban đầu?</p>
+            <div>
+              <RouterLink class="home-process-link" :to="{ name: 'home', hash: '#consultation' }">
+                Đặt lịch tư vấn <i class="ti-arrow-right" aria-hidden="true"></i>
+              </RouterLink>
+              <RouterLink class="home-process-link home-process-link--muted" to="/du-an">
+                Xem dự án đã hoàn thiện
+              </RouterLink>
+            </div>
+          </footer>
         </div>
       </div>
     </div>
@@ -218,7 +221,7 @@ onBeforeUnmount(() => {
 .home-process {
   padding: 108px 0 110px;
   scroll-margin-top: 100px;
-  background: #f1ede6;
+  /* background: #f1ede6; */
 }
 
 /* Mở rộng nhẹ chiều rộng timeline (chuẩn xxl của Bootstrap) để 6 bước thở dễ hơn */

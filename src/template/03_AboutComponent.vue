@@ -261,7 +261,7 @@ onBeforeUnmount(() => {
 }
 .stat-value {
   font-family: 'Gilda Display', serif;
-  font-size: 1.8rem;
+  font-size: 2.75rem;
   font-weight: 400;
   color: #222;
   line-height: 1;
@@ -269,7 +269,7 @@ onBeforeUnmount(() => {
 }
 .stat-label {
   font-family: 'Barlow', sans-serif;
-  font-size: 0.75rem;
+  font-size: 0.8rem;
   font-weight: 500;
   color: #888;
   text-transform: uppercase;
