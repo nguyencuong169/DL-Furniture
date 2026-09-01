@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { Building2, HeartHandshake, Medal, Ruler, type LucideIcon } from 'lucide-vue-next'
+import { Medal, Ruler, Star, Users, type LucideIcon } from 'lucide-vue-next'
 import { FALLBACK_STATS, fetchStats, type StatId } from '../api/statsClient'
 
 interface StatItem {
@@ -25,7 +25,7 @@ const stats = ref<StatItem[]>([
   },
   {
     id: 'projects',
-    icon: Building2,
+    icon: Users,
     value: getFallbackValue('projects', 320),
     suffix: '+',
     label: 'Dự án thực hiện'
@@ -39,7 +39,7 @@ const stats = ref<StatItem[]>([
   },
   {
     id: 'satisfaction',
-    icon: HeartHandshake,
+    icon: Star,
     value: getFallbackValue('satisfaction', 98),
     suffix: '%',
     label: 'Khách hàng hài lòng'
@@ -133,8 +133,9 @@ onBeforeUnmount(() => {
 <template>
   <section class="about section-padding">
     <div class="container">
-      <div class="row">
-        <div class="col-md-6 mb-30 animate-box" data-animate-effect="fadeInUp">
+      <div class="row about-layout align-items-center">
+        <!-- Left: content -->
+        <div class="col-lg-4 col-md-12 mb-30 animate-box" data-animate-effect="fadeInUp">
           <span class="hero-line" aria-hidden="true"></span>
           <p class="section-subtitle"><span>D&L Furniture</span></p>
           <div class="section-title">Không gian được thiết kế từ cách bạn sống</div>
@@ -157,24 +158,28 @@ onBeforeUnmount(() => {
             </div>
           </div>
         </div>
-        <div class="col col-md-3 animate-box" data-animate-effect="fadeInUp">
-          <img src="@/assets/img/intros/intro3.jpg" alt="" />
-        </div>
-        <div class="col col-md-3 animate-box" data-animate-effect="fadeInUp">
-          <img src="@/assets/img/intros/intro4.jpg" alt="" class="mt-90 mb-30" />
-        </div>
-      </div>
 
-      <!-- Integrated Stats Section -->
-      <div class="stats-wrapper">
-        <div ref="barRef" class="stats-container">
-          <div v-for="(stat, index) in stats" :key="stat.id" class="stat-item">
-            <div class="stat-icon-wrapper">
-              <component :is="stat.icon" class="stat-icon" />
-            </div>
-            <div class="stat-content">
-              <span class="stat-value"> {{ displayCount(index) }}{{ stat.suffix }} </span>
-              <span class="stat-label">{{ stat.label }}</span>
+        <!-- Center: large image -->
+        <div class="col-lg-5 col-md-7 mb-30 animate-box" data-animate-effect="fadeInUp">
+          <div class="about-image">
+            <img
+              src="@/assets/img/intros/intro4.jpg"
+              alt="Không gian nội thất do D&L Furniture thiết kế và thi công"
+            />
+          </div>
+        </div>
+
+        <!-- Right: stats column -->
+        <div class="col-lg-3 col-md-5 mb-30 animate-box" data-animate-effect="fadeInUp">
+          <div ref="barRef" class="stats-container">
+            <div v-for="(stat, index) in stats" :key="stat.id" class="stat-item">
+              <div class="stat-icon-wrapper">
+                <component :is="stat.icon" class="stat-icon" :stroke-width="1.5" />
+              </div>
+              <div class="stat-content">
+                <span class="stat-value"> {{ displayCount(index) }}{{ stat.suffix }} </span>
+                <span class="stat-label">{{ stat.label }}</span>
+              </div>
             </div>
           </div>
         </div>
@@ -192,76 +197,69 @@ onBeforeUnmount(() => {
   background: linear-gradient(90deg, #aa8453, #d7b98a);
 }
 
-.stats-wrapper {
-  width: 100%;
+.about-layout {
+  --bs-gutter-x: 2.5rem;
+}
+
+.about-image {
+  height: 100%;
   display: flex;
-  flex-direction: column;
   align-items: center;
-  margin-top: 4rem;
-  margin-bottom: 0; /* Xóa margin-bottom để không tạo khoảng trống thừa */
+}
+
+.about-image img {
+  width: 100%;
+  height: 100%;
+  min-height: 320px;
+  max-height: 480px;
+  object-fit: cover;
+  border-radius: 4px;
 }
 
 .stats-container {
   display: flex;
-  justify-content: space-around;
-  flex-wrap: wrap;
-  gap: 3rem;
-  padding-top: 2rem;
-  padding-bottom: 0; /* Xóa padding bottom để sát hơn với component sau */
-  max-width: 1140px;
-  margin: 0 auto;
-  width: 100%;
+  flex-direction: column;
+  gap: 2rem;
 }
+
 .stat-item {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
-  text-align: center;
+  text-align: left;
   gap: 1rem;
-  min-width: 200px;
-  flex: 1 1 200px;
-  padding: 1rem;
   transition: all 0.3s ease;
-  border-radius: 12px;
 }
-.stat-item:hover {
-  background: #fbfaf8;
-}
+
 .stat-icon-wrapper {
-  width: 54px;
-  height: 54px;
-  background: #f8f5f0;
-  border-radius: 12px;
+  width: 52px;
+  height: 52px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  transition: all 0.3s ease;
-  border: 1px solid #ececec;
 }
 .stat-item:hover .stat-icon-wrapper {
-  background: #aa8453;
-  transform: rotate(-5deg) scale(1.1);
+  transform: scale(1.08);
 }
 .stat-icon {
-  width: 24px;
-  height: 24px;
+  width: 36px;
+  height: 36px;
   color: #aa8453;
   transition: all 0.3s ease;
 }
 .stat-item:hover .stat-icon {
-  color: #fff;
+  color: #8a6a3f;
 }
 .stat-content {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 0px;
+  gap: 4px;
   min-width: 0;
 }
 .stat-value {
   font-family: 'Gilda Display', serif;
-  font-size: 2.75rem;
+  font-size: 46px; /* bằng .section-title của header giới thiệu */
   font-weight: 400;
   color: #222;
   line-height: 1;
@@ -273,38 +271,54 @@ onBeforeUnmount(() => {
   font-weight: 500;
   color: #888;
   text-transform: uppercase;
-  letter-spacing: 1.5px;
-  line-height: 1.2;
+  letter-spacing: 1.2px;
+  line-height: 1.3;
   white-space: nowrap;
 }
 
 @media (max-width: 991px) {
-  .stats-container {
-    gap: 1.5rem;
-    padding: 2rem 0;
+  .about-layout {
+    --bs-gutter-x: 1.5rem;
   }
-  .stat-item {
-    flex: 1 1 calc(50% - 1.5rem);
-    min-width: 180px;
+
+  .about-image img {
+    min-height: 260px;
+    max-height: 380px;
+  }
+
+  .stats-container {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1.75rem;
+  }
+
+  .stat-icon {
+    width: 30px;
+    height: 30px;
+  }
+
+  .stat-icon-wrapper {
+    width: 44px;
+    height: 44px;
+  }
+
+  .stat-value {
+    font-size: 38px;
   }
 }
 
 @media (max-width: 575px) {
   .stats-container {
-    padding: 1.5rem 0;
-  }
-  .stat-item {
-    flex: 1 1 calc(50% - 1rem);
-    justify-content: center;
-    margin-bottom: 1.5rem;
+    grid-template-columns: 1fr;
+    gap: 1.25rem;
+    padding-top: 1.25rem;
   }
   .stat-label,
   .stat-value {
     white-space: normal;
-    text-align: center;
   }
   .stat-value {
-    font-size: 1.4rem;
+    font-size: 32px;
   }
 }
 </style>

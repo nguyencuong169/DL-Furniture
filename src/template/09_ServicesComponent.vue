@@ -333,8 +333,8 @@ onBeforeUnmount(() => {
   margin-bottom: 10px;
   color: rgba(158, 119, 70, 0.78);
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.22em;
+  font-size: 13px;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
@@ -355,7 +355,7 @@ onBeforeUnmount(() => {
 .home-process-step p {
   margin: 0;
   color: #5f5951;
-  font-size: 14px;
+  font-size: 15px;
   line-height: 1.72;
 }
 
@@ -375,9 +375,9 @@ onBeforeUnmount(() => {
   margin: 0 0 8px;
   color: #9e7746;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.2em;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
 }
 
@@ -434,9 +434,9 @@ onBeforeUnmount(() => {
   border-bottom: 1px solid rgba(137, 103, 61, 0.48);
   color: #89673d;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 500;
-  letter-spacing: 0.14em;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   transition:
     gap 0.3s ease,
