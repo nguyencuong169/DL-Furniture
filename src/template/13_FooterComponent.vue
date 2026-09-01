@@ -1,5 +1,14 @@
 <script setup lang="ts">
+import { computed, onMounted, ref } from 'vue'
+import { FALLBACK_MENU, fetchMenus, type MenuResponse } from '../api/menuClient'
+
 const currentYear = new Date().getFullYear()
+const menu = ref<MenuResponse>(FALLBACK_MENU)
+const footerLinks = computed(() => menu.value.footer)
+
+onMounted(async () => {
+  menu.value = await fetchMenus()
+})
 </script>
 
 <template>
@@ -28,12 +37,9 @@ const currentYear = new Date().getFullYear()
             <div class="footer-column footer-explore clearfix">
               <h3 class="footer-title">Danh mục</h3>
               <ul class="footer-explore-list list-unstyled">
-                <li><a href="/">Trang chủ</a></li>
-                <li><a href="/gioi-thieu">Giới thiệu</a></li>
-                <li><a href="/san-pham">Sản phẩm</a></li>
-                <li><a href="/du-an">Dự án</a></li>
-                <li><a href="/lien-he">Liên hệ</a></li>
-                <li><a href="/lien-he#faq">Câu hỏi thường gặp</a></li>
+                <li v-for="link in footerLinks" :key="link.url">
+                  <RouterLink :to="link.url">{{ link.label }}</RouterLink>
+                </li>
               </ul>
             </div>
           </div>
@@ -79,4 +85,9 @@ const currentYear = new Date().getFullYear()
   </footer>
 </template>
 
-<style scoped></style>
+<style scoped>
+.footer-explore-list .router-link-active,
+.footer-explore-list .router-link-exact-active {
+  color: #aa8453;
+}
+</style>

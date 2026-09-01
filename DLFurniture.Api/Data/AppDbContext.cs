@@ -18,6 +18,7 @@ public class AppDbContext : DbContext
     public DbSet<Testimonial> Testimonials { get; set; } = null!;
     public DbSet<TeamMember> TeamMembers { get; set; } = null!;
     public DbSet<ServiceItem> Services { get; set; } = null!;
+    public DbSet<Menu> Menus { get; set; } = null!;
     public DbSet<Category> Categories { get; set; } = null!;
     public DbSet<Product> Products { get; set; } = null!;
     public DbSet<ProductImage> ProductImages { get; set; } = null!;
@@ -433,6 +434,80 @@ public class AppDbContext : DbContext
                     .Property(s => s.UpdatedDate)
                     .HasColumnName("updated_date")
                     .HasColumnType("datetimeoffset");
+
+        // Configure Menus table
+        modelBuilder.Entity<Menu>()
+            .ToTable("menus")
+            .HasKey(m => m.Id);
+
+        modelBuilder.Entity<Menu>()
+            .Property(m => m.Id)
+            .HasColumnName("id");
+
+        modelBuilder.Entity<Menu>()
+            .Property(m => m.ParentId)
+            .HasColumnName("parent_id");
+
+        modelBuilder.Entity<Menu>()
+            .Property(m => m.Label)
+            .HasColumnName("label")
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<Menu>()
+            .Property(m => m.Url)
+            .HasColumnName("url")
+            .HasMaxLength(1024);
+
+        modelBuilder.Entity<Menu>()
+            .Property(m => m.Location)
+            .HasColumnName("location")
+            .HasMaxLength(20)
+            .HasDefaultValue("primary");
+
+        modelBuilder.Entity<Menu>()
+            .Property(m => m.SortOrder)
+            .HasColumnName("sort_order")
+            .HasDefaultValue(0);
+
+        modelBuilder.Entity<Menu>()
+            .Property(m => m.IsConsultation)
+            .HasColumnName("is_consultation")
+            .HasDefaultValue(false);
+
+        modelBuilder.Entity<Menu>()
+            .Property(m => m.IsActive)
+            .HasColumnName("is_active")
+            .HasDefaultValue(true);
+
+        modelBuilder.Entity<Menu>()
+            .Property(m => m.Hidden)
+            .HasColumnName("hidden")
+            .HasDefaultValue(false);
+
+        modelBuilder.Entity<Menu>()
+            .Property(m => m.DelFlag)
+            .HasColumnName("del_flag")
+            .HasDefaultValue(false);
+
+        modelBuilder.Entity<Menu>()
+            .Property(m => m.CreatedUser)
+            .HasColumnName("created_user")
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<Menu>()
+            .Property(m => m.CreatedDate)
+            .HasColumnName("created_date")
+            .HasColumnType("datetimeoffset");
+
+        modelBuilder.Entity<Menu>()
+            .Property(m => m.UpdatedUser)
+            .HasColumnName("updated_user")
+            .HasMaxLength(255);
+
+        modelBuilder.Entity<Menu>()
+            .Property(m => m.UpdatedDate)
+            .HasColumnName("updated_date")
+            .HasColumnType("datetimeoffset");
 
         // Configure Categories table
         modelBuilder.Entity<Category>(entity =>

@@ -26,7 +26,8 @@ sqls/
 │   ├── 15_clients.sql
 │   ├── 16_sliders.sql
 │   └── 17_site_settings.sql
-├── 02_DML/                      # DML/seed riêng cho từng bảng (18 file)
+│   └── 18_menus.sql
+├── 02_DML/                      # DML/seed riêng cho từng bảng (19 file)
 │   └── (cùng tên với 01_DDL)
 └── 99_Master_Build.sql          # Build toàn bộ từ đầu (sqlcmd :r)
 ```

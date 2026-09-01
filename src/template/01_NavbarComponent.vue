@@ -1,13 +1,46 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { computed, ref, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
+import {
+  FALLBACK_MENU,
+  fetchMenus,
+  type MenuLink,
+  type MenuResponse,
+} from '../api/menuClient'
 
 const route = useRoute()
-const currentRouteName = computed(() => route.name)
 const navbarToggler = ref<HTMLButtonElement | null>(null)
 const navbarCollapse = ref<HTMLElement | null>(null)
 const isProductMenuOpen = ref(false)
-const activeProductSubmenu = ref<'living' | 'bedroom' | 'kitchen' | null>(null)
+const activeProductSubmenu = ref<number | null>(null)
+
+const menu = ref<MenuResponse>(FALLBACK_MENU)
+const primaryMenu = computed(() => menu.value.primary)
+const consultationLink = computed(() => menu.value.consultation)
+
+onMounted(async () => {
+  menu.value = await fetchMenus()
+})
+
+/**
+ * Kiểm tra 1 đường dẫn có đang active hay không —
+ * phủ cả trang chi tiết/con (vd: /tin-tuc/:id sáng menu Tin tức,
+ * /san-pham/detail/:id sáng menu Sản phẩm).
+ */
+const isPathActive = (path: string): boolean => {
+  const normalized = path.replace(/\/+$/, '') || '/'
+  if (normalized === '/') return route.path === '/'
+  return route.path === normalized || route.path.startsWith(normalized + '/')
+}
+
+/**
+ * Menu item active khi chính nó hoặc 1 trong các mục con active
+ * (giữ trạng thái sáng cho cả nhóm dropdown lẫn submenu).
+ */
+const isItemActive = (item: MenuLink): boolean => {
+  if (isPathActive(item.url)) return true
+  return item.children?.some((child) => isItemActive(child)) ?? false
+}
 
 const closeMobileMenu = () => {
   isProductMenuOpen.value = false
@@ -25,10 +58,7 @@ const toggleProductMenu = (event: MouseEvent) => {
   if (!isProductMenuOpen.value) activeProductSubmenu.value = null
 }
 
-const toggleProductSubmenu = (
-  event: MouseEvent,
-  submenu: 'living' | 'bedroom' | 'kitchen'
-) => {
+const toggleProductSubmenu = (event: MouseEvent, submenu: number) => {
   if (!isMobileNavigation()) return
   event.preventDefault()
   activeProductSubmenu.value = activeProductSubmenu.value === submenu ? null : submenu
@@ -74,158 +104,65 @@ watch(
       <!-- Menu -->
       <div id="navbar" ref="navbarCollapse" class="collapse navbar-collapse">
         <ul class="navbar-nav ms-auto" @click="handleNavbarClick">
-          <li class="nav-item">
+          <li
+            v-for="item in primaryMenu"
+            :key="item.url"
+            class="nav-item"
+            :class="{ dropdown: item.children && item.children.length > 0 }"
+          >
             <RouterLink
-              :class="currentRouteName == 'home' || currentRouteName == '' ? 'active' : ''"
+              v-if="!item.children || item.children.length === 0"
               class="nav-link"
-              to="/"
-              >Trang chủ</RouterLink
+              :to="item.url"
+              :class="isItemActive(item) ? 'active' : ''"
+            >{{ item.label }}</RouterLink
             >
-          </li>
-          <li class="nav-item">
-            <RouterLink
-              class="nav-link"
-              to="/gioi-thieu"
-              :class="
-                currentRouteName == 'about' || route.path.startsWith('/about') ? 'active' : ''
-              "
-              >Giới thiệu</RouterLink
-            >
-          </li>
-          <li class="nav-item dropdown">
-            <a
-              class="nav-link dropdown-toggle"
-              href="/san-pham"
-              role="button"
-              :aria-expanded="isProductMenuOpen"
-              :class="
-                currentRouteName == 'product' || route.path.startsWith('/san-pham') ? 'active' : ''
-              "
-              @click="toggleProductMenu"
-              >Sản phẩm <i class="ti-angle-down"></i
-            ></a>
-            <ul class="dropdown-menu" :class="{ show: isProductMenuOpen }">
-              <li class="dropdown-submenu dropdown">
-                <a
-                  class="dropdown-item dropdown-toggle"
-                  :class="{
-                    active: route.path.startsWith('/san-pham/phong-khach'),
-                    show: activeProductSubmenu === 'living'
-                  }"
-                  :aria-expanded="activeProductSubmenu === 'living'"
-                  href="/san-pham/phong-khach"
-                  @click="toggleProductSubmenu($event, 'living')"
-                  ><span>Phòng khách <i class="ti-angle-right"></i></span
-                ></a>
-                <ul class="dropdown-menu" :class="{ show: activeProductSubmenu === 'living' }">
-                  <li>
-                    <RouterLink to="/san-pham/phong-khach/sofa" class="dropdown-item"
-                      ><span>Sofa gỗ</span></RouterLink
-                    >
-                  </li>
-                  <li>
-                    <RouterLink to="/san-pham/phong-khach/ban-tra" class="dropdown-item"
-                      ><span>Bàn trà</span></RouterLink
-                    >
-                  </li>
-                  <li>
-                    <RouterLink to="/san-pham/phong-khach/ke-ti-vi" class="dropdown-item"
-                      ><span>Kệ ti vi</span></RouterLink
-                    >
-                  </li>
-                </ul>
-              </li>
-              <li class="dropdown-submenu dropdown">
-                <a
-                  class="dropdown-item dropdown-toggle"
-                  :class="{
-                    active: route.path.startsWith('/san-pham/phong-ngu'),
-                    show: activeProductSubmenu === 'bedroom'
-                  }"
-                  :aria-expanded="activeProductSubmenu === 'bedroom'"
-                  href="/san-pham/phong-ngu"
-                  @click="toggleProductSubmenu($event, 'bedroom')"
-                  ><span>Phòng ngủ <i class="ti-angle-right"></i></span
-                ></a>
-                <ul class="dropdown-menu" :class="{ show: activeProductSubmenu === 'bedroom' }">
-                  <li>
-                    <RouterLink to="/san-pham/phong-ngu/giuong-ngu" class="dropdown-item"
-                      ><span>Giường ngủ</span></RouterLink
-                    >
-                  </li>
-                  <li>
-                    <RouterLink to="/san-pham/phong-ngu/tu-quan-ao" class="dropdown-item"
-                      ><span>Tủ quần áo</span></RouterLink
-                    >
-                  </li>
-                  <li>
-                    <RouterLink to="/san-pham/phong-ngu/ke-trang-diem" class="dropdown-item"
-                      ><span>Kệ trang điểm</span></RouterLink
-                    >
-                  </li>
-                </ul>
-              </li>
-              <li class="dropdown-submenu dropdown">
-                <a
-                  class="dropdown-item dropdown-toggle"
-                  :class="{
-                    active: route.path.startsWith('/san-pham/phong-bep'),
-                    show: activeProductSubmenu === 'kitchen'
-                  }"
-                  :aria-expanded="activeProductSubmenu === 'kitchen'"
-                  href="/san-pham/phong-bep"
-                  @click="toggleProductSubmenu($event, 'kitchen')"
-                  ><span>Phòng bếp <i class="ti-angle-right"></i></span
-                ></a>
-                <ul class="dropdown-menu" :class="{ show: activeProductSubmenu === 'kitchen' }">
-                  <li>
-                    <RouterLink to="/san-pham/phong-bep/ban-an" class="dropdown-item"
-                      ><span>Bàn ăn</span></RouterLink
-                    >
-                  </li>
-                  <li>
-                    <RouterLink to="/san-pham/phong-bep/tu-bep" class="dropdown-item"
-                      ><span>Tủ bếp</span></RouterLink
-                    >
-                  </li>
-                </ul>
-              </li>
-            </ul>
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" :class="currentRouteName == 'project' ? 'active' : ''" to="/du-an"
-              >Dự án</RouterLink
-            >
-          </li>
-          <li class="nav-item">
-            <RouterLink
-              class="nav-link"
-              :class="currentRouteName == 'gallery' ? 'active' : ''"
-              to="/thu-vien"
-              >Thư viện</RouterLink
-            >
-          </li>
-          <li class="nav-item">
-            <RouterLink class="nav-link" to="/tin-tuc" :class="currentRouteName == 'news' ? 'active' : ''"
-              >Tin tức</RouterLink
-            >
-          </li>
-          <li class="nav-item">
-            <RouterLink
-              class="nav-link"
-              :class="currentRouteName == 'contacts' ? 'active' : ''"
-              to="/lien-he"
-              >Liên hệ</RouterLink
-            >
+            <template v-else>
+              <a
+                class="nav-link dropdown-toggle"
+                :href="item.url"
+                role="button"
+                :aria-expanded="isProductMenuOpen"
+                :class="isItemActive(item) ? 'active' : ''"
+                @click="toggleProductMenu"
+              >{{ item.label }} <i class="ti-angle-down"></i
+              ></a>
+              <ul class="dropdown-menu" :class="{ show: isProductMenuOpen }">
+                <li
+                  v-for="(group, groupIndex) in item.children"
+                  :key="group.url"
+                  class="dropdown-submenu dropdown"
+                >
+                  <a
+                    class="dropdown-item dropdown-toggle"
+                    :class="{
+                      active: isItemActive(group),
+                      show: activeProductSubmenu === groupIndex,
+                    }"
+                    :aria-expanded="activeProductSubmenu === groupIndex"
+                    :href="group.url"
+                    @click="toggleProductSubmenu($event, groupIndex)"
+                  ><span>{{ group.label }} <i class="ti-angle-right"></i></span
+                  ></a>
+                  <ul class="dropdown-menu" :class="{ show: activeProductSubmenu === groupIndex }">
+                    <li v-for="child in group.children || []" :key="child.url">
+                      <RouterLink :to="child.url" class="dropdown-item"
+                        ><span>{{ child.label }}</span></RouterLink
+                      >
+                    </li>
+                  </ul>
+                </li>
+              </ul>
+            </template>
           </li>
           <li class="nav-item navbar-consultation-item">
             <RouterLink
               class="navbar-consultation"
-              :to="{ name: 'home', hash: '#consultation' }"
+              :to="consultationLink.url"
               active-class="navbar-consultation--active"
               exact-active-class="navbar-consultation--active"
             >
-              Đặt lịch tư vấn
+              {{ consultationLink.label }}
             </RouterLink>
           </li>
         </ul>

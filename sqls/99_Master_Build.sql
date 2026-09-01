@@ -34,6 +34,7 @@ GO
 :r 01_DDL/15_clients.sql
 :r 01_DDL/16_sliders.sql
 :r 01_DDL/17_site_settings.sql
+:r 01_DDL/18_menus.sql
 
 -- 2. DML (seed theo thứ tự phụ thuộc)
 :r 02_DML/00_categories.sql
@@ -54,6 +55,7 @@ GO
 :r 02_DML/15_clients.sql
 :r 02_DML/16_sliders.sql
 :r 02_DML/17_site_settings.sql
+:r 02_DML/18_menus.sql
 
 PRINT '============================================';
 PRINT 'MASTER BUILD COMPLETED';
