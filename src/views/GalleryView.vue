@@ -849,7 +849,7 @@ onBeforeUnmount(() => {
   margin-bottom: 5px;
   color: #d8b98d;
   font-family: 'Barlow Condensed', sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   letter-spacing: 2.4px;
   text-transform: uppercase;
 }

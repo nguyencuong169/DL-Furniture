@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
-
-const state = reactive({
-  displayDetail: 'false'
-})
+import { featuredProjects } from '../config/featuredProjects'
 </script>
 
 <template>
@@ -24,157 +20,49 @@ const state = reactive({
         </div>
       </div>
     </div>
+
     <!-- Projects -->
     <section class="section-padding">
       <div class="container">
         <div class="row">
           <div class="col-md-12">
-            <div id="project-1" class="rooms2 mb-90 animate-box" data-animate-effect="fadeInUp">
-              <figure><img src="../assets/img/slider/4.jpg" alt="" class="img-fluid" /></figure>
+            <div
+              v-for="(project, index) in featuredProjects"
+              :key="project.id"
+              :id="`project-${project.id}`"
+              class="rooms2 animate-box"
+              :class="{ left: index % 2 === 1, 'mb-90': index < featuredProjects.length - 1 }"
+              data-animate-effect="fadeInUp"
+            >
+              <figure>
+                <img :src="project.image" :alt="project.alt" class="img-fluid" loading="lazy" />
+              </figure>
               <div class="caption">
-                <h3>Anh Tuấn <span>/ Thủ Thiêm</span></h3>
-                <h4><a href="room-details.html">Thiết kế nội thất Saroma Villa</a></h4>
-                <p>Nội thất Villa - Biệt Thự</p>
-                <div class="row room-facilities" :v-show="state.displayDetail">
-                  <div class="col-md-4">
-                    <ul>
-                      <li><i class="flaticon-group"></i> 1-2 Persons</li>
-                    </ul>
-                  </div>
-                  <div class="col-md-4">
-                    <ul>
-                      <li><i class="flaticon-bed"></i> Twin Bed</li>
-                    </ul>
-                  </div>
-                  <div class="col-md-4">
-                    <ul>
-                      <li><i class="flaticon-clock-1"></i> 200 sqft room</li>
-                    </ul>
-                  </div>
-                </div>
-                <hr class="border-2" />
-                <div class="info-wrapper">
-                  <div class="more">
-                    <a href="room-details.html" class="link-btn" tabindex="0"
-                      >Chi tiết <i class="ti-arrow-right"></i
-                    ></a>
-                  </div>
-                  <div class="butn-dark">
-                    <a href="#" data-scroll-nav="1"><span>Book Now</span></a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div id="project-2" class="rooms2 mb-90 left animate-box" data-animate-effect="fadeInUp">
-              <figure><img src="../assets/img/slider/3.jpg" alt="" class="img-fluid" /></figure>
-              <div class="caption">
-                <h3>Anh Cường <span>/ Quận 9</span></h3>
+                <h3>{{ project.client }} <span>/ {{ project.location }}</span></h3>
                 <h4>
-                  <a href="room-details.html">Thiết kế nội thất biệt thự Vinhomes Grand Park</a>
+                  <RouterLink :to="{ name: 'project' }">{{ project.title }}</RouterLink>
                 </h4>
-                <p>Nội thất Villa - Biệt Thự</p>
-                <div class="row room-facilities" :v-show="state.displayDetail">
-                  <div class="col-md-4">
+                <p>{{ project.type }}</p>
+                <div class="row room-facilities">
+                  <div v-for="spec in project.specs" :key="spec.label" class="col-md-4">
                     <ul>
-                      <li><i class="flaticon-group"></i> 1-2 Persons</li>
-                    </ul>
-                  </div>
-                  <div class="col-md-4">
-                    <ul>
-                      <li><i class="flaticon-bed"></i> Twin Bed</li>
-                    </ul>
-                  </div>
-                  <div class="col-md-4">
-                    <ul>
-                      <li><i class="flaticon-clock-1"></i> 200 sqft Room</li>
+                      <li>
+                        <component :is="spec.icon" aria-hidden="true" /> {{ spec.label }}
+                      </li>
                     </ul>
                   </div>
                 </div>
                 <hr class="border-2" />
                 <div class="info-wrapper">
                   <div class="more">
-                    <a href="room-details.html" class="link-btn" tabindex="0"
-                      >Chi tiết <i class="ti-arrow-right"></i
-                    ></a>
+                    <RouterLink :to="{ name: 'project' }" class="link-btn" tabindex="0">
+                      Chi tiết <i class="ti-arrow-right" aria-hidden="true"></i>
+                    </RouterLink>
                   </div>
                   <div class="butn-dark">
-                    <a href="#" data-scroll-nav="1"><span>Book Now</span></a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div id="project-3" class="rooms2 mb-90 animate-box" data-animate-effect="fadeInUp">
-              <figure><img src="../assets/img/slider/3.jpg" alt="" class="img-fluid" /></figure>
-              <div class="caption">
-                <h3>Chị Hằng <span>/ Vĩnh Yên</span></h3>
-                <h4><a href="room-details.html">Thiết kế nội thất biệt thự KĐT Vĩnh Yên</a></h4>
-                <p>Nội thất Villa - Biệt Thự</p>
-                <div class="row room-facilities" :v-show="state.displayDetail">
-                  <div class="col-md-4">
-                    <ul>
-                      <li><i class="flaticon-group"></i> 2-3 Persons</li>
-                    </ul>
-                  </div>
-                  <div class="col-md-4">
-                    <ul>
-                      <li><i class="flaticon-bed"></i> Twin Bed</li>
-                    </ul>
-                  </div>
-                  <div class="col-md-4">
-                    <ul>
-                      <li><i class="flaticon-clock-1"></i> 200 sqft room</li>
-                    </ul>
-                  </div>
-                </div>
-                <hr class="border-2" />
-                <div class="info-wrapper">
-                  <div class="more">
-                    <a href="room-details.html" class="link-btn" tabindex="0"
-                      >Chi tiết <i class="ti-arrow-right"></i
-                    ></a>
-                  </div>
-                  <div class="butn-dark">
-                    <a href="#" data-scroll-nav="1"><span>Book Now</span></a>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div id="project-4" class="rooms2 left animate-box" data-animate-effect="fadeInUp">
-              <figure><img src="../assets/img/slider/2.jpg" alt="" class="img-fluid" /></figure>
-              <div class="caption">
-                <h3>Chị Nguyệt <span>/ Liễu Giai</span></h3>
-                <h4>
-                  <a href="room-details.html"
-                    >Thiết kế nội thất căn hộ chung cư Vinhomes Metropolis</a
-                  >
-                </h4>
-                <p>Nội thất Căn hộ chung cư</p>
-                <div class="row room-facilities" :v-show="state.displayDetail">
-                  <div class="col-md-4">
-                    <ul>
-                      <li><i class="flaticon-group"></i> 2-4 Persons</li>
-                    </ul>
-                  </div>
-                  <div class="col-md-4">
-                    <ul>
-                      <li><i class="flaticon-bed"></i> Twin Bed</li>
-                    </ul>
-                  </div>
-                  <div class="col-md-4">
-                    <ul>
-                      <li><i class="flaticon-clock-1"></i> 200 sqft Room</li>
-                    </ul>
-                  </div>
-                </div>
-                <hr class="border-2" />
-                <div class="info-wrapper">
-                  <div class="more">
-                    <a href="room-details.html" class="link-btn" tabindex="0"
-                      >Chi tiết <i class="ti-arrow-right"></i
-                    ></a>
-                  </div>
-                  <div class="butn-dark">
-                    <a href="#" data-scroll-nav="1"><span>Book Now</span></a>
+                    <RouterLink :to="{ name: 'home', hash: '#consultation' }">
+                      <span>Đặt lịch tư vấn</span>
+                    </RouterLink>
                   </div>
                 </div>
               </div>
@@ -187,6 +75,12 @@ const state = reactive({
 </template>
 
 <style scoped>
+/* Container về chuẩn 1140px của Cappa để tỷ lệ card (figure 66.67% + ảnh 4:3)
+   cân đối đúng như theme gốc */
+section .container {
+  max-width: 1140px;
+}
+
 .rooms2[id] {
   scroll-margin-top: 115px;
 }
@@ -194,5 +88,66 @@ const state = reactive({
 .rooms2[id]:target {
   outline: 1px solid rgba(170, 132, 83, 0.55);
   outline-offset: 12px;
+}
+
+/* Ảnh tỉ lệ 8:5 (đúng ảnh gốc Cappa 1920x1200) — đồng bộ với homepage */
+.rooms2 > figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 8 / 5;
+  object-fit: cover;
+}
+
+/* Box details khóa chiều cao 390px như Cappa, nội dung căn giữa theo chiều dọc */
+.rooms2 .caption {
+  height: 390px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 28px 4%;
+}
+
+@media (max-width: 991px) {
+  .rooms2 .caption {
+    height: auto;
+  }
+}
+
+.rooms2 .caption p {
+  margin-bottom: 10px;
+}
+
+/* Facilities chuẩn Cappa: 3 cột đều nhau */
+.room-facilities {
+  display: flex;
+  align-items: flex-start;
+  margin: 0 0 5px;
+}
+
+.room-facilities .col-md-4 {
+  flex: 1 1 0;
+  width: auto;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.room-facilities ul {
+  margin: 0;
+}
+
+.room-facilities ul li {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.room-facilities ul li svg {
+  width: 16px;
+  height: 16px;
+  margin-right: 7px;
+  color: #aa8453;
+  flex-shrink: 0;
 }
 </style>

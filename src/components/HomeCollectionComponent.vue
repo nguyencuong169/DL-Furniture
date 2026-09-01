@@ -32,7 +32,7 @@ const setActiveCategory = (index: number) => {
     <div class="container home-collection-heading-wrap">
       <div class="home-collection-heading">
         <div class="home-collection-title-wrap">
-          <p class="section-subtitle"><span>D&amp;L Furniture</span></p>
+          <p class="section-subtitle"><span>Bộ sưu tập</span></p>
           <h2 id="home-collection-title" class="section-title">Khám phá theo không gian</h2>
         </div>
       </div>
@@ -114,7 +114,9 @@ const setActiveCategory = (index: number) => {
 <style scoped>
 .home-collection {
   padding: 104px 0 24px;
-  background: #f1ede6;
+  /* Chuẩn hóa về cream brand duy nhất #f8f5f0 (đồng bộ .bg-cream) —
+     trước đây #f1ede6 tạo hai tông kem lệch nhau trên cùng một trang */
+  background: #f8f5f0;
   overflow: hidden;
 }
 

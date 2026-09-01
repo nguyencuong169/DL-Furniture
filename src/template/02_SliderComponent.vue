@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, reactive } from 'vue'
 import { destroyOwlCarousel, initOwlCarousel } from '../utils/carousel'
-import slider1 from '../assets/img/slider/slider_4.jpg'
+import slider1 from '../assets/img/slider/image.png'
 import slider2 from '../assets/img/slider/slider_1.png'
 import slider3 from '../assets/img/slider/artisan-walnut-chair.webp'
 
@@ -69,17 +69,14 @@ onBeforeUnmount(() => {
             <div class="row">
               <div class="col-md-12">
                 <span class="hero-line" aria-hidden="true"></span>
-                <h4>Trải nghiệm sống đích thực</h4>
+                <h4>Nội thất gỗ óc chó cao cấp</h4>
                 <h1 id="home-hero-title">
-                  Không gian <br />
-                  tiện nghi đẳng cấp
+                  Vẻ đẹp trường tồn <br />
+                  từ <em class="hero-accent">gỗ óc chó</em> thật
                 </h1>
                 <div class="butn-light mt-30 mb-30">
-                  <RouterLink
-                    :to="{ name: 'home', hash: '#featured-projects' }"
-                    data-scroll-nav="1"
-                  >
-                    <span>Xem dự án thực tế</span>
+                  <RouterLink :to="{ name: 'home', hash: '#consultation' }">
+                    <span>Đặt lịch tư vấn</span>
                   </RouterLink>
                 </div>
               </div>
@@ -99,14 +96,11 @@ onBeforeUnmount(() => {
                 <span class="hero-line" aria-hidden="true"></span>
                 <h4>Thiết kế &amp; thi công đồng bộ</h4>
                 <h1>
-                  Từ ý tưởng đến <br />
-                  không gian hoàn thiện
+                  Từ bản vẽ thiết kế <br />
+                  đến từng mối ghép
                 </h1>
                 <div class="butn-light mt-30 mb-30">
-                  <RouterLink
-                    data-scroll-nav="1"
-                    :to="{ name: 'home', hash: '#consultation' }"
-                  >
+                  <RouterLink :to="{ name: 'home', hash: '#consultation' }">
                     <span>Đặt lịch tư vấn</span>
                   </RouterLink>
                 </div>

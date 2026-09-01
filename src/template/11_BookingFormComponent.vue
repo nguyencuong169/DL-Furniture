@@ -913,7 +913,7 @@ async function handleSubmit() {
   margin-left: auto;
   color: #8b8175;
   font-family: 'Barlow', sans-serif;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 400;
   letter-spacing: 0;
 }
@@ -937,7 +937,7 @@ async function handleSubmit() {
   display: block;
   margin: 3px 0 0 2px;
   color: #9c6a58;
-  font-size: 10px;
+  font-size: 12px;
   line-height: 1.3;
 }
 

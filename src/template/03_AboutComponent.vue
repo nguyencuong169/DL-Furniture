@@ -137,7 +137,7 @@ onBeforeUnmount(() => {
         <!-- Left: content -->
         <div class="col-lg-4 col-md-12 mb-30 animate-box" data-animate-effect="fadeInUp">
           <span class="hero-line" aria-hidden="true"></span>
-          <p class="section-subtitle"><span>D&L Furniture</span></p>
+          <p class="section-subtitle"><span>Về chúng tôi</span></p>
           <div class="section-title">Không gian được thiết kế từ cách bạn sống</div>
           <p>
             Mỗi dự án bắt đầu bằng việc lắng nghe nhu cầu, khảo sát hiện trạng và nhận diện những

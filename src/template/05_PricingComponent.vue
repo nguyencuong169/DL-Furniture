@@ -54,12 +54,12 @@ onBeforeUnmount(() => {
     <div class="container">
       <div class="row">
         <div class="col-md-4">
-          <div class="section-subtitle"><span>D&L Furniture</span></div>
+          <div class="section-subtitle"><span>Dịch vụ trọn gói</span></div>
           <div class="section-title"><span>Dịch vụ thi công</span></div>
           <p class="color-2">
-            <strong>D&L Furniture</strong> tự hào là đơn vị hàng đầu trong lĩnh vực thiết kế thi
-            công nội thất với đội nhân sự lành nghề giàu kinh nghiệm. Công ty đã được rất nhiều
-            khách hàng tin tưởng lựa chọn và đã "trình làng" hàng trăm dự án, công trình khác nhau.
+            <strong>D&L Furniture</strong> đồng hành cùng gia chủ từ khảo sát, thiết kế đến sản xuất
+            và lắp đặt. Với đội ngũ nghệ nhân lành nghề, chúng tôi đã bàn giao hơn 300 dự án nội
+            thất gỗ óc chó cho các biệt thự, penthouse và căn hộ cao cấp.
           </p>
           <div class="reservations mb-30">
             <div class="icon"><span class="flaticon-call"></span></div>

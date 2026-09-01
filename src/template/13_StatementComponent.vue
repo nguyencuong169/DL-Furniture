@@ -9,6 +9,48 @@ const prefersReducedMotion =
   typeof window !== 'undefined' &&
   window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
 
+interface QuoteWord {
+  text: string
+  keyword: boolean
+  delay: number
+}
+
+/* Reveal từng từ: mỗi từ hiện lên so le như được đặt lại từng nét;
+   gạch chân từ khóa sau đó "vẽ" trái->phải như nét bút (xem .dl-keyword::after) */
+const WORD_START_DELAY = 150
+const WORD_STAGGER = 90
+
+const buildQuoteWords = (
+  words: Array<string | { text: string; keyword?: boolean }>,
+  startIndex: number
+): QuoteWord[] =>
+  words.map((word, index) => ({
+    // Nối sẵn khoảng trắng sau mỗi từ NGAY TRONG CHUỖI.
+    // Không để space literal trong template — Vue compiler (chế độ condense)
+    // sẽ xóa khoảng trắng đầu/cuối bên trong element, gây dính chữ như đã thấy.
+
+    text: (typeof word === 'string' ? word : word.text) + ' ',
+    keyword: typeof word !== 'string' && word.keyword === true,
+    delay: WORD_START_DELAY + (startIndex + index) * WORD_STAGGER
+  }))
+
+const quoteLine1 = buildQuoteWords(
+  ['Không', 'gian', 'đẹp', 'không', 'nằm', 'ở', 'sự', 'cầu', 'kỳ,'],
+  0
+)
+const quoteLine2 = buildQuoteWords(
+  [
+    'mà',
+    'nằm',
+    'ở',
+    'sự',
+    { text: 'tận tâm', keyword: true },
+    'trong',
+    { text: 'từng chi tiết', keyword: true }
+  ],
+  quoteLine1.length
+)
+
 onMounted(() => {
   if (prefersReducedMotion || typeof IntersectionObserver === 'undefined') {
     isVisible.value = true
@@ -22,19 +64,21 @@ onMounted(() => {
     (entries) => {
       entries.forEach((entry) => {
         if (entry.isIntersecting) {
-          observer?.disconnect()
-          // Ép trình duyệt vẽ xong trạng thái ẩn ban đầu (opacity: 0) trước khi
-          // chuyển sang hiện — nếu không, 2 lần render bị gộp làm một và transition
-          // "biến mất" (đổi trạng thái thẳng, không animate)
+          // Đợi một chút để trình duyệt kịp vẽ trạng thái ẩn ban đầu (opacity: 0).
+          // Kết hợp rAF + setTimeout đảm bảo đã có ít nhất một lần paint trước khi
+          // kích hoạt animation — nếu không, phần tử "nhảy thẳng" hiện ra không animation.
           requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
+            setTimeout(() => {
               isVisible.value = true
-            })
+            }, 80)
           })
+        } else {
+          // Reset khi rời viewport để hiệu ứng chạy lại cho mỗi lần quay lại
+          isVisible.value = false
         }
       })
     },
-    { threshold: 0.3, rootMargin: '0px 0px -10% 0px' }
+    { threshold: 0.25, rootMargin: '0px 0px -5% 0px' }
   )
   observer.observe(el)
 })
@@ -57,16 +101,27 @@ onBeforeUnmount(() => {
       </p>
 
       <blockquote class="dl-statement-quote">
-        <span class="dl-reveal-line" style="--reveal-delay: 120ms">
-          Không gian đẹp không nằm ở sự cầu kỳ,
+        <span class="dl-quote-line">
+          <span
+            v-for="word in quoteLine1"
+            :key="`line1-${word.text}`"
+            class="dl-word"
+            :class="{ 'dl-keyword': word.keyword }"
+            :style="{ '--reveal-delay': `${word.delay}ms` }"
+          >{{ word.text }}</span>
         </span>
-        <span class="dl-reveal-line" style="--reveal-delay: 280ms">
-          mà nằm ở sự <span class="dl-keyword">tận tâm</span> trong
-          <span class="dl-keyword">từng chi tiết</span>.
+        <span class="dl-quote-line">
+          <span
+            v-for="word in quoteLine2"
+            :key="`line2-${word.text}`"
+            class="dl-word"
+            :class="{ 'dl-keyword': word.keyword }"
+            :style="{ '--reveal-delay': `${word.delay}ms` }"
+          >{{ word.text }}</span>
         </span>
       </blockquote>
 
-      <p class="dl-statement-note dl-reveal" style="--reveal-delay: 440ms">
+      <p class="dl-statement-note dl-reveal" style="--reveal-delay: 2200ms">
         Ở D&amp;L, mỗi đường vân gỗ, mỗi mối ghép đều có lý do tồn tại — và lý do đó bắt đầu từ cách
         bạn sống.
       </p>
@@ -131,18 +186,79 @@ onBeforeUnmount(() => {
   background-color: unset;
 }
 
-.dl-reveal-line {
+.dl-quote-line {
   display: block;
+  padding: 0 6px;
 }
 
-/* Từ khóa cốt lõi: màu đồng + gạch chân mảnh, tách khỏi màu chữ chính
-   để mắt người đọc dừng lại đúng chỗ mang thông điệp */
+/* Từng từ hiện lên so le như được đặt lại từng nét.
+   Dùng CSS @keyframes animation (không phải transition) để chạy đúng ngay cả khi
+   được kích hoạt trước lần vẽ đầu tiên — transition sẽ "nhảy thẳng" nếu trạng thái
+   ẩn chưa kịp render (trường hợp reload trình duyệt khôi phục vị trí cuộn). */
+.dl-word {
+  display: inline;
+  position: relative;
+  opacity: 0;
+}
+
+.dl-statement.is-visible .dl-word {
+  animation: dl-word-reveal 0.7s ease var(--reveal-delay, 0ms) both;
+}
+
+/* Từ khóa cốt lõi: màu đồng; bỏ text-decoration hệ thống, dùng đường vẽ riêng bên dưới */
 .dl-keyword {
   color: #aa8453;
-  text-decoration: underline;
-  text-decoration-color: #d7b98a;
-  text-decoration-thickness: 1.5px;
-  text-underline-offset: 6px;
+  /* Giữ từ khóa (vd "từng chi tiết") không bị ngắt giữa chừng ở màn hẹp —
+     gạch chân nét bút vẽ trên một dòng, không bị tách đôi */
+  white-space: nowrap;
+}
+
+.dl-keyword::after {
+  position: absolute;
+  right: 0.25em;  /* Bù cho khoảng trắng nối sau từ khóa — không vẽ thừa qua space */
+  bottom: 4px;
+  left: 0;
+  height: 1.5px;
+  background: linear-gradient(90deg, #aa8453, #d7b98a);
+  content: '';
+  transform: scaleX(0);
+  transform-origin: left center;
+}
+
+/* Gạch chân bắt đầu sau khi từ đã lộ diện xong (0.7s) cộng thêm một nhịp nghỉ */
+.dl-statement.is-visible .dl-keyword::after {
+  animation: dl-underline-draw 0.8s cubic-bezier(0.4, 0, 0.2, 1)
+    calc(var(--reveal-delay, 0ms) + 820ms) both;
+}
+
+@keyframes dl-word-reveal {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Khối (subtitle/note) vẫn được trượt nhẹ — phần tử block không gây xê dịch baseline như inline */
+@keyframes dl-fade-slide {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dl-underline-draw {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 
 .dl-statement-note {
@@ -172,21 +288,13 @@ onBeforeUnmount(() => {
   bottom: 50px;
 }
 
-/* Entrance: label -> dòng 1 -> dòng 2 (chứa từ khóa) -> ghi chú, so le theo --reveal-delay.
-   Mỗi phần tử chạy đúng 1 lần, không lặp, không phụ thuộc thư viện ngoài. */
-.dl-reveal,
-.dl-reveal-line {
+/* Subtitle + note: hiện dần dùng animation, delay riêng theo --reveal-delay */
+.dl-reveal {
   opacity: 0;
-  transform: translateY(14px);
-  /* TẠM THỜI 2.5s để bạn test bằng mắt — đổi lại 0.6s sau khi xác nhận chạy đúng */
-  transition: opacity 2.5s ease, transform 2.5s ease;
-  transition-delay: var(--reveal-delay, 0ms);
 }
 
-.dl-statement.is-visible .dl-reveal,
-.dl-statement.is-visible .dl-reveal-line {
-  opacity: 1;
-  transform: translateY(0);
+.dl-statement.is-visible .dl-reveal {
+  animation: dl-fade-slide 0.7s ease var(--reveal-delay, 0ms) both;
 }
 
 @media (max-width: 767.98px) {
@@ -203,9 +311,15 @@ onBeforeUnmount(() => {
 
 @media (prefers-reduced-motion: reduce) {
   .dl-reveal,
-  .dl-reveal-line {
-    transition: none;
+  .dl-word {
+    opacity: 1;
+    animation: none;
     transform: none;
+  }
+
+  .dl-keyword::after {
+    animation: none;
+    transform: scaleX(1);
   }
 }
 </style>

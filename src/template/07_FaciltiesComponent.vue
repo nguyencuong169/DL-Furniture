@@ -8,7 +8,7 @@ import { Globe, Hammer, Paintbrush, PencilRuler, ShieldCheck, Thermometer } from
     <div class="container">
       <div class="row">
         <div class="col-md-12">
-          <div class="section-subtitle"><span>D&L Furniture</span></div>
+          <div class="section-subtitle"><span>Cam kết chất lượng</span></div>
           <div class="section-title">Vì sao chọn chúng tôi</div>
         </div>
       </div>
