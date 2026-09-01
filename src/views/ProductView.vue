@@ -1,17 +1,14 @@
 <script setup lang="ts">
-import { reactive, computed } from 'vue'
+import { computed } from 'vue'
 
-import Product from '../template/04_ProductComponent.vue'
 import router from '../router'
 
-const state = reactive({})
-
 const cateTitle = computed(() => {
-  if (router.currentRoute.value.path.startsWith('/product/phong-khach/')) {
+  if (router.currentRoute.value.path.startsWith('/san-pham/phong-khach/')) {
     return 'Phòng Khách'
-  } else if (router.currentRoute.value.path.startsWith('/product/phong-ngu/')) {
+  } else if (router.currentRoute.value.path.startsWith('/san-pham/phong-ngu/')) {
     return 'Phòng Ngủ'
-  } else if (router.currentRoute.value.path.startsWith('/product/phong-bep/')) {
+  } else if (router.currentRoute.value.path.startsWith('/san-pham/phong-bep/')) {
     return 'Phòng Bếp'
   } else {
     return 'Sản phẩm'
@@ -32,7 +29,7 @@ const cateTitle = computed(() => {
           <div class="col-md-12 caption mt-90">
             <span class="hero-line" aria-hidden="true"></span>
             <h5>{{ cateTitle }}</h5>
-            <h1>Sofa gỗ</h1>
+            <h1>{{ cateTitle }}</h1>
           </div>
         </div>
       </div>

@@ -33,6 +33,7 @@ const currentYear = new Date().getFullYear()
                 <li><a href="/san-pham">Sản phẩm</a></li>
                 <li><a href="/du-an">Dự án</a></li>
                 <li><a href="/lien-he">Liên hệ</a></li>
+                <li><a href="/lien-he#faq">Câu hỏi thường gặp</a></li>
               </ul>
             </div>
           </div>

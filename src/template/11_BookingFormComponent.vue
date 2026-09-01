@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { computed, nextTick, reactive, ref } from 'vue'
 import { submitConsultation } from '../api/consultationClient'
 import image1 from '../assets/img/1.jpg'
@@ -32,9 +32,11 @@ const bookingStore = bookingUseStore()
 const props = withDefaults(
   defineProps<{
     backgroundImage?: string
+    compact?: boolean
   }>(),
   {
-    backgroundImage: image1
+    backgroundImage: image1,
+    compact: false
   }
 )
 
@@ -208,18 +210,23 @@ async function handleSubmit() {
 <template>
   <section
     id="consultation"
-    v-show="bookingStore.isDisplay"
+    v-show="compact || bookingStore.isDisplay"
     class="consultation-section"
     aria-labelledby="consultation-title"
   >
     <div
-      class="background bg-img bg-fixed section-padding pb-0 consultation-background"
-      data-overlay-dark="3"
-      :style="bannerStyle"
+      class="consultation-background"
+      :class="
+        compact
+          ? 'consultation-compact'
+          : 'background bg-img bg-fixed section-padding pb-0'
+      "
+      :data-overlay-dark="compact ? undefined : '3'"
+      :style="compact ? undefined : bannerStyle"
     >
       <div class="container">
         <div class="row align-items-center">
-          <div class="col-lg-5 consultation-copy">
+          <div v-if="!compact" class="col-lg-5 consultation-copy">
             <span class="section-subtitle">Tư vấn chuyên sâu</span>
             <h2 id="consultation-title">Kiến tạo không gian dành riêng cho bạn</h2>
             <p class="consultation-intro">
@@ -245,7 +252,7 @@ async function handleSubmit() {
             </div>
           </div>
 
-          <div class="col-lg-6 offset-lg-1">
+          <div :class="compact ? 'col-lg-12' : 'col-lg-6 offset-lg-1'">
             <div class="booking-box consultation-box">
               <div class="head-box consultation-head">
                 <span class="consultation-brand">D&amp;L Furniture</span>
@@ -617,6 +624,16 @@ async function handleSubmit() {
 <style scoped>
 .consultation-section {
   scroll-margin-top: 110px;
+}
+
+/* Chế độ compact — nhúng vào trang khác (vd trang Liên hệ):
+   không nền ảnh, không padding khổng lồ; để form đứng gọn trong cột nội dung */
+.consultation-compact {
+  padding: 0;
+}
+
+.consultation-compact .booking-box {
+  box-shadow: 0 20px 60px rgba(26, 22, 16, 0.08);
 }
 
 .consultation-privacy-note {
