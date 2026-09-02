@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { FALLBACK_MENU, fetchMenus, type MenuResponse } from '../api/menuClient'
+import { Mail, Phone } from 'lucide-vue-next'
 
 const currentYear = new Date().getFullYear()
 const menu = ref<MenuResponse>(FALLBACK_MENU)
@@ -23,14 +24,6 @@ onMounted(async () => {
                 Thiết kế và thi công nội thất theo hiện trạng, nhu cầu sử dụng và dấu ấn riêng của
                 mỗi gia chủ. D&amp;L Furniture đồng hành từ ý tưởng đến khi công trình hoàn thiện.
               </p>
-
-              <div class="footer-language">
-                <i class="lni ti-world"></i>
-                <select onchange="location = this.value;">
-                  <option value="#0">Vietnamese</option>
-                  <option value="#0">English</option>
-                </select>
-              </div>
             </div>
           </div>
           <div class="col-md-3 offset-md-1">
@@ -49,7 +42,7 @@ onMounted(async () => {
               <p class="footer-contact-text">Đường Cầu Liêu<br />Thạch Xá - Thạch Thất - Hà Nội</p>
               <div class="footer-contact-info">
                 <p class="footer-contact-phone">
-                  <span class="flaticon-call" aria-hidden="true"></span>
+                  <Phone :size="18" :stroke-width="1.5" class="footer-phone-icon" aria-hidden="true" />
                   <a href="tel:+84961109897">(+84) 961-109-897</a>
                 </p>
                 <p class="footer-contact-mail">
@@ -58,10 +51,10 @@ onMounted(async () => {
               </div>
               <div class="footer-about-social-list">
                 <a href="mailto:info@dl-furniture.com" aria-label="Gửi email cho D&L Furniture">
-                  <i class="ti-email" aria-hidden="true"></i>
+                  <Mail :size="15" :stroke-width="1.5" aria-hidden="true" />
                 </a>
                 <a href="tel:+84961109897" aria-label="Gọi D&L Furniture">
-                  <i class="ti-mobile" aria-hidden="true"></i>
+                  <Phone :size="15" :stroke-width="1.5" aria-hidden="true" />
                 </a>
               </div>
             </div>
@@ -89,5 +82,9 @@ onMounted(async () => {
 .footer-explore-list .router-link-active,
 .footer-explore-list .router-link-exact-active {
   color: #aa8453;
+}
+.footer-phone-icon {
+  margin-right: 8px;
+  vertical-align: -3px;
 }
 </style>

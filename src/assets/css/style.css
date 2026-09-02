@@ -2515,7 +2515,7 @@ hr {
 .rooms2 .caption h3,
 .rooms2 .caption h3 a {
   font-size: 24px;
-  color: #ab8a62;
+  color: #aa8453;
   margin-bottom: 0px;
 }
 .rooms2 .caption h3 span {
@@ -2567,7 +2567,7 @@ hr {
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 15px;
   background: transparent;
-  border: 1px solid #ab8a62;
+  border: 1px solid #aa8453;
   text-transform: uppercase;
   letter-spacing: 3px;
   padding: 3px 12px;
@@ -5035,7 +5035,7 @@ button.mfp-arrow {
   font-weight: 400;
   font-family: 'Barlow Condensed', sans-serif;
   text-transform: uppercase;
-  background: #ab8a62;
+  background: #aa8453;
   color: #fff;
   padding: 13px 22px;
   margin: 0;
@@ -5120,7 +5120,7 @@ button.mfp-arrow {
   font-weight: 400;
   font-family: 'Barlow Condensed', sans-serif;
   text-transform: uppercase;
-  background: #ab8a62;
+  background: #aa8453;
   color: #fff;
   padding: 13px 22px;
   margin: 0;
@@ -5798,7 +5798,10 @@ select {
   }
 }
 
-@media screen and (max-width: 991px) {
+/* (hover: none) + (pointer: coarse): iOS Safari (kể cả iPad) không hỗ trợ
+   background-attachment: fixed — ảnh bị phóng méo và giật khi cuộn.
+   Vô hiệu parallax trên mọi thiết bị cảm ứng, không chỉ màn hình nhỏ. */
+@media screen and (max-width: 991px), (hover: none) and (pointer: coarse) {
   .bg-fixed {
     background-attachment: scroll !important;
   }

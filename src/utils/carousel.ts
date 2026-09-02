@@ -56,6 +56,16 @@ export function initOwlCarousel(selector: string, options: OwlCarouselOptions, r
   }
 }
 
+// Điều khiển autoplay của một carousel đã init ('stop' | 'play') qua event trigger.
+// Dùng cho các trường hợp cần phạm vi pause hẹp hơn autoplayHoverPause mặc định
+// (ví dụ: chỉ pause khi hover vào nút CTA thay vì cả vùng hero).
+export function triggerOwlAutoplay(selector: string, action: 'stop' | 'play'): void {
+  const $ = getJQuery()
+  if ($ && typeof $.fn?.owlCarousel === 'function') {
+    $(selector).trigger(`${action}.owl.autoplay`)
+  }
+}
+
 // Call on component unmount to avoid leaking owl-carousel's internal timers
 // (autoplay) and event listeners once Vue removes the DOM node (e.g. on SPA
 // route change away from the page while the carousel is mounted).

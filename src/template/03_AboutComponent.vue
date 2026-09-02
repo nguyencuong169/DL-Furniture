@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from 'vue'
-import { Medal, Ruler, Star, Users, type LucideIcon } from 'lucide-vue-next'
+import { Medal, Phone, Ruler, Star, Users, type LucideIcon } from 'lucide-vue-next'
 import { FALLBACK_STATS, fetchStats, type StatId } from '../api/statsClient'
 
 interface StatItem {
@@ -151,7 +151,7 @@ onBeforeUnmount(() => {
           </p>
           <!-- call -->
           <div class="reservations">
-            <div class="icon"><span class="flaticon-call"></span></div>
+            <div class="icon"><span><Phone :size="34" :stroke-width="1.25" /></span></div>
             <div class="text">
               <p>Tư vấn thiết kế</p>
               <a href="tel:+84961109897">(+84) 961-109-897</a>
@@ -163,7 +163,7 @@ onBeforeUnmount(() => {
         <div class="col-lg-5 col-md-7 mb-30 animate-box" data-animate-effect="fadeInUp">
           <div class="about-image">
             <img
-              src="@/assets/img/intros/intro4.jpg"
+              src="@/assets/img/intros/intro6.jpg"
               alt="Không gian nội thất do D&L Furniture thiết kế và thi công"
             />
           </div>

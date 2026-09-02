@@ -8,7 +8,6 @@
 03. Close navbar-collapse when a  clicked
 04. Sections background image from data background 
 05. Animations
-06. YouTubePopUp
 07. Testimonials owlCarousel
 08. Rooms 1 owlCarousel
 09. Rooms Page owlCarousel
@@ -22,12 +21,7 @@
 17. MagnificPopup Gallery
 18. Smooth Scrolling
 19. Scroll back to top
-20. Select2
-21. Datapicker
 22. Slider
-23. Preloader
-24. Contact Form
-25. Grid Background
 
 ------------------------------------------------------- */
 $(function () {
@@ -112,9 +106,6 @@ $(function () {
   $(function () {
     contentWayPoint()
   })
-
-  // YouTubePopUp
-  $('a.vid').YouTubePopUp()
 
   // Testimonials owlCarousel *
   $('.testimonials .owl-carousel').owlCarousel({
@@ -523,20 +514,10 @@ $(function () {
     )
     return false
   })
-
-  // Datapicker
-  $('.datepicker').datepicker({
-    orientation: 'top'
-  })
 })
 
 // Slider
 $(document).ready(function () {
-  // Select2
-  $('.select2').select2({
-    minimumResultsForSearch: Infinity
-  })
-
   var owl = $('.header .owl-carousel')
 
   // Slider owlCarousel - (Inner Page Slider)
@@ -595,43 +576,8 @@ $(document).ready(function () {
   })
 })
 
-// Preloader
-$('#preloader').fadeOut(700)
-$('.preloader-bg').delay(700).fadeOut(700)
-var wind = $(window)
-
-// Contact Form
-var form = $('.contact__form'),
-  message = $('.contact__msg'),
-  form_data
-// success function
-function done_func(response) {
-  message.fadeIn().removeClass('alert-danger').addClass('alert-success')
-  message.text(response)
-  setTimeout(function () {
-    message.fadeOut()
-  }, 2000)
-  form.find('input:not([type="submit"]), textarea').val('')
-}
-// fail function
-function fail_func(data) {
-  message.fadeIn().removeClass('alert-success').addClass('alert-success')
-  message.text(data.responseText)
-  setTimeout(function () {
-    message.fadeOut()
-  }, 2000)
-}
-form.submit(function (e) {
-  e.preventDefault()
-  form_data = $(this).serialize()
-  $.ajax({
-    type: 'POST',
-    url: form.attr('action'),
-    data: form_data
-  })
-    .done(done_func)
-    .fail(fail_func)
-})
+// Contact Form — dead code của theme gốc: Vue render form riêng
+// (11_BookingFormComponent.vue) và không còn markup .contact__form nào.
 
 // Slider Grid Background
 ;(function () {

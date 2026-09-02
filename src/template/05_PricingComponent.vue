@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { fetchServices, type ServiceResponse } from '../api/serviceClient'
+import { Phone } from 'lucide-vue-next'
 import { destroyOwlCarousel, initOwlCarousel } from '../utils/carousel'
 
 const CAROUSEL_SELECTOR = '.pricing .owl-carousel'
@@ -62,7 +63,7 @@ onBeforeUnmount(() => {
             thất gỗ óc chó cho các biệt thự, penthouse và căn hộ cao cấp.
           </p>
           <div class="reservations mb-30">
-            <div class="icon"><span class="flaticon-call"></span></div>
+            <div class="icon"><span><Phone :size="34" :stroke-width="1.25" /></span></div>
             <div class="text">
               <p class="color-2">Tư vấn thiết kế miễn phí</p>
               <a href="tel:+84961109897">(+84) 961-109-897</a>

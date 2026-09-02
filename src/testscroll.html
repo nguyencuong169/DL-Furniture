@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Virtual Scroll Stepper - Không Khoảng Trống Thừa</title>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family:
+          system-ui,
+          -apple-system,
+          sans-serif;
+        background-color: #0f172a;
+        color: #f8fafc;
+        overflow-x: hidden;
+      }
+
+      .section-normal {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #1e1b4b, #0f172a);
+        font-size: 1.5rem;
+      }
+
+      /* ========================================== */
+      /* STEPPER ZONE: CAO ĐÚNG 100VH - TỰ KHÓA CUỘN */
+      /* ========================================== */
+      .stepper-container {
+        height: 100vh; /* Tuyệt đối không tạo khoảng trống bên dưới */
+        position: relative;
+        background-color: #020617;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+      }
+
+      .step-wrapper {
+        position: relative;
+        width: 90%;
+        max-width: 500px;
+        height: 350px;
+      }
+
+      .step-card {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(30, 41, 59, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 24px;
+        padding: 40px 30px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+
+        /* Trạng thái mặc định: Ẩn và nằm ở phía dưới */
+        opacity: 0;
+        transform: scale(0.9) translateY(50px);
+        pointer-events: none;
+
+        /* Hiệu ứng chuyển đổi mượt mà bằng GPU */
+        transition:
+          transform 0.6s cubic-bezier(0.25, 1, 0.5, 1),
+          opacity 0.6s ease,
+          filter 0.6s ease;
+        filter: blur(4px);
+      }
+
+      /* Trạng thái KHI KÍCH HOẠT (Đang xem) */
+      .step-card.active {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+        pointer-events: auto;
+        filter: blur(0px);
+        z-index: 2;
+      }
+
+      /* Trạng thái KHI ĐÃ TRÔI QUA (Bay lên trên và ẩn đi) */
+      .step-card.exit {
+        opacity: 0;
+        transform: scale(0.9) translateY(-50px);
+        filter: blur(4px);
+        z-index: 1;
+      }
+
+      .step-icon {
+        font-size: 3.5rem;
+        margin-bottom: 20px;
+        background: rgba(255, 255, 255, 0.05);
+        width: 80px;
+        height: 80px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+      }
+      .step-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #38bdf8;
+        margin-bottom: 12px;
+      }
+      .step-desc {
+        font-size: 1rem;
+        color: #94a3b8;
+        line-height: 1.6;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="section-normal">
+      <h1>Nội dung phía trên</h1>
+      <p style="font-size: 1rem; color: #94a3b8; margin-top: 10px">⬇️ Cuộn xuống để vào Stepper</p>
+    </div>
+
+    <!-- BẮT ĐẦU STEPPER -->
+    <div class="stepper-container" id="stepperSection">
+      <div class="step-wrapper">
+        <div class="step-card active">
+          <div class="step-icon">🎯</div>
+          <div class="step-title">Bước 1: Chọn Mục Tiêu</div>
+          <div class="step-desc">Xác định rõ ràng mục tiêu và các yêu cầu kỹ thuật của dự án.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon">🎨</div>
+          <div class="step-title">Bước 2: Thiết Kế UI/UX</div>
+          <div class="step-desc">
+            Phác thảo sơ đồ, dựng wireframe và thiết kế giao diện chi tiết.
+          </div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon">💻</div>
+          <div class="step-title">Bước 3: Lập Trình</div>
+          <div class="step-desc">Viết mã nguồn HTML, CSS hiện đại để tạo nên hiệu ứng mượt mà.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon">⚡</div>
+          <div class="step-title">Bước 4: Tối Ưu</div>
+          <div class="step-desc">Nén tài nguyên, tinh chỉnh code để đạt hiệu năng cao nhất.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon">🧪</div>
+          <div class="step-title">Bước 5: Kiểm Thử</div>
+          <div class="step-desc">Chạy thử nghiệm trên nhiều thiết bị và sửa lỗi tồn đọng.</div>
+        </div>
+
+        <div class="step-card">
+          <div class="step-icon">🚀</div>
+          <div class="step-title">Bước 6: Phát Hành</div>
+          <div class="step-desc">
+            Đưa sản phẩm lên môi trường thực tế. Hoàn toàn không có khoảng trống thừa!
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-normal" style="background: linear-gradient(135deg, #0f172a, #020617)">
+      <h1>Nội dung phía dưới</h1>
+      <p style="font-size: 1rem; color: #4ade80; margin-top: 10px">✅ Trang liền mạch 100%</p>
+    </div>
+
+    <script>
+      const stepper = document.getElementById('stepperSection')
+      const cards = document.querySelectorAll('.step-card')
+      let currentStep = 0
+      let isTransitioning = false
+
+      // Lắng nghe sự kiện cuộn chuột trong phân đoạn Stepper
+      stepper.addEventListener(
+        'wheel',
+        (e) => {
+          // 1. Nếu đang chạy hiệu ứng chuyển bước, chặn cuộn để tránh nhảy bước quá nhanh
+          if (isTransitioning) {
+            e.preventDefault()
+            return
+          }
+
+          // 2. Kiểm tra hướng cuộn chuột (e.deltaY > 0 là cuộn xuống, ngược lại là cuộn lên)
+          if (e.deltaY > 0) {
+            // Cuộn xuống: Nếu chưa tới bước cuối (bước 6), chặn cuộn trang lại để đổi bước nội bộ
+            if (currentStep < cards.length - 1) {
+              e.preventDefault()
+              changeStep(currentStep + 1)
+            }
+            // Nếu đã ở bước cuối, không chặn e.preventDefault nữa -> Trình duyệt tự cuộn xuống Section dưới
+          } else {
+            // Cuộn lên: Nếu chưa về bước đầu tiên, chặn cuộn trang để quay lại bước trước
+            if (currentStep > 0) {
+              e.preventDefault()
+              changeStep(currentStep - 1)
+            }
+            // Nếu đã ở bước đầu, không chặn nữa -> Trình duyệt tự cuộn ngược lên Section trên
+          }
+        },
+        { passive: false }
+      )
+
+      // Hàm xử lý logic chuyển đổi Class CSS giữa các bước
+      function changeStep(nextStep) {
+        isTransitioning = true
+
+        cards.forEach((card, index) => {
+          card.classList.remove('active', 'exit')
+          if (index === nextStep) {
+            card.classList.add('active') // Bước hiện tại
+          } else if (index < nextStep) {
+            card.classList.add('exit') // Bước đã trôi qua
+          }
+        })
+
+        currentStep = nextStep
+
+        // Khóa thao tác trong 600ms (bằng thời gian transition của CSS) để hiệu ứng chạy xong ổn định
+        setTimeout(() => {
+          isTransitioning = false
+        }, 600)
+      }
+    </script>
+  </body>
+</html>

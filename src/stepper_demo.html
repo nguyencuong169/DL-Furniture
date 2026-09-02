@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Horizontal Timeline Stepper - Bản Chuẩn 100%</title>
+    <style>
+      /* Container bao quanh quyết định độ dài quãng đường cuộn chuột */
+      .timeline-wrapper {
+        position: relative;
+        height: 300vh; /* Tăng/giảm để chỉnh tốc độ cuộn nhanh/chậm */
+        background-color: #f4f4f4;
+      }
+
+      /* Khóa track timeline cố định trong màn hình khi đang cuộn */
+      .timeline-sticky {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: hidden; /* Cắt bỏ phần timeline tràn ra ngoài màn hình */
+        display: flex;
+        align-items: center;
+      }
+
+      /* Chuỗi 6 bước xếp thành hàng ngang */
+      .timeline-track {
+        display: flex;
+        width: 600vw; /* 6 steps x 100vw mỗi step */
+        will-change: transform;
+        transition: transform 0.1s ease-out; /* Giúp mượt mà hơn */
+      }
+
+      /* Chi tiết từng step chiếm trọn 1 màn hình */
+      .step {
+        width: 100vw;
+        height: 100vh;
+        flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+        box-sizing: border-box;
+      }
+
+      /* Section tiếp theo ngay sau timeline */
+      .next-section {
+        height: 100vh;
+        background: #222;
+        color: #fff;
+      }
+
+      .timeline-wrapper {
+        position: relative;
+        height: 300vh;
+        view-timeline-name: --timeline-scroll;
+        view-timeline-axis: block;
+      }
+
+      .timeline-sticky {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        overflow: hidden;
+      }
+
+      .timeline-track {
+        display: flex;
+        width: 600vw;
+        /* Gắn animation dịch chuyển vào timeline cuộn */
+        animation: scroll-horizontal linear both;
+        animation-timeline: --timeline-scroll;
+        animation-range: contain 0% contain 100%;
+      }
+
+      @keyframes scroll-horizontal {
+        to {
+          transform: translateX(-500vw); /* Dịch chuyển qua 5 steps để hiện step 6 */
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="section-normal">
+      <h1>Nội dung phía trên (100vh)</h1>
+      <p style="font-size: 1rem; color: #94a3b8; margin-top: 10px">
+        ⬇️ Lăn chuột xuống dưới để vào Timeline ngang
+      </p>
+    </div>
+
+    <div class="timeline-wrapper">
+      <div class="timeline-sticky">
+        <div class="timeline-track" id="timelineTrack">
+          <div class="step">
+            <h3>Step 1</h3>
+            <p>Nội dung 1</p>
+          </div>
+          <div class="step">
+            <h3>Step 2</h3>
+            <p>Nội dung 2</p>
+          </div>
+          <div class="step">
+            <h3>Step 3</h3>
+            <p>Nội dung 3</p>
+          </div>
+          <div class="step">
+            <h3>Step 4</h3>
+            <p>Nội dung 4</p>
+          </div>
+          <div class="step">
+            <h3>Step 5</h3>
+            <p>Nội dung 5</p>
+          </div>
+          <div class="step">
+            <h3>Step 6</h3>
+            <p>Nội dung 6</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="next-section">Nội dung tiếp theo (Không bị khoảng trắng)</div>
+
+    <script>
+      // window.addEventListener('scroll', () => {
+      //   const wrapper = document.querySelector('.timeline-wrapper')
+      //   const track = document.getElementById('timelineTrack')
+
+      //   if (!wrapper || !track) return
+
+      //   const wrapperTop = wrapper.offsetTop
+      //   const wrapperHeight = wrapper.offsetHeight
+      //   const windowHeight = window.innerHeight
+      //   const scrollTop = window.scrollY
+
+      //   // Tính tiến trình cuộn từ 0 đến 1 bên trong wrapper
+      //   let progress = (scrollTop - wrapperTop) / (wrapperHeight - windowHeight)
+
+      //   // Giới hạn tiến trình trong khoảng [0, 1]
+      //   progress = Math.max(0, Math.min(1, progress))
+
+      //   // 6 steps nghĩa là cần dịch chuyển tối đa sang trái 500vw (5 phần còn lại)
+      //   const maxTranslate = 500
+      //   const translateX = progress * maxTranslate
+
+      //   track.style.transform = `translateX(-${translateX}vw)`
+      // })
+    </script>
+  </body>
+</html>

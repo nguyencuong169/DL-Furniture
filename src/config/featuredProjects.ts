@@ -7,6 +7,7 @@ export interface FeaturedProject {
   title: string
   type: string
   image: string
+  year: string
   alt: string
   specs: { icon: LucideIcon; label: string }[]
 }
@@ -23,6 +24,7 @@ export const featuredProjects: FeaturedProject[] = [
     title: 'Thiết kế nội thất Saroma Villa',
     type: 'Nội thất Villa - Biệt Thự',
     image: '/media/gallery/walnut-villa-living.webp',
+    year: '2025',
     alt: 'Không gian phòng khách gỗ óc chó mở ra khu vườn tại Saroma Villa',
     specs: [
       { icon: Ruler, label: 'Diện tích 220 m²' },
@@ -37,6 +39,7 @@ export const featuredProjects: FeaturedProject[] = [
     title: 'Thiết kế nội thất biệt thự Vinhomes Grand Park',
     type: 'Nội thất Villa - Biệt Thự',
     image: '/media/gallery/villa-bedroom-lounge.webp',
+    year: '2025',
     alt: 'Không gian phòng ngủ biệt thự Vinhomes Grand Park',
     specs: [
       { icon: Ruler, label: 'Diện tích 260 m²' },
@@ -51,6 +54,7 @@ export const featuredProjects: FeaturedProject[] = [
     title: 'Thiết kế nội thất biệt thự KĐT Vĩnh Yên',
     type: 'Nội thất Villa - Biệt Thự',
     image: '/media/gallery/arched-dining.jpg',
+    year: '2026',
     alt: 'Không gian phòng ăn biệt thự tại khu đô thị Vĩnh Yên',
     specs: [
       { icon: Ruler, label: 'Diện tích 180 m²' },
@@ -65,6 +69,7 @@ export const featuredProjects: FeaturedProject[] = [
     title: 'Thiết kế nội thất chung cư Vinhomes Metropolis',
     type: 'Nội thất Căn hộ chung cư',
     image: '/media/gallery/walnut-home-library.webp',
+    year: '2026',
     alt: 'Vách tủ thư phòng gỗ óc chó tại chung cư Vinhomes Metropolis',
     specs: [
       { icon: Ruler, label: 'Diện tích 95 m²' },

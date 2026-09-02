@@ -1,7 +1,16 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { ref, computed } from 'vue'
 import BookingFormComponent from '../template/11_BookingFormComponent.vue'
 import bannerImage from '/media/gallery/artisan-walnut-chair.webp'
+import { setPageSeo } from '../utils/seo'
+import { Mail, MapPin, Phone } from 'lucide-vue-next'
+
+setPageSeo({
+  title: 'Liên hệ',
+  description:
+    'Liên hệ D&L Furniture để được tư vấn, khảo sát và báo giá nội thất miễn phí trong 24 giờ làm việc. Hotline (+84) 961-109-897.',
+  path: '/lien-he'
+})
 
 interface FaqItem {
   q: string
@@ -103,21 +112,21 @@ const openInMapsUrl = computed(
           <div class="col-md-5 mb-60">
             <p>CÔNG TY CỔ PHẦN KIẾN TRÚC NỘI THẤT DŨNG & LINH.</p>
             <div class="reservations mb-30">
-              <div class="icon"><span class="flaticon-call"></span></div>
+              <div class="icon"><span><Phone :size="34" :stroke-width="1.25" /></span></div>
               <div class="text">
                 <p>Tư vấn thiết kế</p>
                 <a href="tel:+84961109897">(+84) 961-109-897</a>
               </div>
             </div>
             <div class="reservations mb-30">
-              <div class="icon"><span class="flaticon-envelope"></span></div>
+              <div class="icon"><span><Mail :size="34" :stroke-width="1.25" /></span></div>
               <div class="text">
                 <p>Email</p>
                 <a href="mailto:info@dl-furniture.com">info@dl-furniture.com</a>
               </div>
             </div>
             <div class="reservations">
-              <div class="icon"><span class="flaticon-location-pin"></span></div>
+              <div class="icon"><span><MapPin :size="34" :stroke-width="1.25" /></span></div>
               <div class="text">
                 <p>Địa chỉ</p>
                 Đường Cầu Liêu<br />Thạch Xá - Thạch Thất - Hà Nội

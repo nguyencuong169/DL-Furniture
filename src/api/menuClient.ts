@@ -1,5 +1,4 @@
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'https://localhost:44328'
-
 export interface MenuLink {
   label: string
   url: string
@@ -94,14 +93,24 @@ function isMenuResponse(data: unknown): data is MenuResponse {
   )
 }
 
-export async function fetchMenus(): Promise<MenuResponse> {
-  try {
-    const res = await fetch(`${API_BASE}/api/menus`)
-    if (!res.ok) throw new Error(`HTTP ${res.status}`)
-    const data: unknown = await res.json()
-    if (!isMenuResponse(data)) throw new Error('Invalid menus payload')
-    return data
-  } catch {
+let menusPromise: Promise<MenuResponse> | null = null
+
+async function loadMenus(): Promise<MenuResponse> {
+  const res = await fetch(`${API_BASE}/api/menus`)
+  if (!res.ok) throw new Error(`HTTP ${res.status}`)
+  const data: unknown = await res.json()
+  if (!isMenuResponse(data)) throw new Error('Invalid menus payload')
+  return data
+}
+
+/**
+ * Menu dùng chung cho navbar/footer — chỉ gọi API đúng một lần rồi cache.
+ * Nếu API lỗi, trả về fallback và reset cache để lần gọi sau thử lại.
+ */
+export function fetchMenus(): Promise<MenuResponse> {
+  menusPromise ??= loadMenus().catch(() => {
+    menusPromise = null
     return FALLBACK_MENU
-  }
+  })
+  return menusPromise
 }

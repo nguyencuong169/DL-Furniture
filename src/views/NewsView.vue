@@ -3,7 +3,7 @@ import { computed, nextTick, onMounted, reactive, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import dayjs from 'dayjs'
 import 'dayjs/locale/vi'
-import newsBanner from '../assets/img/slider/slider_1.png'
+import newsBanner from '../assets/img/slider/slider_1.jpg'
 import type { NewsItem } from '../types/news'
 import type { NewsPageFilters } from '../api/newsPagedClient'
 import { getNewsPaged } from '../api/newsPagedClient'
@@ -23,6 +23,14 @@ import NewsSidebarSearch from '../components/NewsSidebarSearch.vue'
 import NewsTags from '../components/NewsTags.vue'
 import BookingFormComponent from '../template/11_BookingFormComponent.vue'
 import ClientsComponent from '../template/12_ClientsComponent.vue'
+import { setPageSeo } from '../utils/seo'
+
+setPageSeo({
+  title: 'Tin tức',
+  description:
+    'Tin tức, kinh nghiệm và xu hướng nội thất gỗ óc chó, gỗ tự nhiên từ xưởng D&L Furniture.',
+  path: '/tin-tuc'
+})
 
 const NEWS_VIEW_MODE_STORAGE_KEY = 'news-view-mode'
 
@@ -942,6 +950,7 @@ onMounted(async () => {
                     <li>
                       <a
                         :href="paginationHref(state.page - 1)"
+                        class="news-pagination-arrow"
                         :class="{ 'is-disabled': state.page <= 1 || loading }"
                         :aria-disabled="state.page <= 1 || loading"
                         aria-label="Trang trước"
@@ -968,6 +977,7 @@ onMounted(async () => {
                     <li>
                       <a
                         :href="paginationHref(state.page + 1)"
+                        class="news-pagination-arrow"
                         :class="{ 'is-disabled': state.page >= state.totalPages || loading }"
                         :aria-disabled="state.page >= state.totalPages || loading"
                         aria-label="Trang sau"
@@ -2203,6 +2213,50 @@ onMounted(async () => {
 
 .news-pagination-wrap a {
   cursor: pointer;
+}
+
+/* Nút prev/next phân trang — học đúng nút next/prev của hero slider (owl-nav):
+   vòng tròn trong suốt viền mảnh, hover co nhẹ scale(0.9) + viền vàng #aa8453.
+   (Hero nằm trên ảnh tối dùng icon trắng; phân trang nền sáng nên dùng icon tối.) */
+.news-pagination-wrap a.news-pagination-arrow {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  overflow: hidden;
+  background: transparent;
+  border: 1px solid rgba(79, 74, 67, 0.35);
+  border-radius: 100%;
+  color: #4f4a43;
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  transform: scale(1);
+}
+
+.news-pagination-wrap a.news-pagination-arrow:hover,
+.news-pagination-wrap a.news-pagination-arrow:focus-visible {
+  transform: scale(0.9);
+  background: transparent;
+  border: 1px solid #aa8453;
+  color: #aa8453;
+}
+
+.news-pagination-wrap a.news-pagination-arrow:focus-visible {
+  outline: 2px solid rgba(170, 132, 83, 0.5);
+  outline-offset: 3px;
+}
+
+.news-pagination-wrap a.news-pagination-arrow.is-disabled {
+  border-color: rgba(79, 74, 67, 0.15);
+  color: #b5b5b5;
+  opacity: 0.5;
+  pointer-events: none;
+  transform: scale(1);
 }
 
 .news-pagination-wrap a.is-disabled {

@@ -391,28 +391,27 @@ onBeforeUnmount(() => {
   position: relative;
 }
 
+/* Nút prev/next — giữ ĐÚNG style của hero slider (.slider-fade .owl-nav):
+   nền trong suốt, viền trắng mờ, icon trắng, không bao giờ có nền trắng. */
 .home-news-arrow {
   position: absolute;
   z-index: 2;
   top: 45%;
   display: inline-flex;
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   align-items: center;
   justify-content: center;
-  border: 1px solid rgba(79, 74, 67, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 50%;
-  background: #fff;
-  color: #4f4a43;
+  background: transparent;
+  color: #fff;
+  font-size: 10px;
   cursor: pointer;
   opacity: 0;
   pointer-events: none;
-  transform: translateY(-50%);
-  transition:
-    border-color 0.25s ease,
-    background 0.25s ease,
-    color 0.25s ease,
-    opacity 0.25s ease;
+  transform: translateY(-50%) scale(1);
+  transition: all 0.2s ease-in-out;
 }
 
 .home-news-grid-wrap:hover .home-news-arrow:not(:disabled),
@@ -429,11 +428,14 @@ onBeforeUnmount(() => {
   right: 12px;
 }
 
+/* Hover/focus — y hệt hero slider (.owl-theme .owl-nav [class*='owl-']:hover):
+   co nhẹ scale(0.9), giữ nền trong suốt, viền chuyển vàng #aa8453, icon giữ trắng. */
 .home-news-arrow:hover:not(:disabled),
 .home-news-arrow:focus-visible:not(:disabled) {
-  border-color: #aa8453;
-  background: #1f1d1a;
-  color: #d3ad7b;
+  transform: translateY(-50%) scale(0.9);
+  background: transparent;
+  border: 1px solid #aa8453;
+  color: #fff;
 }
 
 .home-news-arrow:disabled {

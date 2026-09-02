@@ -1,0 +1,216 @@
+<script setup lang="ts">
+import { featuredProjects } from '../config/featuredProjects'
+</script>
+
+<template>
+  <section id="featured-projects" class="room2 section-padding bg-cream">
+    <div class="container">
+      <div class="row align-items-end featured-projects-header">
+        <div class="col-md-8">
+          <div class="section-subtitle"><span>Dự án tiêu biểu</span></div>
+          <h2 class="section-title"><span>Dự án đã hoàn thiện</span></h2>
+        </div>
+        <div class="col-md-4 text-md-end">
+          <RouterLink class="featured-projects-all" :to="{ name: 'project' }">
+            Xem tất cả dự án <i class="ti-arrow-right" aria-hidden="true"></i>
+          </RouterLink>
+        </div>
+      </div>
+      
+      <div class="projects-stack-container">
+        <div
+          v-for="(project, index) in featuredProjects"
+          :key="project.id"
+          :id="`project-${project.id}`"
+          class="stack-card animate-box"
+          :style="{ '--card-index': index }"
+          data-animate-effect="fadeInUp"
+        >
+          <div class="stack-card-inner">
+            <figure>
+              <img :src="project.image" :alt="project.alt" class="img-fluid" loading="lazy" />
+            </figure>
+            <div class="caption">
+              <h3>{{ project.client }} <span>/ {{ project.location }}</span></h3>
+              <h4>
+                <RouterLink :to="{ name: 'project' }">{{ project.title }}</RouterLink>
+              </h4>
+              <p>{{ project.type }}</p>
+              <div class="row room-facilities">
+                <div v-for="spec in project.specs" :key="spec.label" class="col-md-4">
+                  <ul>
+                    <li>
+                      <component :is="spec.icon" aria-hidden="true" /> {{ spec.label }}
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              <hr class="border-2" />
+              <div class="info-wrapper">
+                <div class="more">
+                  <RouterLink :to="{ name: 'project' }" class="link-btn" tabindex="0">
+                    Chi tiết <i class="ti-arrow-right" aria-hidden="true"></i>
+                  </RouterLink>
+                </div>
+                <div class="butn-dark">
+                  <RouterLink :to="{ name: 'home', hash: '#consultation' }">
+                    <span>Đặt lịch tư vấn</span>
+                  </RouterLink>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+.rooms2[id] {
+  scroll-margin-top: 115px;
+}
+
+.rooms2[id]:target {
+  outline: 1px solid rgba(170, 132, 83, 0.55);
+  outline-offset: 12px;
+}
+
+.featured-projects-header {
+  margin-bottom: 60px;
+}
+
+.featured-projects-header .section-title {
+  margin-bottom: 0;
+}
+
+.featured-projects-header .section-title span {
+  color: #221f1a;
+}
+
+.featured-projects-all {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(90, 70, 45, 0.35);
+  color: #4f4a43;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.featured-projects-all:hover,
+.featured-projects-all:focus-visible {
+  border-color: #8a6a3f;
+  color: #8a6a3f;
+}
+
+@media (max-width: 767.98px) {
+  .featured-projects-all {
+    margin-top: 17px;
+  }
+}
+
+.room2 .container {
+  max-width: 1140px;
+}
+
+/* --- Scroll Stack Styles --- */
+.projects-stack-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0; /* Stack cards have their own margins/offsets */
+  position: relative;
+}
+
+.stack-card {
+  position: sticky;
+  /* dynamic top offset: 100px + 20px per card to keep top edges visible */
+  top: calc(100px + (var(--card-index) * 20px));
+  margin-bottom: 100px; 
+  width: 100%;
+  transition: transform 0.3s ease-out;
+}
+
+.stack-card-inner {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 -10px 30px rgba(0,0,0,0.05), 0 20px 40px rgba(0,0,0,0.1);
+  border: 1px solid rgba(170, 132, 83, 0.2);
+  transition: transform 0.3s ease;
+}
+
+/* Optional: Slight scale effect when cards overlap */
+.stack-card:nth-child(n) {
+  transform-origin: center top;
+}
+
+/* Cappa-style Image */
+.stack-card-inner > figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 8 / 5;
+  object-fit: cover;
+}
+
+/* Caption setup */
+.stack-card-inner .caption {
+  height: 390px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 28px 4%;
+  background: #fff;
+}
+
+@media (max-width: 991px) {
+  .stack-card-inner .caption {
+    height: auto;
+  }
+  .stack-card {
+    top: 100px; /* simplify sticky on mobile */
+    margin-bottom: 40px;
+  }
+}
+
+.stack-card-inner .caption p {
+  margin-bottom: 10px;
+}
+
+.room-facilities {
+  display: flex;
+  align-items: flex-start;
+  margin: 0 0 5px;
+}
+
+.room-facilities .col-md-4 {
+  flex: 1 1 0;
+  width: auto;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.room-facilities ul {
+  margin: 0;
+}
+
+.room-facilities ul li {
+  display: flex;
+  align-items: center;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.room-facilities ul li svg {
+  width: 16px;
+  height: 16px;
+  margin-right: 7px;
+  color: #aa8453;
+  flex-shrink: 0;
+}
+</style>

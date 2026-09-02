@@ -3,6 +3,7 @@ import { computed, nextTick, reactive, ref } from 'vue'
 import { submitConsultation } from '../api/consultationClient'
 import image1 from '../assets/img/1.jpg'
 import { bookingUseStore } from '../stores/bookingstore'
+import { Phone } from 'lucide-vue-next'
 
 type ConsultationField =
   | 'fullName'
@@ -244,7 +245,7 @@ async function handleSubmit() {
             </ul>
 
             <div class="reservations consultation-hotline">
-              <div class="icon color-1"><span class="flaticon-call"></span></div>
+              <div class="icon color-1"><span><Phone :size="34" :stroke-width="1.25" /></span></div>
               <div class="text">
                 <p class="color-1">Tư vấn trực tiếp</p>
                 <a class="color-1" href="tel:+84961109897">(+84) 961-109-897</a>

@@ -5,6 +5,14 @@ import PricingComponent from '../template/05_PricingComponent.vue'
 import FaciltiesComponent from '../template/07_FaciltiesComponent.vue'
 import TeamComponent from '../template/14_TeamComponent.vue'
 import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
+import { setPageSeo } from '../utils/seo'
+
+setPageSeo({
+  title: 'Giới thiệu',
+  description:
+    'D&L Furniture — xưởng nội thất thiết kế và thi công gỗ óc chó, gỗ tự nhiên cao cấp tại Hà Nội. Đội ngũ thiết kế, thi công và bảo hành trọn đời.',
+  path: '/gioi-thieu'
+})
 </script>
 
 <template>

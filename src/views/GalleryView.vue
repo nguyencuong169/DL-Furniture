@@ -9,6 +9,14 @@ import type {
   GalleryQuery,
   GalleryResponse
 } from '../types/gallery'
+import { setPageSeo } from '../utils/seo'
+
+setPageSeo({
+  title: 'Thư viện',
+  description:
+    'Hình ảnh và video thực tế các công trình nội thất D&L Furniture đã thi công: phòng khách, phòng ngủ, phòng bếp gỗ óc chó và gỗ tự nhiên.',
+  path: '/thu-vien'
+})
 
 const IMAGE_PAGE_SIZE = 10
 const VIDEO_PAGE_SIZE = 4

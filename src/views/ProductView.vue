@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, watch } from 'vue'
 
 import router from '../router'
+import { setPageSeo } from '../utils/seo'
 
 const cateTitle = computed(() => {
   if (router.currentRoute.value.path.startsWith('/san-pham/phong-khach/')) {
@@ -14,6 +15,19 @@ const cateTitle = computed(() => {
     return 'Sản phẩm'
   }
 })
+
+// Tiêu đề trang đổi theo danh mục đang xem (phòng khách / phòng ngủ / phòng bếp)
+watch(
+  cateTitle,
+  (title) =>
+    setPageSeo({
+      title,
+      description:
+        'Sản phẩm nội thất gỗ óc chó và gỗ tự nhiên: sofa, bàn trà, giường ngủ, tủ quần áo, bàn ăn, tủ bếp — thiết kế và thi công theo yêu cầu tại D&L Furniture.',
+      path: router.currentRoute.value.path
+    }),
+  { immediate: true }
+)
 </script>
 
 <template>
