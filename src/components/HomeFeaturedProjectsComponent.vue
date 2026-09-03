@@ -301,7 +301,12 @@ onUnmounted(() => {
         class="rooms2 card-swap-item"
         :class="{ 'is-swapping': swappingId === project.id }"
         :style="getCardStyle(index, project.id)"
+        role="button"
+        tabindex="0"
+        :aria-label="`Xem dự án ${project.title}`"
         @click="selectCard(index)"
+        @keydown.enter.prevent="selectCard(index)"
+        @keydown.space.prevent="selectCard(index)"
       >
         <div class="card-top-bar">
           <span class="card-hero-line" aria-hidden="true"></span>
@@ -389,7 +394,7 @@ onUnmounted(() => {
 }
 
 .card-swap-deck {
-  width: 100%; height: 100%; transform: rotate(2deg) !important; transform-origin: bottom right;
+  width: 100%; height: 100%; transform: rotate(2deg) scale(1.1) !important; transform-origin: bottom right;
 }
 
 /* Cặp nút điều hướng gài lọt lòng góc trái ảnh active
@@ -498,6 +503,28 @@ onUnmounted(() => {
 .fade-slide-leave-active { transition: opacity 0.3s ease-in, transform 0.3s ease-in; }
 .fade-slide-enter-from { opacity: 0; transform: translate3d(-24px, 0, 0); }
 .fade-slide-leave-to { opacity: 0; transform: translate3d(15px, 0, 0); }
+
+/* Hiệu ứng Ken Burns cho ảnh nền mỗi dự án: crossfade mềm + zoom nhẹ
+   (scale 1.06 → 1) khi đổi dự án — tạo cảm giác ảnh "thở" chuyển động */
+.ken-burns-enter-active {
+  transition:
+    opacity 1.1s ease,
+    transform 1.1s cubic-bezier(0.25, 1, 0.5, 1);
+}
+.ken-burns-leave-active {
+  transition: opacity 0.55s ease;
+}
+.ken-burns-enter-from {
+  opacity: 0;
+  transform: scale(1.06);
+}
+.ken-burns-leave-to {
+  opacity: 0;
+}
+.ken-burns-enter-to {
+  opacity: 1;
+  transform: scale(1);
+}
 
 .featured-projects-header { margin-bottom: 40px; }
 .featured-projects-header .section-title span { color: #ffffff; }
@@ -618,6 +645,32 @@ onUnmounted(() => {
   .m-link { color: #ffffff; font-size: 13px; font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; }
   .m-link i { color: #aa8453; margin-left: 3px; }
   .m-btn { background: #aa8453; color: #ffffff; padding: 5px 14px; font-size: 12px; border-radius: 4px; font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; }
+}
+
+/* ==========================================================================
+   DESKTOP ≥992px — "HIỂN THỊ NHƯ HERO": section phủ đúng 1 viewport
+   Cuộn tới → section chiếm trọn màn hình (min-height: 100svh), nội dung neo
+   ĐÁY (flex-end — kế thừa thiết kế gốc của section) → xấp card tịnh tiến
+   xuống bottom, giữ nguyên hiệu ứng cắt mép (-140px bị overflow:hidden clip
+   tại đáy viewport). Ngắm trọn vẹn "Dự án tiêu biểu". Cuộn tiếp → section
+   dâng lên cuộn bình thường, KHÔNG chốt, KHÔNG dead-scroll.
+========================================================================== */
+@media (min-width: 992px) {
+  .featured-projects-section {
+    min-height: 100vh;
+    min-height: 100svh;
+    height: auto;
+    padding: 0 0 0 !important;
+    align-items: flex-end;
+  }
+
+  .content-layer {
+    padding-bottom: 0;
+  }
+
+  .featured-projects-header {
+    margin-bottom: 32px;
+  }
 }
 
 </style>

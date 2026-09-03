@@ -2,148 +2,118 @@
 <html lang="vi">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Horizontal Timeline Stepper - Bản Chuẩn 100%</title>
+    <title>Timeline Scroll Demo</title>
     <style>
-      /* Container bao quanh quyết định độ dài quãng đường cuộn chuột */
-      .timeline-wrapper {
-        position: relative;
-        height: 300vh; /* Tăng/giảm để chỉnh tốc độ cuộn nhanh/chậm */
-        background-color: #f4f4f4;
+      body {
+        margin: 0;
+        font-family: sans-serif;
       }
 
-      /* Khóa track timeline cố định trong màn hình khi đang cuộn */
-      .timeline-sticky {
-        position: sticky;
-        top: 0;
-        height: 100vh;
-        overflow: hidden; /* Cắt bỏ phần timeline tràn ra ngoài màn hình */
-        display: flex;
-        align-items: center;
-      }
-
-      /* Chuỗi 6 bước xếp thành hàng ngang */
-      .timeline-track {
-        display: flex;
-        width: 600vw; /* 6 steps x 100vw mỗi step */
-        will-change: transform;
-        transition: transform 0.1s ease-out; /* Giúp mượt mà hơn */
-      }
-
-      /* Chi tiết từng step chiếm trọn 1 màn hình */
-      .step {
+      /* Timeline ngang full-screen */
+      .timeline-container {
+        overflow-x: auto;
+        overflow-y: hidden;
+        scroll-snap-type: x mandatory;
+        -webkit-overflow-scrolling: touch;
         width: 100vw;
         height: 100vh;
-        flex-shrink: 0;
         display: flex;
-        flex-direction: column;
-        justify-content: center;
+      }
+
+      .timeline {
+        display: flex;
+        height: 100%;
+      }
+
+      .step {
+        flex: 0 0 100%;
+        scroll-snap-align: start;
+        display: flex;
         align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        background: #f5f5dc;
+        border: 1px solid #ccc;
+      }
+
+      /* Nội dung dọc bên dưới */
+      .content {
         padding: 40px;
-        box-sizing: border-box;
+        background: #fafafa;
       }
 
-      /* Section tiếp theo ngay sau timeline */
-      .next-section {
-        height: 100vh;
-        background: #222;
-        color: #fff;
+      .content h2 {
+        margin-top: 0;
       }
 
-      .timeline-wrapper {
-        position: relative;
-        height: 300vh;
-        view-timeline-name: --timeline-scroll;
-        view-timeline-axis: block;
+      /* Hiệu ứng fade-in */
+      .fade-in {
+        opacity: 0;
+        transform: translateY(20px);
+        transition:
+          opacity 1s ease,
+          transform 1s ease;
       }
-
-      .timeline-sticky {
-        position: sticky;
-        top: 0;
-        height: 100vh;
-        overflow: hidden;
-      }
-
-      .timeline-track {
-        display: flex;
-        width: 600vw;
-        /* Gắn animation dịch chuyển vào timeline cuộn */
-        animation: scroll-horizontal linear both;
-        animation-timeline: --timeline-scroll;
-        animation-range: contain 0% contain 100%;
-      }
-
-      @keyframes scroll-horizontal {
-        to {
-          transform: translateX(-500vw); /* Dịch chuyển qua 5 steps để hiện step 6 */
-        }
+      .fade-in.visible {
+        opacity: 1;
+        transform: translateY(0);
       }
     </style>
   </head>
   <body>
-    <div class="section-normal">
-      <h1>Nội dung phía trên (100vh)</h1>
-      <p style="font-size: 1rem; color: #94a3b8; margin-top: 10px">
-        ⬇️ Lăn chuột xuống dưới để vào Timeline ngang
-      </p>
-    </div>
-
-    <div class="timeline-wrapper">
-      <div class="timeline-sticky">
-        <div class="timeline-track" id="timelineTrack">
-          <div class="step">
-            <h3>Step 1</h3>
-            <p>Nội dung 1</p>
-          </div>
-          <div class="step">
-            <h3>Step 2</h3>
-            <p>Nội dung 2</p>
-          </div>
-          <div class="step">
-            <h3>Step 3</h3>
-            <p>Nội dung 3</p>
-          </div>
-          <div class="step">
-            <h3>Step 4</h3>
-            <p>Nội dung 4</p>
-          </div>
-          <div class="step">
-            <h3>Step 5</h3>
-            <p>Nội dung 5</p>
-          </div>
-          <div class="step">
-            <h3>Step 6</h3>
-            <p>Nội dung 6</p>
-          </div>
-        </div>
+    <!-- Timeline ngang -->
+    <section class="timeline-container" id="timeline">
+      <div class="timeline">
+        <div class="step">Bước 01<br />Lắng nghe & định hướng</div>
+        <div class="step">Bước 02<br />Khảo sát hiện trạng</div>
+        <div class="step">Bước 03<br />Phát triển thiết kế</div>
+        <div class="step">Bước 04<br />Sản xuất & kiểm soát</div>
+        <div class="step">Bước 05<br />Lắp đặt & hiệu chỉnh</div>
+        <div class="step">Bước 06<br />Nghiệm thu & đồng hành</div>
       </div>
-    </div>
-    <div class="next-section">Nội dung tiếp theo (Không bị khoảng trắng)</div>
+    </section>
+
+    <!-- Nội dung dọc -->
+    <section class="content fade-in">
+      <h2>Chi tiết dự án</h2>
+      <p>
+        Đây là phần nội dung bổ sung bên dưới timeline. Người dùng chỉ có thể scroll xuống sau khi
+        đã cuộn hết timeline ngang.
+      </p>
+      <p>Bạn có thể thêm hình ảnh, mô tả chi tiết, hoặc bất kỳ nội dung nào khác ở đây.</p>
+      <p>
+        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus
+        tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor.
+      </p>
+      <p>Phần này có thể dài tùy ý, và sẽ scroll dọc bình thường.</p>
+    </section>
 
     <script>
-      // window.addEventListener('scroll', () => {
-      //   const wrapper = document.querySelector('.timeline-wrapper')
-      //   const track = document.getElementById('timelineTrack')
+      const timeline = document.getElementById('timeline')
 
-      //   if (!wrapper || !track) return
+      // Chặn cuộn dọc trong timeline cho đến khi hết ngang
+      timeline.addEventListener('wheel', function (e) {
+        const maxScroll = timeline.scrollWidth - timeline.clientWidth
+        const atEnd = timeline.scrollLeft >= maxScroll - 5 // gần cuối
+        if (!atEnd && e.deltaY > 0) {
+          e.preventDefault()
+          timeline.scrollLeft += e.deltaY // chuyển thành cuộn ngang
+        }
+      })
 
-      //   const wrapperTop = wrapper.offsetTop
-      //   const wrapperHeight = wrapper.offsetHeight
-      //   const windowHeight = window.innerHeight
-      //   const scrollTop = window.scrollY
+      // Intersection Observer cho fade-in nội dung dọc
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add('visible')
+            }
+          })
+        },
+        { threshold: 0.1 }
+      )
 
-      //   // Tính tiến trình cuộn từ 0 đến 1 bên trong wrapper
-      //   let progress = (scrollTop - wrapperTop) / (wrapperHeight - windowHeight)
-
-      //   // Giới hạn tiến trình trong khoảng [0, 1]
-      //   progress = Math.max(0, Math.min(1, progress))
-
-      //   // 6 steps nghĩa là cần dịch chuyển tối đa sang trái 500vw (5 phần còn lại)
-      //   const maxTranslate = 500
-      //   const translateX = progress * maxTranslate
-
-      //   track.style.transform = `translateX(-${translateX}vw)`
-      // })
+      document.querySelectorAll('.fade-in').forEach((el) => observer.observe(el))
     </script>
   </body>
 </html>
