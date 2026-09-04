@@ -166,6 +166,12 @@ onBeforeUnmount(() => {
               src="@/assets/img/intros/intro6.jpg"
               alt="Không gian nội thất do D&L Furniture thiết kế và thi công"
             />
+            <!-- Seal "15+ năm": điểm nhấn editorial đè mép ảnh. Số liệu bind từ
+                 stat 'experience' (stats[0]) — cùng nguồn với cột phải, không hardcode -->
+            <div class="about-badge">
+              <span class="about-badge-value">{{ stats[0]?.value }}{{ stats[0]?.suffix }}</span>
+              <span class="about-badge-label">{{ stats[0]?.label }}</span>
+            </div>
           </div>
         </div>
 
@@ -202,6 +208,7 @@ onBeforeUnmount(() => {
 }
 
 .about-image {
+  position: relative; /* neo cho seal "15+ năm" */
   height: 100%;
   display: flex;
   align-items: center;
@@ -214,6 +221,83 @@ onBeforeUnmount(() => {
   max-height: 480px;
   object-fit: cover;
   border-radius: 4px;
+}
+
+/* ── SEAL "15+ NĂM" ──────────────────────────────────────────────────────
+   Con dấu tròn nền tối + vành khắc nét đứt gold, treo nửa ngoài mép trái ảnh
+   (phá khung kiểu editorial). Dùng lại hệ màu #1f1d1a / #aa8453 / #d7b98a. */
+.about-badge {
+  position: absolute;
+  left: -30px;
+  bottom: 30px;
+  z-index: 2;
+  width: 128px;
+  height: 128px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  border-radius: 50%;
+  /* Nền hơi trong + halo ring 6px bao ngoài: badge tách khỏi ảnh DỮ màu nào
+     (sáng hay tối) — fix trường hợp đặt trên vùng ảnh tối bị "tan" vào nền */
+  background: rgba(32, 29, 25, 0.9);
+  border: 1px solid rgba(212, 178, 128, 0.75);
+  box-shadow:
+    0 0 0 6px rgba(32, 29, 25, 0.22),
+    0 20px 44px rgba(34, 29, 22, 0.35);
+  text-align: center;
+  transition: transform 0.35s ease;
+}
+
+/* Vành khắc thứ hai nét đứt — chất "con dấu khắc gỗ" */
+.about-badge::before {
+  position: absolute;
+  inset: 7px;
+  border: 1px dashed rgba(212, 178, 128, 0.65);
+  border-radius: 50%;
+  content: '';
+}
+
+.about-badge:hover {
+  transform: rotate(-4deg);
+}
+
+.about-badge-value {
+  font-family: 'Gilda Display', serif;
+  font-size: 34px;
+  font-weight: 400;
+  line-height: 1;
+  color: #d7b98a;
+}
+
+.about-badge-label {
+  max-width: 88px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+  line-height: 1.35;
+  color: rgba(255, 255, 255, 0.82);
+  text-transform: uppercase;
+}
+
+@media (max-width: 991px) {
+  /* Mobile: badge thu nhỏ + lùi vào TRONG ảnh (đừng tràn ra ngoài màn hình) */
+  .about-badge {
+    left: 14px;
+    bottom: 14px;
+    width: 104px;
+    height: 104px;
+  }
+
+  .about-badge-value {
+    font-size: 27px;
+  }
+
+  .about-badge-label {
+    font-size: 8.5px;
+  }
 }
 
 .stats-container {
@@ -281,44 +365,55 @@ onBeforeUnmount(() => {
     --bs-gutter-x: 1.5rem;
   }
 
+  /* GỌN CHIỀU DỌC: trước đây padding đáy section (~100px) + mb-30 của cột
+     cộng dồn tạo khoảng trống trắng dài dưới stats — gom về mức vừa phải */
+  .about.section-padding {
+    padding-bottom: 48px;
+  }
+
+  .about-layout > [class*='col-'] {
+    margin-bottom: 14px;
+  }
+
   .about-image img {
-    min-height: 260px;
-    max-height: 380px;
+    min-height: 240px;
+    max-height: 340px;
   }
 
   .stats-container {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 1.75rem;
+    /* 1 stat mỗi hàng — cột hẹp không đủ chỗ cho "12.000+" nếu lên 2 cột */
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding-top: 0.25rem;
+  }
+
+  .stat-item {
+    gap: 0.75rem;
   }
 
   .stat-icon {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
   }
 
   .stat-icon-wrapper {
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
   }
 
   .stat-value {
-    font-size: 38px;
+    font-size: clamp(24px, 3.4vw, 32px);
   }
 }
 
 @media (max-width: 575px) {
-  .stats-container {
-    grid-template-columns: 1fr;
-    gap: 1.25rem;
-    padding-top: 1.25rem;
-  }
   .stat-label,
   .stat-value {
     white-space: normal;
   }
   .stat-value {
-    font-size: 32px;
+    font-size: 30px;
   }
 }
 </style>

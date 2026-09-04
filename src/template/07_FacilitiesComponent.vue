@@ -1,10 +1,10 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 // Đồng bộ 1 bộ icon outline duy nhất (Lucide) với phần Quy trình (09)
 import { Cog, Globe, Hammer, Paintbrush, ShieldCheck, Thermometer } from 'lucide-vue-next'
 </script>
 
 <template>
-  <section class="facilties section-padding">
+  <section class="facilities section-padding">
     <div class="container">
       <div class="row">
         <div class="col-md-12">
@@ -103,40 +103,40 @@ import { Cog, Globe, Hammer, Paintbrush, ShieldCheck, Thermometer } from 'lucide
 </template>
 
 <style scoped>
-.facilties .container > .row:first-child {
+.facilities .container > .row:first-child {
   margin-bottom: 46px;
 }
 
-.facilties .section-title {
+.facilities .section-title {
   margin-bottom: 0;
 }
 
 /* Grid: các card trong cùng một hàng luôn cao bằng nhau */
-.facilties .container > .row:last-child {
+.facilities .container > .row:last-child {
   --bs-gutter-x: 2rem;
   align-items: stretch;
 }
 
-.facilties .container > .row:last-child > [class*='col-'] {
+.facilities .container > .row:last-child > [class*='col-'] {
   display: flex;
   margin-bottom: 30px; /* nhận thay margin-bottom cũ của card */
 }
 
 /* Lucide SVG: bỏ khoảng trắng baseline */
-.facilties .single-facility .facility-head svg,
-.facilties .single-facility .facility-shape span svg {
+.facilities .single-facility .facility-head svg,
+.facilities .single-facility .facility-shape span svg {
   display: block;
 }
 
 /* Header card: icon + tag trên cùng một hàng để gọn chiều cao */
-.facilties .single-facility .facility-head {
+.facilities .single-facility .facility-head {
   display: flex;
   align-items: center;
   gap: 14px;
   margin-bottom: 16px;
 }
 
-.facilties .single-facility .facility-head > span:first-child {
+.facilities .single-facility .facility-head > span:first-child {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -145,12 +145,12 @@ import { Cog, Globe, Hammer, Paintbrush, ShieldCheck, Thermometer } from 'lucide
   transition: transform 0.35s ease;
 }
 
-.facilties .single-facility:hover .facility-head > span:first-child {
+.facilities .single-facility:hover .facility-head > span:first-child {
   transform: translateY(-3px);
 }
 
 /* Hover đồng nhất với hệ card toàn homepage: nâng nhẹ, viền gold, đổ bóng mảnh */
-.facilties .single-facility {
+.facilities .single-facility {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
@@ -168,13 +168,13 @@ import { Cog, Globe, Hammer, Paintbrush, ShieldCheck, Thermometer } from 'lucide
     transform 0.35s ease;
 }
 
-.facilties .single-facility:hover {
+.facilities .single-facility:hover {
   border-color: #d8c29b;
   box-shadow: 0 16px 34px rgba(34, 29, 22, 0.08);
   transform: translateY(-5px);
 }
 
-.facilties .single-facility .facility-tag {
+.facilities .single-facility .facility-tag {
   display: block;
   margin-bottom: 0;
   color: #9e7746;
@@ -186,18 +186,18 @@ import { Cog, Globe, Hammer, Paintbrush, ShieldCheck, Thermometer } from 'lucide
   text-transform: uppercase;
 }
 
-.facilties .single-facility h5 {
+.facilities .single-facility h5 {
   margin-bottom: 10px;
   color: #221f1a;
   font-size: 22px;
   transition: color 0.35s ease;
 }
 
-.facilties .single-facility:hover h5 {
+.facilities .single-facility:hover h5 {
   color: #8a6a3f;
 }
 
-.facilties .single-facility p {
+.facilities .single-facility p {
   margin: 0;
   color: #666;
   font-size: 15px;
@@ -205,41 +205,41 @@ import { Cog, Globe, Hammer, Paintbrush, ShieldCheck, Thermometer } from 'lucide
 }
 
 /* Watermark icon: neo góc phải-dưới thay vì left cố định để không chồng lên nội dung */
-.facilties .single-facility .facility-shape {
+.facilities .single-facility .facility-shape {
   left: auto;
   right: 18px;
   bottom: 10px;
 }
 
 @media (max-width: 767.98px) {
-  .facilties .container > .row:last-child > [class*='col-'] {
+  .facilities .container > .row:last-child > [class*='col-'] {
     margin-bottom: 20px;
   }
 }
 
 @media (max-width: 575.98px) {
-  .facilties .container > .row:first-child {
+  .facilities .container > .row:first-child {
     margin-bottom: 34px;
   }
 
-  .facilties .container > .row:last-child > [class*='col-'] {
+  .facilities .container > .row:last-child > [class*='col-'] {
     margin-bottom: 16px;
   }
 
-  .facilties .single-facility {
+  .facilities .single-facility {
     padding: 26px 22px;
   }
 
-  .facilties .single-facility .facility-head {
+  .facilities .single-facility .facility-head {
     gap: 12px;
     margin-bottom: 14px;
   }
 
-  .facilties .single-facility .facility-tag {
+  .facilities .single-facility .facility-tag {
     font-size: 12px;
   }
 
-  .facilties .single-facility h5 {
+  .facilities .single-facility h5 {
     font-size: 20px;
   }
 }

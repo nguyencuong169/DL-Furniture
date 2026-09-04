@@ -1,10 +1,10 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import aboutBanner from '../assets/img/slider/1.jpg'
 import AboutComponent from '../template/03_AboutComponent.vue'
 import PricingComponent from '../template/05_PricingComponent.vue'
-import FaciltiesComponent from '../template/07_FaciltiesComponent.vue'
+import FacilitiesComponent from '../template/07_FacilitiesComponent.vue'
 import TeamComponent from '../template/14_TeamComponent.vue'
-import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
+import TestimonialsComponent from '../template/08_TestimonialsComponent.vue'
 import { setPageSeo } from '../utils/seo'
 
 setPageSeo({
@@ -39,14 +39,14 @@ setPageSeo({
     <!-- Pricing -->
     <PricingComponent />
 
-    <!-- Facilties -->
-    <FaciltiesComponent />
+    <!-- Facilities -->
+    <FacilitiesComponent />
 
     <!-- Team -->
     <TeamComponent />
 
-    <!-- Testiominals -->
-    <TestiominalsComponent />
+    <!-- Testimonials -->
+    <TestimonialsComponent />
   </main>
 </template>
 

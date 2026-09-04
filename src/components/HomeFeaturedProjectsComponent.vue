@@ -812,17 +812,20 @@ onUnmounted(() => {
   .mobile-scroll-wrapper { width: 100%; padding: 5px 0 15px 0; }
   .mobile-scroll-container { display: flex !important; flex-wrap: nowrap !important; overflow-x: auto !important; padding-left: 20px; padding-right: 20px; gap: 20px; scroll-snap-type: x mandatory !important; -webkit-overflow-scrolling: touch; }
   .mobile-scroll-container::-webkit-scrollbar { display: none; }
-  .mobile-project-card-wrapper { flex: 0 0 82%; width: 82%; scroll-snap-align: center !important; }
-  .mobile-project-card { background: #1e1b18; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); }
+  .mobile-project-card-wrapper { display: flex; flex: 0 0 82%; width: 82%; scroll-snap-align: center !important; }
+  /* Card full chiều cao wrapper + flex column: mọi card CÙNG CHIỀU CAO bất kể
+     tiêu đề 1 hay 2 dòng (trước đây card title 2 dòng cao hơn → xấp lệch size) */
+  .mobile-project-card { display: flex; flex-direction: column; width: 100%; background: #1e1b18; border-radius: 14px; overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.06); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3); }
   .mobile-card-image { position: relative; width: 100%; aspect-ratio: 8 / 5; overflow: hidden; }
   .mobile-card-image img { width: 100%; height: 100%; object-fit: cover; }
   .mobile-image-badge { position: absolute; top: 12px; left: 12px; background: rgba(18, 16, 14, 0.85); padding: 3px 10px; border-radius: 20px; border: 1px solid rgba(170, 132, 83, 0.3); }
   .mobile-image-badge span { color: #aa8453; font-size: 10px; font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; letter-spacing: 0.05em; }
-  .mobile-card-caption { padding: 18px 16px; }
+  .mobile-card-caption { display: flex; flex-direction: column; flex: 1; padding: 18px 16px; }
   .m-client { color: #aa8453; font-size: 11px; text-transform: uppercase; letter-spacing: 2px; font-weight: 600; display: block; margin-bottom: 2px; }
-  .m-title a { color: #ffffff; font-size: 20px; font-family: 'Gilda Display', serif; font-weight: 400; line-height: 1.3; }
+  .m-title { min-height: 52px; /* đủ 2 dòng 20px × 1.3 — title 1 dòng vẫn giữ chỗ, các card đồng cao */ }
+  .m-title a { color: #ffffff; font-size: 20px; font-family: 'Gilda Display', serif; font-weight: 400; line-height: 1.3; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
   .m-type { color: #b5b5b5; font-size: 13px; margin-bottom: 15px; }
-  .mobile-card-actions { display: flex; align-items: center; justify-content: space-between; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 14px; }
+  .mobile-card-actions { display: flex; align-items: center; justify-content: space-between; margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.06); padding-top: 14px; }
   .m-link { color: #ffffff; font-size: 13px; font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; }
   .m-link i { color: #aa8453; margin-left: 3px; }
   .m-btn { background: #aa8453; color: #ffffff; padding: 5px 14px; font-size: 12px; border-radius: 4px; font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; }

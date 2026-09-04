@@ -1,10 +1,46 @@
 <script setup lang="ts">
 import testimonialBg from '../assets/img/slider/slider_5.jpg'
-import { ref, onMounted, nextTick } from 'vue'
+import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { fetchTestimonials, type TestimonialResponse } from '../api/testimonialClient'
 import { initOwlCarousel } from '../utils/carousel'
 
 const testimonials = ref<TestimonialResponse[]>([])
+
+/* ── ENTRANCE REVEAL (chạy 1 lần) ─────────────────────────────────────────
+   Section render LẶP ĐỢI sau khi fetch (v-if) → observer phải setup SAU
+   nextTick. Tự chứa (không phụ thuộc animate-box của theme custom.js) và
+   cùng ngôn ngữ fade-up với Craft/Featured. prefers-reduced-motion → hiện
+   tĩnh ngay (WCAG 2.2.2). */
+const sectionRef = ref<HTMLElement | null>(null)
+const isRevealed = ref(false)
+let revealObserver: IntersectionObserver | null = null
+
+const prefersReducedMotion =
+  typeof window !== 'undefined' &&
+  window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+
+const setupReveal = () => {
+  const el = sectionRef.value
+  if (!el) return
+
+  if (prefersReducedMotion || typeof IntersectionObserver === 'undefined') {
+    isRevealed.value = true
+    return
+  }
+
+  revealObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          isRevealed.value = true
+          revealObserver?.disconnect()
+        }
+      })
+    },
+    { threshold: 0.15, rootMargin: '0px 0px -5% 0px' }
+  )
+  revealObserver.observe(el)
+}
 
 const projectLabels: Record<number, string> = {
   1: 'Cải tạo phòng khách & phòng ngủ',
@@ -37,6 +73,11 @@ onMounted(async () => {
       1000: { items: 1 }
     }
   })
+  setupReveal()
+})
+
+onBeforeUnmount(() => {
+  revealObserver?.disconnect()
 })
 </script>
 
@@ -47,7 +88,9 @@ onMounted(async () => {
     aria-labelledby="testimonials-title"
   >
     <div
+      ref="sectionRef"
       class="background bg-img bg-fixed section-padding pb-0"
+      :class="{ 'is-revealed': isRevealed }"
       :style="{ backgroundImage: `url(${testimonialBg})` }"
       data-overlay-dark="3"
     >
@@ -94,4 +137,26 @@ onMounted(async () => {
   </section>
 </template>
 
-<style scoped></style>
+<style scoped>
+/* ── ENTRANCE REVEAL: khối nội dung trượt lên khi vào viewport (1 lần) ── */
+.testimonials-box {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.8s ease 0.05s,
+    transform 0.8s cubic-bezier(0.25, 1, 0.5, 1) 0.05s;
+}
+
+.is-revealed .testimonials-box {
+  opacity: 1;
+  transform: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .testimonials-box {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+</style>

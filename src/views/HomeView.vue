@@ -1,4 +1,4 @@
-<script setup lang="ts">
+﻿<script setup lang="ts">
 import { onBeforeUnmount, onMounted } from 'vue'
 import SliderComponent from '../template/02_SliderComponent.vue'
 import AboutComponent from '../template/03_AboutComponent.vue'
@@ -7,8 +7,8 @@ import HomeFeaturedProjectsComponent from '../components/HomeFeaturedProjectsCom
 import PricingComponent from '../template/05_PricingComponent.vue'
 import StatementComponent from '../template/13_StatementComponent.vue'
 import HomeCraftComponent from '../template/06_CraftComponent.vue'
-import FaciltiesComponent from '../template/07_FaciltiesComponent.vue'
-import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
+import FacilitiesComponent from '../template/07_FacilitiesComponent.vue'
+import TestimonialsComponent from '../template/08_TestimonialsComponent.vue'
 import ServicesComponent from '../template/09_ServicesComponent.vue'
 import NewsComponent from '../template/10_NewsComponent.vue'
 import BookingFormComponent from '../template/11_BookingFormComponent.vue'
@@ -113,8 +113,8 @@ onBeforeUnmount(() => {
     <HomeFeaturedProjectsComponent />
     <StatementComponent />
     <HomeCraftComponent />
-    <FaciltiesComponent />
-    <TestiominalsComponent />
+    <FacilitiesComponent />
+    <TestimonialsComponent />
     <ServicesComponent />
     <PricingComponent />
     <NewsComponent :limit="6" :loop="false" variant="grid" />
