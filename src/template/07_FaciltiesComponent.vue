@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Đồng bộ 1 bộ icon outline duy nhất (Lucide) với phần Quy trình (09)
-import { Globe, Hammer, Paintbrush, PencilRuler, ShieldCheck, Thermometer } from 'lucide-vue-next'
+import { Cog, Globe, Hammer, Paintbrush, ShieldCheck, Thermometer } from 'lucide-vue-next'
 </script>
 
 <template>
@@ -8,8 +8,8 @@ import { Globe, Hammer, Paintbrush, PencilRuler, ShieldCheck, Thermometer } from
     <div class="container">
       <div class="row">
         <div class="col-md-12">
-          <div class="section-subtitle"><span>Cam kết chất lượng</span></div>
-          <div class="section-title">Vì sao chọn chúng tôi</div>
+          <div class="section-subtitle"><span>Chất liệu & bảo hành</span></div>
+          <div class="section-title">Vật liệu & cam kết kỹ thuật</div>
         </div>
       </div>
       <div class="row">
@@ -33,10 +33,10 @@ import { Globe, Hammer, Paintbrush, PencilRuler, ShieldCheck, Thermometer } from
               <span><Hammer :size="40" :stroke-width="1.5" /></span>
               <span class="facility-tag">Chế tác</span>
             </div>
-            <h5>Kỹ thuật nghệ nhân</h5>
+            <h5>Gia công chuẩn khớp nối</h5>
             <p>
-              Gia công thủ công bởi những nghệ nhân hơn 15 năm kinh nghiệm, xử lý mượt mà từng
-              đường bo và góc cạnh.
+              Mỗi bộ chi tiết được lắp thử tại xưởng trước khi vận chuyển, bảo đảm khớp nối và
+              khe hở đạt chuẩn ngay tại công trình.
             </p>
             <div class="facility-shape"><span><Hammer :size="140" :stroke-width="1" /></span></div>
           </div>
@@ -58,15 +58,15 @@ import { Globe, Hammer, Paintbrush, PencilRuler, ShieldCheck, Thermometer } from
         <div class="col-md-4">
           <div class="single-facility animate-box" data-animate-effect="fadeInUp">
             <div class="facility-head">
-              <span><PencilRuler :size="40" :stroke-width="1.5" /></span>
-              <span class="facility-tag">Cá nhân hóa</span>
+              <span><Cog :size="40" :stroke-width="1.5" /></span>
+              <span class="facility-tag">Phụ kiện</span>
             </div>
-            <h5>Thiết kế riêng theo gia chủ</h5>
+            <h5>Cơ khí chính xác, chịu tải</h5>
             <p>
-              Đo đạc và thiết kế dựa trên phong thủy, tỉ lệ nhân trắc học và kiến trúc riêng của
-              từng không gian.
+              Bản lề giảm chấn, ray trượt và móc treo được chọn theo tải trọng và tần suất sử
+              dụng thực tế của từng hạng mục.
             </p>
-            <div class="facility-shape"><span><PencilRuler :size="140" :stroke-width="1" /></span></div>
+            <div class="facility-shape"><span><Cog :size="140" :stroke-width="1" /></span></div>
           </div>
         </div>
         <div class="col-md-4">
@@ -87,12 +87,12 @@ import { Globe, Hammer, Paintbrush, PencilRuler, ShieldCheck, Thermometer } from
           <div class="single-facility animate-box" data-animate-effect="fadeInUp">
             <div class="facility-head">
               <span><ShieldCheck :size="40" :stroke-width="1.5" /></span>
-              <span class="facility-tag">Dịch vụ</span>
+              <span class="facility-tag">Bảo hành</span>
             </div>
-            <h5>Đồng hành trọn đời</h5>
+            <h5>Bảo hành 5 năm</h5>
             <p>
-              Bảo hành 5 năm cùng dịch vụ bảo trì định kỳ, giúp lớp gỗ luôn sáng đẹp theo thời
-              gian.
+              Phạm vi bảo hành và lịch bảo trì định kỳ được ghi rõ trong hợp đồng — cam kết bằng
+              văn bản, không phải lời hứa suông.
             </p>
             <div class="facility-shape"><span><ShieldCheck :size="140" :stroke-width="1" /></span></div>
           </div>

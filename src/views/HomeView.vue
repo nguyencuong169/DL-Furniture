@@ -6,7 +6,7 @@ import HomeCollectionComponent from '../components/HomeCollectionComponent.vue'
 import HomeFeaturedProjectsComponent from '../components/HomeFeaturedProjectsComponent.vue'
 import PricingComponent from '../template/05_PricingComponent.vue'
 import StatementComponent from '../template/13_StatementComponent.vue'
-import HomeCraftComponent from '../template/06_PromoVideoComponent.vue'
+import HomeCraftComponent from '../template/06_CraftComponent.vue'
 import FaciltiesComponent from '../template/07_FaciltiesComponent.vue'
 import TestiominalsComponent from '../template/08_TestiominalsComponent.vue'
 import ServicesComponent from '../template/09_ServicesComponent.vue'
@@ -98,21 +98,24 @@ onBeforeUnmount(() => {
 
 <template>
   <main>
-    <!-- NHỊP SÁNG/TỐI ĐAN XEN + MẠCH KỂ CHUYỆN:                            -->
-    <!--   tối(slider) → sáng(about) → tối(collection) → sáng(projects)     -->
-    <!--   → sáng-nghỉ(statement) → tối(craft) → sáng(process)              -->
-    <!--   → tối(testimonials) → sáng(materials) → tối(packages)            -->
-    <!--   → sáng(news) → booking CTA cuối. Không 2 section lớn cùng        -->
-    <!--   tông nằm kề nhau (trừ statement = divider chữ chủ đích).         -->
+    <!-- NHỊP SÁNG/TỐI SO LE HOÀN TOÀN + MẠCH THUYẾT PHỤC:                    -->
+    <!--   Tối(Slider) → Sáng(About) → Tối(Collection) → Sáng(Projects)       -->
+    <!--   → Sáng-nghỉ(Statement*) → Tối(Craft) → Sáng(Materials)             -->
+    <!--   → Tối(Testimonials) → Sáng(Process) → Tối(Packages/Quote)          -->
+    <!--   → Sáng(News) → Booking CTA cuối.                                   -->
+    <!--   (*) Statement là divider chữ chủ đích, ngoại lệ duy nhất.          -->
+    <!--   Mạch: chất liệu & cam kết → bằng chứng xã hội → quy trình          -->
+    <!--   hợp tác → phạm vi + báo giá → tin tức → CTA. KHÔNG đảo thứ tự      -->
+    <!--   lỏng lẻo — trình tự thuyết phục đã được thiết kế.                  -->
     <SliderComponent />
     <AboutComponent />
     <HomeCollectionComponent />
     <HomeFeaturedProjectsComponent />
     <StatementComponent />
     <HomeCraftComponent />
-    <ServicesComponent />
-    <TestiominalsComponent />
     <FaciltiesComponent />
+    <TestiominalsComponent />
+    <ServicesComponent />
     <PricingComponent />
     <NewsComponent :limit="6" :loop="false" variant="grid" />
     <BookingFormComponent />

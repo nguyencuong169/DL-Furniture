@@ -55,12 +55,12 @@ onBeforeUnmount(() => {
     <div class="container">
       <div class="row">
         <div class="col-md-4">
-          <div class="section-subtitle"><span>Dịch vụ trọn gói</span></div>
-          <div class="section-title"><span>Dịch vụ thi công</span></div>
+          <div class="section-subtitle"><span>Thi công trọn gói</span></div>
+          <div class="section-title"><span>Từ bản vẽ đến bàn giao</span></div>
           <p class="color-2">
-            <strong>D&L Furniture</strong> đồng hành cùng gia chủ từ khảo sát, thiết kế đến sản xuất
-            và lắp đặt. Với đội ngũ nghệ nhân lành nghề, chúng tôi đã bàn giao hơn 300 dự án nội
-            thất gỗ óc chó cho các biệt thự, penthouse và căn hộ cao cấp.
+            <strong>D&L Furniture</strong> nhận trách nhiệm trọn vẹn theo loại hình không gian —
+            từ khảo sát, thiết kế đến sản xuất và lắp đặt. Đơn giá được báo sau khi khảo sát hiện
+            trạng; khảo sát và tư vấn phương án ban đầu miễn phí.
           </p>
           <div class="reservations mb-30">
             <div class="icon"><span><Phone :size="34" :stroke-width="1.25" /></span></div>
@@ -77,6 +77,12 @@ onBeforeUnmount(() => {
               <div class="desc">
                 <div class="name">{{ item.name }}</div>
                 <span>{{ item.description }}</span>
+                <RouterLink
+                  :to="{ name: 'home', hash: '#consultation' }"
+                  class="pricing-card-cta"
+                >
+                  Nhận báo giá <i class="ti-arrow-right" aria-hidden="true"></i>
+                </RouterLink>
               </div>
             </div>
           </div>
@@ -86,4 +92,32 @@ onBeforeUnmount(() => {
   </section>
 </template>
 
-<style scoped></style>
+<style scoped>
+/* CTA trong card: ngôn ngữ "link gạch vàng" đã dùng ở Craft/Featured.
+   Card nền sáng trên section tối → chữ gold đậm (#9e7746) để đủ tương phản AA */
+.pricing-card-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 26px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(170, 132, 83, 0.5);
+  color: #9e7746;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  transition: color 0.35s ease, border-color 0.35s ease;
+}
+
+.pricing-card-cta:hover {
+  color: #7a5c34;
+  border-color: #9e7746;
+}
+
+.pricing-card-cta:focus-visible {
+  outline: 2px solid #aa8453;
+  outline-offset: 4px;
+}
+</style>

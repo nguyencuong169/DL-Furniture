@@ -4,6 +4,7 @@ import { onBeforeUnmount, onMounted, ref } from 'vue'
 const sectionRef = ref<HTMLElement | null>(null)
 const isVisible = ref(false)
 let observer: IntersectionObserver | null = null
+let resetObserver: IntersectionObserver | null = null
 
 const prefersReducedMotion =
   typeof window !== 'undefined' &&
@@ -63,28 +64,48 @@ onMounted(() => {
   observer = new IntersectionObserver(
     (entries) => {
       entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          // Đợi một chút để trình duyệt kịp vẽ trạng thái ẩn ban đầu (opacity: 0).
-          // Kết hợp rAF + setTimeout đảm bảo đã có ít nhất một lần paint trước khi
-          // kích hoạt animation — nếu không, phần tử "nhảy thẳng" hiện ra không animation.
-          requestAnimationFrame(() => {
-            setTimeout(() => {
-              isVisible.value = true
-            }, 80)
-          })
-        } else {
-          // Reset khi rời viewport để hiệu ứng chạy lại cho mỗi lần quay lại
-          isVisible.value = false
-        }
+        /* Reset về trạng thái ẩn là việc của resetObserver (ngưỡng rời HOÀN
+           TOÀN viewport) — ở đây chỉ quan tâm lúc hiện */
+        if (!entry.isIntersecting) return
+        /* Đang hiện rồi thì không restart animation giữa chừng — chống flicker
+           khi cuộn nhanh đi ngang qua section */
+        if (isVisible.value) return
+        // Đợi một chút để trình duyệt kịp vẽ trạng thái ẩn ban đầu (opacity: 0).
+        // Kết hợp rAF + setTimeout đảm bảo đã có ít nhất một lần paint trước khi
+        // kích hoạt animation — nếu không, phần tử "nhảy thẳng" hiện ra không animation.
+        requestAnimationFrame(() => {
+          setTimeout(() => {
+            isVisible.value = true
+          }, 80)
+        })
       })
     },
     { threshold: 0.25, rootMargin: '0px 0px -5% 0px' }
   )
   observer.observe(el)
+
+  /* RESET CÓ VANH (phương án C): giữ replay theo thiết kế gốc nhưng chống flicker.
+     observer trên reset ở ngưỡng 25% + rootMargin -5% (rời NGAY khi còn lem viền)
+     — nếu reset tại đó thì cuộn nhanh qua sẽ thấy chữ hiện dở bị tắt (flicker).
+     Observer dưới đây dùng threshold 0, KHÔNG margin: chỉ kết luận "rời hẳn"
+     khi pixel cuối cùng của section ra khỏi viewport → reset lúc đó invisible
+     với người dùng; cuộn ngược lại trước khi rời hẳn → animation vẫn giữ nguyên. */
+  resetObserver = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (!entry.isIntersecting && isVisible.value) {
+          isVisible.value = false
+        }
+      })
+    },
+    { threshold: 0 }
+  )
+  resetObserver.observe(el)
 })
 
 onBeforeUnmount(() => {
   observer?.disconnect()
+  resetObserver?.disconnect()
 })
 </script>
 
