@@ -98,16 +98,22 @@ onBeforeUnmount(() => {
 
 <template>
   <main>
+    <!-- NHỊP SÁNG/TỐI ĐAN XEN + MẠCH KỂ CHUYỆN:                            -->
+    <!--   tối(slider) → sáng(about) → tối(collection) → sáng(projects)     -->
+    <!--   → sáng-nghỉ(statement) → tối(craft) → sáng(process)              -->
+    <!--   → tối(testimonials) → sáng(materials) → tối(packages)            -->
+    <!--   → sáng(news) → booking CTA cuối. Không 2 section lớn cùng        -->
+    <!--   tông nằm kề nhau (trừ statement = divider chữ chủ đích).         -->
     <SliderComponent />
     <AboutComponent />
     <HomeCollectionComponent />
-    <PricingComponent />
-    <StatementComponent />
     <HomeFeaturedProjectsComponent />
+    <StatementComponent />
     <HomeCraftComponent />
-    <FaciltiesComponent />
     <ServicesComponent />
     <TestiominalsComponent />
+    <FaciltiesComponent />
+    <PricingComponent />
     <NewsComponent :limit="6" :loop="false" variant="grid" />
     <BookingFormComponent />
   </main>

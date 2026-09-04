@@ -8,7 +8,9 @@ import { featuredProjects } from '../config/featuredProjects'
 const MOBILE_BREAKPOINT = 991
 
 const CARD_VERTICAL_GAP = 86
-const CARD_HORIZONTAL_GAP = 50
+// 36px (thay vì 50px): card active tràn sát mép phải (bleed) nên các card sau dịch
+// phải từng bậc sẽ tràn qua mép màn hình một phần — 36px giữ lượng bị cắt tối thiểu
+const CARD_HORIZONTAL_GAP = 36
 const CARD_SCALE_STEP = 0.04
 const CARD_OPACITY_STEP = 0.12
 const CARD_OPACITY_FLOOR = 0.9
@@ -66,8 +68,12 @@ const getCardStyle = (index: number, id: number) => {
   const ty = index * -CARD_VERTICAL_GAP
   const scale = 1 - (index * CARD_SCALE_STEP)
 
+  // Transform truyền qua CSS variable thay vì inline transform — để :hover/:focus
+  // trong CSS có thể nâng card (inline transform sẽ ghi đè mọi hover rule)
   return {
-    transform: `translate3d(${tx}px, ${ty}px, 0) scale(${scale})`,
+    '--tx': `${tx}px`,
+    '--ty': `${ty}px`,
+    '--card-scale': scale,
     
     // Nâng mức sàn opacity lên 0.9 để chữ trên card phía sau luôn dễ đọc, nét rõ
     opacity: index === 0 ? 1 : Math.max(1 - (index * CARD_OPACITY_STEP), CARD_OPACITY_FLOOR), 
@@ -134,27 +140,41 @@ const selectCard = (index: number) => {
 // ==========================================================================
 
 /**
- * Kiểm tra kích thước màn hình và đồng bộ autoplay:
- * - Desktop → Mobile: dừng autoplay
- * - Mobile → Desktop: khởi động lại autoplay
+ * Kiểm tra kích thước màn hình — autoplay được đồng bộ tập trung qua syncAutoplay()
  */
 const checkScreenSize = () => {
-  const wasMobile = isMobile.value
   isMobile.value = window.innerWidth <= MOBILE_BREAKPOINT
-
-  if (wasMobile && !isMobile.value) {
-    startAutoplay()
-  } else if (!wasMobile && isMobile.value) {
-    stopAutoplay()
-  }
+  syncAutoplay()
 }
 
 let autoplayTimer: ReturnType<typeof setInterval> | null = null
 
-const startAutoplay = () => {
-  if (isMobile.value) return
-  stopAutoplay() // Dừng timer cũ trước khi tạo timer mới (tránh duplicate)
-  autoplayTimer = setInterval(handleNextCard, AUTOPLAY_INTERVAL)
+// ==========================================================================
+// AUTOPLAY GUARDS — chỉ tự chuyển khi TẤT CẢ điều kiện đúng:
+//   1. Desktop (!isMobile)
+//   2. Section đang trong viewport (sectionVisible — IntersectionObserver)
+//   3. Tab đang hiển thị (!document.hidden)
+//   4. User không đang hover lên bộ bài (!isHoveringDeck)
+//   5. Không bật prefers-reduced-motion
+// → Không autoswap ngầm khi user đang xem section khác / tab ẩn / reduce motion
+// ==========================================================================
+const isHoveringDeck = ref(false)
+const sectionVisible = ref(true)
+
+const canAutoplay = () =>
+  !isMobile.value &&
+  sectionVisible.value &&
+  !document.hidden &&
+  !isHoveringDeck.value &&
+  !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+
+/** Đồng bộ timer autoplay theo trạng thái hiện tại (idempotent — không duplicate timer) */
+const syncAutoplay = () => {
+  if (canAutoplay()) {
+    if (!autoplayTimer) autoplayTimer = setInterval(handleNextCard, AUTOPLAY_INTERVAL)
+  } else {
+    stopAutoplay()
+  }
 }
 
 const stopAutoplay = () => {
@@ -164,14 +184,114 @@ const stopAutoplay = () => {
   }
 }
 
+/* Hover bộ bài → tạm dừng autoplay; rời chuột → resume nếu còn đủ điều kiện */
+const onDeckEnter = () => { isHoveringDeck.value = true; syncAutoplay() }
+const onDeckLeave = () => { isHoveringDeck.value = false; syncAutoplay() }
+
+// ==========================================================================
+// ĐIỀU HƯỚNG PHÍM TOÀN CỤC ←/→
+// Khi section đang trong viewport, bấm ←/→ ở BẤT KỲ ĐÂU (không cần focus vào
+// nút nav hay card) cũng next/prev. Bỏ qua khi: mobile, section ngoài màn hình,
+// hoặc user đang gõ trong input/textarea/select/contenteditable.
+// ==========================================================================
+const onGlobalKeydown = (e: KeyboardEvent) => {
+  if (isMobile.value || !sectionVisible.value) return
+  const target = e.target as HTMLElement | null
+  if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable)) return
+  if (e.key === 'ArrowRight') { e.preventDefault(); handleNextCard() }
+  else if (e.key === 'ArrowLeft') { e.preventDefault(); handlePrevCard() }
+}
+
+const sectionEl = ref<HTMLElement | null>(null)
+
+// ==========================================================================
+// FULL-VIEWPORT MAGNETIC ASSIST (lớp 2 của pattern "snap 2 lớp")
+// Sau khi user NGỪNG cuộn (scrollend), nếu section còn "lem viền" trong
+// phạm vi 160px so với vị trí neo thì kéo nốt về đúng điểm — bảo đảm lúc
+// dừng luôn có khung hình trọn vẹn cho section. Không bao giờ kéo xa hơn
+// 160px nên không cướp hành trình cuộn của user.
+//
+// ĐIỂM NEO = HEADER_CLEARANCE (120px): khi cuộn LÊN, .nav-scroll trở thành
+// fixed cao 90px đè lên phần đầu trang — nếu neo về rect.top = 0 thì phần
+// đầu section bị header che mất. Nên neo về rect.top = +120px để luôn có
+// khoảng hở trên cùng cho header (điểm đầu viewport + 120px).
+// ==========================================================================
+const SNAP_ASSIST_RANGE = 120     // px lệch tối đa được phép "hút" về điểm neo
+// LƯU Ý ĐỒNG BỘ: CSS desktop (min-height: max(720px, calc(100svh - 90px)))
+// đang trừ đúng giá trị này — đổi HEADER_CLEARANCE thì phải sửa cả 2 nơi.
+const HEADER_CLEARANCE = 90       // px khoảng hở trên cùng cho header fixed (~90px)
+const SCROLL_SETTLE_DELAY = 150   // fallback debounce cho trình duyệt thiếu scrollend
+
+let settleTimer: ReturnType<typeof setTimeout> | null = null
+
+const magneticAssist = () => {
+  if (isMobile.value || !sectionEl.value) return
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+
+  const rect = sectionEl.value.getBoundingClientRect()
+  // Lệch so với điểm neo (viewport top + 120px). Đã thẳng hàng hoặc lệch
+  // quá xa → không can thiệp
+  const offset = rect.top - HEADER_CLEARANCE
+  if (Math.abs(offset) < 2 || Math.abs(offset) > SNAP_ASSIST_RANGE) return
+
+  window.scrollTo({ top: window.scrollY + offset, behavior: 'smooth' })
+}
+
+const onScrollEnd = () => magneticAssist()
+
+const onScrollSettle = () => {
+  if (settleTimer) clearTimeout(settleTimer)
+  settleTimer = setTimeout(magneticAssist, SCROLL_SETTLE_DELAY)
+}
+
+// 'onscrollend' chưa nằm trong DOM lib của TS — kiểm tra qua boolean để tránh
+// TS narrowing window thành 'never'; cast event name khi bind listener
+const supportsScrollEnd = 'onscrollend' in window
+
+let sectionObserver: IntersectionObserver | null = null
+
+const onVisibilityChange = () => syncAutoplay()
+
 onMounted(() => {
   checkScreenSize()
   window.addEventListener('resize', checkScreenSize)
-  startAutoplay()
+  syncAutoplay()
+
+  // Preload ảnh tất cả dự án (desktop): nền Ken Burns + card crossfade không bao
+  // giờ flash ảnh chưa load khi autoplay/điều hướng chuyển dự án
+  if (!isMobile.value) {
+    featuredProjects.forEach((p) => { const img = new Image(); img.src = p.image })
+  }
+
+  // Chỉ tự chuyển khi section đang trong viewport (≥35% hiển thị)
+  if ('IntersectionObserver' in window && sectionEl.value) {
+    sectionObserver = new IntersectionObserver((entries) => {
+      sectionVisible.value = entries[0]?.isIntersecting ?? true
+      syncAutoplay()
+    }, { threshold: 0.35 })
+    sectionObserver.observe(sectionEl.value)
+  }
+  document.addEventListener('visibilitychange', onVisibilityChange)
+  window.addEventListener('keydown', onGlobalKeydown)
+
+  if (supportsScrollEnd) {
+    window.addEventListener('scrollend' as keyof WindowEventMap, onScrollEnd as EventListener)
+  } else {
+    window.addEventListener('scroll', onScrollSettle, { passive: true })
+  }
 })
 
 onUnmounted(() => {
   window.removeEventListener('resize', checkScreenSize)
+  sectionObserver?.disconnect()
+  document.removeEventListener('visibilitychange', onVisibilityChange)
+  window.removeEventListener('keydown', onGlobalKeydown)
+  if (supportsScrollEnd) {
+    window.removeEventListener('scrollend' as keyof WindowEventMap, onScrollEnd as EventListener)
+  } else {
+    window.removeEventListener('scroll', onScrollSettle)
+  }
+  if (settleTimer) clearTimeout(settleTimer)
   stopAutoplay()
 })
 </script>
@@ -179,7 +299,7 @@ onUnmounted(() => {
 
 
 <template>
-  <section id="featured-projects" class="room2 section-padding featured-projects-section">
+  <section id="featured-projects" ref="sectionEl" class="room2 section-padding featured-projects-section">
     
     <!-- Lớp phủ ảnh nền toàn màn hình với hiệu ứng Ken Burns -->
     <div class="section-full-bg" v-if="!isMobile">
@@ -196,15 +316,16 @@ onUnmounted(() => {
     <!-- Content layer chứa chữ và bộ bài -->
     <div class="container-fluid content-layer">
       
-      <!-- Header tiêu đề dự án chính -->
-      <div class="row align-items-end featured-projects-header" :style="isMobile ? 'padding: 0 10px;' : 'padding-left: 2%; padding-right: 4%;'">
+      <!-- Header tiêu đề dự án chính — bố trí như header section tin tức:
+           title trái, link "Xem tất cả" phải (align-items-end) -->
+      <div class="row align-items-end featured-projects-header" :style="isMobile ? 'padding: 0 10px;' : ''">
         <div class="col-md-8 col-8">
           <div class="section-subtitle"><span>Dự án tiêu biểu</span></div>
           <h2 class="section-title"><span>Dự án đã hoàn thiện</span></h2>
         </div>
         <div class="col-md-4 col-4 text-end">
           <RouterLink class="featured-projects-all" :to="{ name: 'project' }">
-            <span class="desktop-txt" v-if="!isMobile">Xem tất cả</span> <i class="ti-arrow-right" aria-hidden="true"></i>
+            <span class="desktop-txt" v-if="!isMobile">Xem tất cả dự án</span> <i class="ti-arrow-right" aria-hidden="true"></i>
           </RouterLink>
         </div>
       </div>
@@ -273,8 +394,8 @@ onUnmounted(() => {
   <!-- Wrapper bọc ngoài giữ Autoplay thông minh -->
   <div 
     class="deck-interactive-wrapper"
-    @mouseenter="stopAutoplay" 
-    @mouseleave="startAutoplay"
+    @mouseenter="onDeckEnter" 
+    @mouseleave="onDeckLeave"
   >
     <!-- Live region ẩn: screen reader được thông báo dự án đang active khi
          autoplay/bấm điều hướng (thay vai trò aria-live của counter cũ) -->
@@ -385,16 +506,21 @@ onUnmounted(() => {
 }
 
 .content-layer { position: relative; z-index: 3; width: 100%; max-width: 100% !important; padding-left: 4%; padding-right: 0px; padding-bottom: 50px; }
-.deck-column { display: flex; justify-content: flex-end; align-items: flex-end; position: relative; min-height: 540px; }
+.deck-column { display: flex; justify-content: flex-end; align-items: flex-end; position: relative; min-height: 620px; }
 
 .deck-interactive-wrapper {
-  /* right: 0 (thay vì -30px): tránh overflow:hidden của section cắt mất góc phải
-     header card — nơi đặt số thứ tự (.card-index) */
-  position: absolute; right: 0; bottom: -140px !important; width: 100%; max-width: 680px; height: 440px; margin-top: 140px;
+  /* Card active TRÀN SÁT MÉP PHẢI (right: 0 + content-layer padding-right: 0) và
+     tràn xuống đáy (bottom: -140px) — bleed kiểu tạp chí. Đánh đổi: header các card
+     phía sau (dịch phải CARD_HORIZONTAL_GAP mỗi bậc) sẽ tràn qua mép phải một phần —
+     GAP giữ 36px (thay vì 50px gốc) để lượng cắt này ở mức tối thiểu.
+     TỶ LỆ 5:4 (820:656) khoá bằng aspect-ratio thay vì height cố định: ở viewport
+     hẹp (992-1399px, cột phải chỉ ~50% màn hình) height tự co theo width — card
+     luôn giữ đúng tỷ lệ ảnh, không bị bóp thành dọc và crop ảnh méo. */
+  position: absolute; right: 0; bottom: -140px !important; width: 100%; max-width: 820px; aspect-ratio: 5 / 4; margin-top: 140px;
 }
 
 .card-swap-deck {
-  width: 100%; height: 100%; transform: rotate(2deg) scale(1.1) !important; transform-origin: bottom right;
+  width: 100%; height: 100%; transform: rotate(1.25deg) scale(1.1) !important; transform-origin: bottom right;
 }
 
 /* Cặp nút điều hướng gài lọt lòng góc trái ảnh active
@@ -419,11 +545,58 @@ onUnmounted(() => {
 }
 
 .rooms2.card-swap-item {
-  position: absolute !important; bottom: 0 !important; right: 0 !important; left: auto !important; width: 100% !important; height: 100% !important; margin: 0 !important; background: #161512; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 16px; box-shadow: -15px 15px 45px rgba(0, 0, 0, 0.45); transform-origin: bottom center !important; cursor: pointer; overflow: hidden; text-align: left;
+  position: absolute !important; bottom: 0 !important; right: 0 !important; left: auto !important; width: 100% !important; height: 100% !important; margin: 0 !important; background: #161512; border: 1px solid rgba(255, 255, 255, 0.14); border-radius: 16px; box-shadow: -15px 15px 45px rgba(0, 0, 0, 0.45); transform-origin: bottom center !important; cursor: pointer; overflow: hidden; text-align: left; transform: translate3d(var(--tx, 0px), var(--ty, 0px), 0) scale(var(--card-scale, 1));
   transition: transform 0.65s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.45s ease;
 }
 
 .rooms2.card-swap-item:nth-of-type(1) { border-color: rgba(170, 132, 83, 0.65) !important; box-shadow: -25px 25px 65px rgba(0, 0, 0, 0.65); }
+/* Gợi ý có thể bấm: card phía sau hover/focus → NHẢY KHỎI XẤP, trượt sang trái 70% chiều
+   rộng card (30% còn lại vẫn nằm trong xấp, bị card active che — z-index thấp hơn).
+   Dịch % (thay px) để tự theo đúng kích thước card ở mọi breakpoint.
+   Nhờ transform gốc chạy qua CSS variable (--tx/--ty/--card-scale do getCardStyle cung cấp)
+   nên :hover được phép ghi đè. Nhấc nhẹ -48px + phóng 1.04 để card "nổi" khi bay ra. */
+.rooms2.card-swap-item:not(:nth-of-type(1)):hover,
+.rooms2.card-swap-item:not(:nth-of-type(1)):focus-visible {
+  transform: translate3d(calc(var(--tx, 0px) - 70%), calc(var(--ty, 0px) - 48px), 0) scale(1);
+  border-color: rgba(170, 132, 83, 0.85) !important;
+  box-shadow: -30px 30px 70px rgba(0, 0, 0, 0.7);
+}
+/* Khi một card nhảy khỏi xấp: đẩy TOÀN BỘ đuôi phía sau lên cùng mức -48px
+   (general sibling ~) để header các card xa hơn luôn lộ ra ngoài thẻ đang bay,
+   không bị che → user nhìn tên + chọn trực tiếp từng card.
+   Giữ nguyên scale bậc của chúng (chỉ nâng, không phóng) — transition 0.65s dùng lại. */
+.rooms2.card-swap-item:hover ~ .rooms2.card-swap-item,
+.rooms2.card-swap-item:focus-visible ~ .rooms2.card-swap-item {
+  transform: translate3d(var(--tx, 0px), calc(var(--ty, 0px) - 48px), 0) scale(var(--card-scale, 1));
+}
+/* CHỐNG GIẬT HOVER (hover oscillation): card bay khỏi xấp → vùng dưới con trỏ trống
+   → hover đứt → card kéo về → hover lại → lặp vô hạn gây nhức mắt; tệ hơn, card khác
+   vừa được nâng -48px trôi vào dưới con trỏ → hover "nhảy" sang card đó (handoff).
+   Fix 2 lớp:
+   (1) CẦU HIT-AREA (::after): lớp vô hình phủ đúng rect card NGHỈ, counter-transform
+       ngược chính xác delta hover (translate +70%/+48px, scale về --card-scale, origin
+       bottom center khớp transform-origin card; tx/ty tự triệt tiêu trong phép
+       T_hover ∘ A = T_rest nên cầu đúng ở mọi bậc thang) → khi card đang bay, vùng
+       hover cũ vẫn thuộc subtree card → :hover không bao giờ đứt giữa chừng.
+   (2) CHẶN HANDOFF (:has): trong lúc có card đang bay, mọi card sau khác bị
+       pointer-events: none → hit-test bỏ qua hoàn toàn (dù z-index cao hơn) →
+       không thể cướp hover. Rê chuột ra khỏi cầu → card về, mọi thứ khôi phục. */
+.rooms2.card-swap-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  transform-origin: bottom center;
+  pointer-events: auto;
+}
+.rooms2.card-swap-item:not(:nth-of-type(1)):hover::after,
+.rooms2.card-swap-item:not(:nth-of-type(1)):focus-visible::after {
+  transform: translate(70%, 48px) scale(var(--card-scale, 1));
+}
+.card-swap-deck:has(.card-swap-item:not(:nth-of-type(1)):hover) .card-swap-item:not(:nth-of-type(1)):not(:hover),
+.card-swap-deck:has(.card-swap-item:not(:nth-of-type(1)):focus-visible) .card-swap-item:not(:nth-of-type(1)):not(:focus-visible) {
+  pointer-events: none;
+}
+
 .rooms2.card-swap-item.is-swapping { animation: cardParallelFallAndLoop 1.1s cubic-bezier(0.4, 0, 0.2, 1) forwards !important; transition: none !important; }
 
 @keyframes cardParallelFallAndLoop {
@@ -524,6 +697,14 @@ onUnmounted(() => {
 .ken-burns-enter-to {
   opacity: 1;
   transform: scale(1);
+}
+
+/* Tôn trọng prefers-reduced-motion: bỏ zoom/slide, chỉ giữ crossfade nhanh */
+@media (prefers-reduced-motion: reduce) {
+  .ken-burns-enter-active { transition: opacity 0.3s ease; }
+  .ken-burns-enter-from { transform: none; }
+  .fade-slide-enter-active, .fade-slide-leave-active { transition: opacity 0.2s ease; }
+  .fade-slide-enter-from, .fade-slide-leave-to { transform: none; }
 }
 
 .featured-projects-header { margin-bottom: 40px; }
@@ -656,20 +837,55 @@ onUnmounted(() => {
    dâng lên cuộn bình thường, KHÔNG chốt, KHÔNG dead-scroll.
 ========================================================================== */
 @media (min-width: 992px) {
+  /* LƯU Ý: KHÔNG dùng scroll-snap-type trên html — trang có sẵn nhiều element
+     khác mang scroll-snap-align (card tin tức, collection rail...) khiến chúng
+     trở thành điểm snap dọc của cả trang, làm viewport dừng sai vị trí.
+     Điểm dừng full-viewport được bảo đảm bởi JS magnetic assist (scrollend). */
   .featured-projects-section {
-    min-height: 100vh;
-    min-height: 100svh;
+    /* Trừ đúng HEADER_CLEARANCE (90px) của magnetic assist: khi section được
+       neo về rect.top = 90px (dưới header fixed), đáy section khít ĐÚNG đáy
+       viewport — section chiếm trọn phần màn hình còn lại dưới header.
+       max(720px, ...) giữ chiều cao tối thiểu cho nội dung trên màn thấp. */
+    min-height: max(720px, calc(100vh - 90px));
+    min-height: max(720px, calc(100svh - 90px));
     height: auto;
     padding: 0 0 0 !important;
-    align-items: flex-end;
+    align-items: stretch;
   }
 
+  /* Content-layer trải trọn chiều cao viewport:
+     - Header (title + "Xem tất cả") đẩy lên TRÊN CÙNG, cách mép 120px
+     — đồng bộ .section-padding của header các section khác.
+     - Caption + bộ bài neo ĐÁY (xấp card tịnh tiến xuống bottom,
+     giữ hiệu ứng cắt mép -140px). */
   .content-layer {
+    padding-top: 120px;
     padding-bottom: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
   }
 
+  /* Header theo đúng pattern header section tin tức (.home-news-heading):
+     nằm trong container căn giữa (KHÔNG full-bleed), title trái —
+     link "Xem tất cả" phải căn đáy dòng, margin-bottom 38px.
+     max-width theo từng breakpoint giống .container của Bootstrap. */
   .featured-projects-header {
-    margin-bottom: 32px;
+    width: 100%;
+    max-width: 960px;
+    margin-left: auto !important;
+    margin-right: auto !important;
+    margin-bottom: 38px !important;
+    padding-left: 12px;
+    padding-right: 12px;
+  }
+
+  @media (min-width: 1200px) {
+    .featured-projects-header { max-width: 1140px; }
+  }
+
+  @media (min-width: 1400px) {
+    .featured-projects-header { max-width: 1320px; }
   }
 }
 
