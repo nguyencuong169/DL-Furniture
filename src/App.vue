@@ -3,6 +3,7 @@ import { nextTick, onMounted } from 'vue'
 import { RouterView, useRouter } from 'vue-router'
 import NavbarComponent from './template/01_NavbarComponent.vue'
 import FooterComponent from './template/13_FooterComponent.vue'
+import StickyContact from './components/StickyContact.vue'
 import { initScrollAnimations } from './utils/animations'
 
 const router = useRouter()
@@ -43,6 +44,8 @@ router.afterEach(() => {
   <NavbarComponent />
   <RouterView />
   <FooterComponent />
+  <!-- Nút liên hệ nổi đa kênh (Gọi/Zalo/Messenger) — cố định khi cuộn, toàn site -->
+  <StickyContact />
 </template>
 
 <style scoped></style>

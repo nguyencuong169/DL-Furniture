@@ -351,13 +351,20 @@ onBeforeUnmount(() => {
 }
 .stat-label {
   font-family: 'Barlow', sans-serif;
-  font-size: 0.8rem;
-  font-weight: 500;
-  color: #888;
+  font-size: 0.85rem; /* tăng từ 0.8rem — dễ đọc hơn trên nền trắng */
+  font-weight: 600;
+  color: #555; /* tăng contrast từ #888 (3.5:1 → 7.4:1, đạt WCAG AA/AAA) */
   text-transform: uppercase;
   letter-spacing: 1.2px;
   line-height: 1.3;
   white-space: nowrap;
+}
+
+/* Đoạn văn mô tả: tăng contrast trên nền trắng (từ màu #999 mặc định của theme) */
+.about p {
+  color: #5c5c5c;
+  font-size: 15.5px;
+  line-height: 1.75;
 }
 
 @media (max-width: 991px) {

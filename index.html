@@ -10,11 +10,65 @@
     <meta charset="utf-8" />
     <!-- Không dùng maximum-scale=1: giữ pinch-zoom cho người dùng kém thị lực (WCAG 1.4.4) -->
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>D&L Furniture</title>
+
+    <!-- ── SEO KIT (HM1) ─────────────────────────────────────────────────
+         TODO-DEPLOY: thay 'dlfurniture.vn' bằng domain production thật.
+         Chỉ 3 chỗ cần sửa: canonical bên dưới, og:url/og:image, sitemap.xml -->
+    <title>D&L Furniture | Thiết Kế & Thi Công Nội Thất Gỗ Óc Chó Cao Cấp</title>
+    <meta
+      name="description"
+      content="D&L Furniture – Thiết kế & thi công nội thất gỗ óc chó cao cấp cho biệt thự, chung cư, khách sạn. 15+ năm kinh nghiệm, 320+ dự án hoàn thiện. Hotline: 0961 109 897."
+    />
+    <meta
+      name="keywords"
+      content="nội thất gỗ óc chó, thiết kế nội thất, thi công nội thất, nội thất biệt thự, nội thất chung cư, D&L Furniture"
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="author" content="D&L Furniture" />
+    <meta name="theme-color" content="#1f1d1a" />
+    <link rel="canonical" href="https://dlfurniture.vn/" />
+
+    <!-- Open Graph — preview card khi share lên Facebook/Zalo -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="D&L Furniture" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:title" content="D&L Furniture | Thiết Kế & Thi Công Nội Thất Gỗ Óc Chó" />
+    <meta
+      property="og:description"
+      content="Thiết kế & thi công nội thất gỗ óc chó cao cấp cho biệt thự, chung cư, khách sạn. 15+ năm kinh nghiệm, 320+ dự án hoàn thiện."
+    />
+    <meta property="og:url" content="https://dlfurniture.vn/" />
+    <meta property="og:image" content="https://dlfurniture.vn/media/gallery/walnut-villa-living.webp" />
+    <meta property="og:image:alt" content="Không gian nội thất gỗ óc chó do D&L Furniture thiết kế" />
+
+    <!-- Twitter card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="D&L Furniture | Nội Thất Gỗ Óc Chó Cao Cấp" />
+    <meta
+      name="twitter:description"
+      content="Thiết kế & thi công nội thất gỗ óc chó cho biệt thự, chung cư, khách sạn. 15+ năm kinh nghiệm."
+    />
+    <meta name="twitter:image" content="https://dlfurniture.vn/media/gallery/walnut-villa-living.webp" />
+
+    <!-- JSON-LD: khai báo doanh nghiệp với Google (rich snippet) -->
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "FurnitureStore",
+        "name": "D&L Furniture",
+        "url": "https://dlfurniture.vn/",
+        "description": "Thiết kế và thi công nội thất gỗ óc chó cao cấp cho biệt thự, chung cư, khách sạn.",
+        "telephone": "+84961109897",
+        "priceRange": "$$$",
+        "areaServed": "VN",
+        "sameAs": ["https://www.facebook.com/DLFurniture"]
+      }
+    </script>
+
     <link rel="shortcut icon" href="src/assets/img/favicon.png" />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Condensed:wght@400;500;600;700&amp;family=Gilda+Display&amp;display=swap"
+      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Barlow+Condensed:wght@400;500;600;700&family=Gilda+Display&display=swap"
     />
     <link rel="stylesheet" href="src/assets/css/plugins.css" />
     <link rel="stylesheet" href="src/assets/css/style.css" />
@@ -42,4 +96,3 @@
     <script type="module" src="src/assets/js/custom.js"></script>
   </body>
 </html>
-

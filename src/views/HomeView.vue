@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { onBeforeUnmount, onMounted } from 'vue'
 import SliderComponent from '../template/02_SliderComponent.vue'
 import AboutComponent from '../template/03_AboutComponent.vue'
@@ -24,11 +24,16 @@ const removeHomeSeo = () => {
 }
 
 const addMeta = (attribute: 'name' | 'property', key: string, content: string) => {
-  const meta = document.createElement('meta')
-  meta.setAttribute(attribute, key)
+  // Upsert: ưu tiên cập nhật tag tĩnh đã có sẵn trong index.html
+  // để tránh trùng lặp meta khi prerender (Google phạt duplicate meta).
+  let meta = document.head.querySelector<HTMLMetaElement>(`meta[${attribute}="${key}"]`)
+  if (!meta) {
+    meta = document.createElement('meta')
+    meta.setAttribute(attribute, key)
+    meta.setAttribute(HOME_SEO_MARKER, '')
+    document.head.appendChild(meta)
+  }
   meta.setAttribute('content', content)
-  meta.setAttribute(HOME_SEO_MARKER, '')
-  document.head.appendChild(meta)
 }
 
 const updateHomeSeo = () => {
@@ -55,11 +60,15 @@ const updateHomeSeo = () => {
   addMeta('name', 'twitter:description', homeDescription)
   addMeta('name', 'twitter:image', socialImage)
 
-  const canonical = document.createElement('link')
-  canonical.rel = 'canonical'
+  // Upsert canonical: index.html đã khai báo sẵn → chỉ cập nhật href theo origin thật
+  let canonical = document.head.querySelector<HTMLLinkElement>('link[rel="canonical"]')
+  if (!canonical) {
+    canonical = document.createElement('link')
+    canonical.rel = 'canonical'
+    canonical.setAttribute(HOME_SEO_MARKER, '')
+    document.head.appendChild(canonical)
+  }
   canonical.href = canonicalUrl
-  canonical.setAttribute(HOME_SEO_MARKER, '')
-  document.head.appendChild(canonical)
 
   const structuredData = document.createElement('script')
   structuredData.type = 'application/ld+json'

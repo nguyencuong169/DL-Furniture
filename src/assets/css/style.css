@@ -20,7 +20,7 @@
  18. Rooms Page style
  19. Services style
  20. Restaurant Menu style
- 21. Facilties style
+21. Facilities style
  22. Clients style
  23. Gallery style
  24. Promo Video and Testimonials style
@@ -2986,8 +2986,8 @@ hr.border-2 {
   }
 }
 
-/* ======= Facilties style ======= */
-.facilties .single-facility {
+/* ======= Facilities style ======= */
+.facilities .single-facility {
   background: transparent;
   padding: 30px 20px;
   -webkit-transition: 0.5s;
@@ -2998,12 +2998,12 @@ hr.border-2 {
   line-height: 1;
   border: 1px solid #f1eeeb;
 }
-.facilties .single-facility h5 {
+.facilities .single-facility h5 {
   font-size: 24px;
   color: #222;
   margin-bottom: 10px;
 }
-.facilties .single-facility:hover h5 {
+.facilities .single-facility:hover h5 {
   color: #222;
   -webkit-transition: 0.5s;
   transition: 0.5s;
@@ -3014,7 +3014,7 @@ hr.border-2 {
           transform: rotate(360deg);
 }
 */
-.facilties .single-facility span {
+.facilities .single-facility span {
   font-size: 45px;
   color: #aa8453;
   line-height: 1;
@@ -3023,18 +3023,18 @@ hr.border-2 {
   -webkit-transition: 0.5s;
   transition: 0.5s;
 }
-.facilties .single-facility p {
+.facilities .single-facility p {
   margin: 0;
   color: #666;
 }
-.facilties .single-facility .facility-shape {
+.facilities .single-facility .facility-shape {
   position: absolute;
   opacity: 0.02;
   z-index: -1;
   bottom: 15px;
   left: 120px;
 }
-.facilties .single-facility .facility-shape span {
+.facilities .single-facility .facility-shape span {
   font-size: 140px;
   color: #222;
 }

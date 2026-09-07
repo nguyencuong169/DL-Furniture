@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <script type="module" src="/@vite/client"></script>
+
+    <base href="/" />
+    <script>
+      // Giống modernizr của theme gốc: thêm class `js` để .animate-box ẩn ban
+      // đầu, chờ hiệu ứng fadeInUp khi cuộn tới (xem utils/animations.ts)
+      document.documentElement.classList.add('js')
+    </script>
+    <meta charset="utf-8" />
+    <!-- Không dùng maximum-scale=1: giữ pinch-zoom cho người dùng kém thị lực (WCAG 1.4.4) -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>D&L Furniture</title>
+    <link rel="shortcut icon" href="src/assets/img/favicon.png" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&amp;family=Barlow+Condensed:wght@400;500;600;700&amp;family=Gilda+Display&amp;display=swap"
+    />
+    <link rel="stylesheet" href="src/assets/css/plugins.css" />
+    <link rel="stylesheet" href="src/assets/css/style.css" />
+  </head>
+  <body>
+    <!-- Progress scroll to top -->
+    <div class="progress-wrap cursor-pointer">
+      <svg class="progress-circle svg-content" width="100%" height="100%" viewBox="-1 -1 102 102">
+        <path d="M50,1 a49,49 0 0,1 0,98 a49,49 0 0,1 0,-98" />
+      </svg>
+    </div>
+
+    <!-- Footer -->
+
+    <div id="app"></div>
+    <!-- jQuery + các plugin của theme thực sự dùng (owl-carousel, magnific-popup, waypoints…) -->
+    <script type="module" src="src/main.ts"></script>
+    <script type="module" src="src/assets/js/jquery-3.6.3.min.js"></script>
+    <script type="module" src="src/assets/js/jquery-migrate-3.0.0.min.js"></script>
+    <script type="module" src="src/assets/js/jquery.magnific-popup.js"></script>
+    <script type="module" src="src/assets/js/bootstrap.min.js"></script>
+    <script type="module" src="src/assets/js/scrollIt.min.js"></script>
+    <script type="module" src="src/assets/js/jquery.waypoints.min.js"></script>
+    <script type="module" src="src/assets/js/owl.carousel.min.js"></script>
+    <script type="module" src="src/assets/js/custom.js"></script>
+  </body>
+</html>
+

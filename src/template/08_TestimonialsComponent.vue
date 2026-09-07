@@ -1,10 +1,20 @@
 <script setup lang="ts">
 import testimonialBg from '../assets/img/slider/slider_5.jpg'
-import { ref, onMounted, onBeforeUnmount, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, nextTick } from 'vue'
 import { fetchTestimonials, type TestimonialResponse } from '../api/testimonialClient'
 import { initOwlCarousel } from '../utils/carousel'
 
 const testimonials = ref<TestimonialResponse[]>([])
+
+/* ── RATING TỔNG — điểm trung bình + số đánh giá (tính từ dữ liệu thật,
+   không hardcode). Hiển thị dưới heading để tăng độ tin cậy ngay cả khi
+   carousel chỉ đang có ít review. ─────────────────────────────────────── */
+const averageRating = computed(() => {
+  const list = testimonials.value
+  if (!list.length) return '5.0'
+  const avg = list.reduce((sum, t) => sum + (t.rating || 0), 0) / list.length
+  return avg.toFixed(1)
+})
 
 /* ── ENTRANCE REVEAL (chạy 1 lần) ─────────────────────────────────────────
    Section render LẶP ĐỢI sau khi fetch (v-if) → observer phải setup SAU
@@ -102,6 +112,17 @@ onBeforeUnmount(() => {
                 <h6>Khách hàng đánh giá</h6>
                 <h2 id="testimonials-title">Khách hàng nói gì về chúng tôi?</h2>
                 <div class="line"></div>
+                <!-- Rating tổng: sao trung bình + số đánh giá thực tế -->
+                <div
+                  class="testimonials-summary"
+                  :aria-label="`Đánh giá trung bình ${averageRating} trên 5 từ ${testimonials.length} khách hàng`"
+                >
+                  <span class="summary-stars" aria-hidden="true">
+                    <i v-for="star in 5" :key="star" class="star-rating"></i>
+                  </span>
+                  <strong class="summary-score">{{ averageRating }}/5</strong>
+                  <span class="summary-count">· {{ testimonials.length }} đánh giá thực tế</span>
+                </div>
               </div>
               <div class="owl-carousel owl-theme">
                 <div class="item" v-for="item in testimonials" :key="item.id">
@@ -158,5 +179,36 @@ onBeforeUnmount(() => {
     transform: none;
     transition: none;
   }
+}
+
+/* ── RATING TỔNG: hàng sao vàng + điểm số, đặt dưới đường line của heading.
+   Dùng lại class .star-rating toàn cục của theme (sao vàng sẵn có). ── */
+.testimonials-summary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.summary-stars {
+  display: inline-flex;
+  gap: 3px;
+}
+
+.summary-score {
+  color: #fff;
+  font-family: 'Gilda Display', serif;
+  font-size: 20px;
+  font-weight: 400;
+  letter-spacing: 0.5px;
+}
+
+.summary-count {
+  color: rgba(255, 255, 255, 0.85);
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  letter-spacing: 0.3px;
 }
 </style>

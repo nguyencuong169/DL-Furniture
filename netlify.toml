@@ -2,6 +2,35 @@
   from = "/*"
   to = "/index.html"
   status = 200
+
+# ── HM3: Security headers cho mọi trang ──────────────────────────────
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Strict-Transport-Security = "max-age=31536000; includeSubDomains"
+    Permissions-Policy = "camera=(), microphone=(), geolocation=()"
+
+# ── HM3: HTML không cache — luôn nhận bản mới sau mỗi deploy ─────────
+[[headers]]
+  for = "/"
+  [headers.values]
+    Cache-Control = "public, max-age=0, must-revalidate"
+
+# ── HM3: assets có hash fingerprint của Vite → cache 1 năm (immutable) ─
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# ── HM3: media (ảnh/video) → cache 30 ngày + stale-while-revalidate ───
+[[headers]]
+  for = "/media/*"
+  [headers.values]
+    Cache-Control = "public, max-age=2592000, stale-while-revalidate=86400"
+
 [dev]
   command = "yarn start"
   port = 8888
