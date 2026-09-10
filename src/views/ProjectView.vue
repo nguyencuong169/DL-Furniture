@@ -16,7 +16,7 @@ setPageSeo({
     <div
       class="banner-header section-padding valign bg-img bg-fixed"
       data-overlay-dark="4"
-      data-background="https://dl-furniture.netlify.app/assets/1-b3ntw45g.jpg"
+      :style="{ backgroundImage: 'url(https://dl-furniture.netlify.app/assets/1-b3ntw45g.jpg)' }"
     >
       <div class="container">
         <div class="row">

@@ -129,6 +129,22 @@ export async function fetchProductById(id: number): Promise<ProductResponse | nu
   }
 }
 
+/** Resolve sản phẩm theo slug SEO (/san-pham/:slug) — chấp nhận cả id dạng số
+ * (tương thích URL cũ /san-pham/detail/12). API lỗi → fallback data. */
+export async function fetchProductBySlug(slugOrId: string): Promise<ProductResponse | null> {
+  if (/^\d+$/.test(slugOrId)) return fetchProductById(Number(slugOrId))
+  try {
+    const res = await fetch(`${apiBaseUrl}/api/products`, {
+      headers: { Accept: 'application/json' }
+    })
+    if (!res.ok) throw new Error(`HTTP ${res.status}`)
+    const products = (await res.json()) as ProductResponse[]
+    return products.find((product) => product.slug === slugOrId) ?? null
+  } catch {
+    return FALLBACK_PRODUCTS.find((product) => product.slug === slugOrId) ?? null
+  }
+}
+
 export function getFallbackProducts(query: ProductQuery = {}): ProductResponse[] {
   const category = query.category && query.category !== 'all' ? query.category : null
   return FALLBACK_PRODUCTS.filter((product) => !category || product.categorySlug === category)

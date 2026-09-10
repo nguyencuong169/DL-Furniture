@@ -6,6 +6,7 @@ const AboutView = () => import('../views/AboutView.vue')
 const ProductView = () => import('../views/ProductView.vue')
 const ProjectView = () => import('../views/ProjectView.vue')
 const ProductDetailView = () => import('../views/ProductDetailView.vue')
+const ThuocLoBanView = () => import('../views/ThuocLoBanView.vue')
 const NotFoundComponent = () => import('../template/15_NotFoundComponent.vue')
 const ProductComponent = () => import('../template/04_ProductComponent.vue')
 const NewsView = () => import('../views/NewsView.vue')
@@ -91,6 +92,13 @@ const router = createRouter({
           'Bộ sưu tập nội thất gỗ óc chó cao cấp: sofa, bàn trà, bàn ăn, giường ngủ, tủ bếp… thiết kế riêng theo yêu cầu.'
       },
       children: [
+        // Default child: /san-pham thuần hiển thị danh sách toàn bộ sản phẩm
+        // (trước đây router-view rỗng → trang chỉ còn banner + footer)
+        {
+          path: '',
+          name: 'product-list',
+          component: ProductComponent
+        },
         {
           path: 'phong-ngu',
           name: 'phongngu',
@@ -155,9 +163,27 @@ const router = createRouter({
       ]
     },
     {
-      path: '/san-pham/detail/:id',
-      name: 'detail',
+      // P1-2 SEO slug: /san-pham/giuong-oc-cho-g01 — URL chứa từ khóa
+      path: '/san-pham/:slug',
+      name: 'product-detail',
       component: ProductDetailView
+    },
+    {
+      // Redirect 301-kiểu SPA: URL cũ /san-pham/detail/12 → /san-pham/12
+      // (DetailView sẽ replace lên URL slug chuẩn sau khi fetch sản phẩm)
+      path: '/san-pham/detail/:id',
+      redirect: (to) => ({ name: 'product-detail', params: { slug: to.params.id } })
+    },
+    {
+      // P1-3: công cụ tra Thước Lỗ Ban (đăng ký lại — trước đây là dead code)
+      path: '/thuoc-lo-ban',
+      name: 'thuoc-lo-ban',
+      component: ThuocLoBanView,
+      meta: {
+        title: 'Tra Cứu Thước Lỗ Ban – Kích Thước Đẹp Theo Phong Thủy | D&L Furniture',
+        description:
+          'Công cụ tra cứu Thước Lỗ Ban trực tuyến: nhập kích thước (cm) để biết cung Tài/Nghĩa/Quan/Bản tốt hay Kiếp/Ly/Bệnh/Hậu xấu, kèm gợi ý kích thước đẹp chuẩn phong thủy.'
+      }
     },
     {
       path: '/lien-he',

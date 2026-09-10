@@ -37,7 +37,8 @@ watch(activeCategory, loadProducts, { immediate: true })
 const productImage = (product: ProductResponse) =>
   product.mainImage || product.images[0]?.imageUrl || ''
 
-const productDetailUrl = (product: ProductResponse) => `/san-pham/detail/${product.id}`
+// P1-2 SEO slug: /san-pham/giuong-oc-cho-g01 thay cho /san-pham/detail/12
+const productDetailUrl = (product: ProductResponse) => `/san-pham/${product.slug}`
 </script>
 
 <template>

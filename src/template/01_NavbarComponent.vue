@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router'
-import { computed, onMounted, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import {
   FALLBACK_MENU,
   fetchMenus,
@@ -13,6 +13,14 @@ const navbarToggler = ref<HTMLButtonElement | null>(null)
 const navbarCollapse = ref<HTMLElement | null>(null)
 const isProductMenuOpen = ref(false)
 const activeProductSubmenu = ref<number | null>(null)
+// Mobile menu: Vue tự quản collapse (thay Bootstrap JS) — toggle class .show
+const isMobileMenuOpen = ref(false)
+// Navbar trắng cố định khi cuộn (thay scroll handler của theme custom.js)
+const isScrolled = ref(false)
+
+const onWindowScroll = () => {
+  isScrolled.value = window.scrollY > 100
+}
 
 const menu = ref<MenuResponse>(FALLBACK_MENU)
 const primaryMenu = computed(() => menu.value.primary)
@@ -20,6 +28,12 @@ const consultationLink = computed(() => menu.value.consultation)
 
 onMounted(async () => {
   menu.value = await fetchMenus()
+  onWindowScroll()
+  window.addEventListener('scroll', onWindowScroll, { passive: true })
+})
+
+onBeforeUnmount(() => {
+  window.removeEventListener('scroll', onWindowScroll)
 })
 
 /**
@@ -45,8 +59,11 @@ const isItemActive = (item: MenuLink): boolean => {
 const closeMobileMenu = () => {
   isProductMenuOpen.value = false
   activeProductSubmenu.value = null
-  if (!navbarCollapse.value?.classList.contains('show')) return
-  navbarToggler.value?.click()
+  isMobileMenuOpen.value = false
+}
+
+const toggleMobileMenu = () => {
+  isMobileMenuOpen.value = !isMobileMenuOpen.value
 }
 
 const isMobileNavigation = () => window.matchMedia('(max-width: 991px)').matches
@@ -77,7 +94,7 @@ watch(
 </script>
 
 <template>
-  <nav class="navbar navbar-expand-lg">
+  <nav class="navbar navbar-expand-lg" :class="{ 'nav-scroll': isScrolled }">
     <div class="container">
       <!-- Logo -->
       <div class="logo-wrapper">
@@ -93,16 +110,20 @@ watch(
         ref="navbarToggler"
         class="navbar-toggler"
         type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbar"
         aria-controls="navbar"
-        aria-expanded="false"
+        :aria-expanded="isMobileMenuOpen"
         aria-label="Mở menu điều hướng"
+        @click="toggleMobileMenu"
       >
         <span class="navbar-toggler-icon"><i class="ti-menu"></i></span>
       </button>
       <!-- Menu -->
-      <div id="navbar" ref="navbarCollapse" class="collapse navbar-collapse">
+      <div
+        id="navbar"
+        ref="navbarCollapse"
+        class="collapse navbar-collapse"
+        :class="{ show: isMobileMenuOpen }"
+      >
         <ul class="navbar-nav ms-auto" @click="handleNavbarClick">
           <li
             v-for="item in primaryMenu"

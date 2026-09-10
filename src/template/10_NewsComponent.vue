@@ -5,20 +5,7 @@ import 'dayjs/locale/vi'
 import { getNewsPaged } from '../api/newsPagedClient'
 import type { News } from '../generated/api-client/models'
 import { handleNewsImageError, resolveNewsImage } from '../utils/news'
-
-interface OwlCarouselElement {
-  data(key: string): unknown
-  trigger(eventName: string): OwlCarouselElement
-  owlCarousel(options: Record<string, unknown>): OwlCarouselElement
-}
-
-interface OwlJQuery {
-  (element: HTMLElement): OwlCarouselElement
-  fn?: {
-    owlCarousel?: unknown
-  }
-}
-
+import { destroyOwlCarousel, initOwlCarousel } from '../utils/carousel'
 const props = withDefaults(
   defineProps<{
     title?: string
@@ -99,62 +86,20 @@ const selectDiverseItems = (items: News[], limit = 3) => {
   return selected
 }
 
-const getJQuery = () => (window as typeof window & { jQuery?: OwlJQuery }).jQuery
-
-const updateCarouselAccessibility = () => {
-  const element = carouselElement.value
-  if (!element) return
-
-  element.querySelector<HTMLButtonElement>('.owl-prev')?.setAttribute('aria-label', 'Xem tin trước')
-  element
-    .querySelector<HTMLButtonElement>('.owl-next')
-    ?.setAttribute('aria-label', 'Xem tin tiếp theo')
-
-  element.querySelectorAll<HTMLButtonElement>('.owl-dot').forEach((dot, index) => {
-    dot.setAttribute('aria-label', `Đi đến tin số ${index + 1}`)
-  })
-
-  element.querySelectorAll<HTMLElement>('.owl-item.cloned').forEach((clone) => {
-    clone.setAttribute('aria-hidden', 'true')
-    clone
-      .querySelectorAll<HTMLElement>('a, button, input, select, textarea, [tabindex]')
-      .forEach((control) => {
-        control.setAttribute('tabindex', '-1')
-      })
-  })
-}
-
+// Carousel variant dùng Swiper adapter (utils/carousel.ts) — giữ nguyên cấu
+// hình owl cũ; aria-label cho nav/dots do adapter tự gắn khi tạo nút.
 const destroyCarousel = () => {
-  const jquery = getJQuery()
-  const element = carouselElement.value
-
-  if (!jquery || !element) return
-
-  const carousel = jquery(element)
-  if (carousel.data('owl.carousel')) {
-    carousel.trigger('destroy.owl.carousel')
-  }
+  if (isGrid.value) return
+  destroyOwlCarousel('.home-news .owl-carousel')
 }
 
 const initializeCarousel = async () => {
   if (isGrid.value) return
   await nextTick()
 
-  let jquery = getJQuery()
-  for (let attempt = 0; attempt < 10 && !jquery?.fn?.owlCarousel; attempt += 1) {
-    await new Promise<void>((resolve) => window.requestAnimationFrame(() => resolve()))
-    jquery = getJQuery()
-  }
+  if (!isComponentActive || !carouselElement.value) return
 
-  if (!isComponentActive || !carouselElement.value || !jquery?.fn?.owlCarousel) return
-
-  const carousel = jquery(carouselElement.value) as OwlCarouselElement
-
-  if (carousel.data('owl.carousel')) {
-    carousel.trigger('destroy.owl.carousel')
-  }
-
-  carousel.owlCarousel({
+  initOwlCarousel('.home-news .owl-carousel', {
     loop: props.loop,
     margin: 30,
     mouseDrag: true,
@@ -182,8 +127,6 @@ const initializeCarousel = async () => {
       }
     }
   })
-
-  window.requestAnimationFrame(updateCarouselAccessibility)
 }
 
 const syncNewsRail = () => {
@@ -286,7 +229,9 @@ onBeforeUnmount(() => {
               :aria-label="isGrid ? `${title}, có thể cuộn ngang` : title"
               @scroll.passive="syncNewsRail"
             >
-              <div class="item" v-for="item in state.items" :key="item.id">
+              <!-- .owl-stage: wrapper Swiper adapter; grid variant dùng display:contents -->
+              <div :class="isGrid ? 'home-news-grid-inner' : 'owl-stage'">
+                <div class="item" v-for="item in state.items" :key="item.id">
                 <div class="position-re o-hidden">
                   <img
                     :src="resolveNewsImage(item.newsImage, item.id)"
@@ -315,6 +260,8 @@ onBeforeUnmount(() => {
                   </h3>
                 </div>
               </div>
+                </div>
+              </div>
             </div>
             <button
               v-if="isGrid"
@@ -329,7 +276,6 @@ onBeforeUnmount(() => {
           </div>
         </div>
       </div>
-    </div>
   </section>
 </template>
 
@@ -369,6 +315,10 @@ onBeforeUnmount(() => {
 .home-news-all:focus-visible {
   border-color: #8a6a3f;
   color: #8a6a3f;
+}
+
+.home-news-grid-inner {
+  display: contents;
 }
 
 .home-news-grid {

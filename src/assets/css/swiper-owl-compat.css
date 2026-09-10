@@ -1,0 +1,105 @@
+/* ── Swiper ↔ Owl Carousel compatibility layer ──────────────────────────────
+   Adapter (src/utils/carousel.ts) dùng Swiper 11 nhưng phát ra cấu trúc class
+   của Owl Carousel để toàn bộ theme CSS (style.css + owl.carousel.min.css)
+   giữ nguyên. File này chỉ bổ sung những gì Swiper CSS không phủ vì class
+   wrapper/slide đã được đổi tên. */
+
+/* Wrapper: tương đương .owl-stage-outer + .owl-stage của Owl gộp lại.
+   Swiper điều khiển transform trên phần tử này (wrapperClass: 'owl-stage').
+   KHÔNG đặt z-index ở đây — stage (chứa ảnh nền slide) sẽ đè lên nav/dots. */
+.owl-carousel .owl-stage {
+  display: flex;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  box-sizing: content-box;
+  touch-action: pan-y;
+  transition-property: transform;
+}
+
+/* Clip: Owl gốc clip slide qua .owl-stage-outer { overflow: hidden }.
+   Adapter gộp wrapper nên clip đặt trên container — nếu không, slide kế tiếp
+   tràn ra ngoài (testimonials lộ 3 card) và tràn trái đè panel title (pricing). */
+.owl-carousel {
+  overflow: hidden;
+}
+
+/* Nav/dots nằm trên slide (đặt sau stage trong DOM nhưng stage có transform
+   tạo stacking context → cần z-index rõ ràng để không bị ảnh nền che). */
+.owl-carousel .owl-nav,
+.owl-carousel .owl-dots {
+  z-index: 10;
+}
+
+/* Slide: Swiper tự set width inline theo slidesPerView; đảm bảo flex item
+   không bị co lại (tương đương .owl-item { float: left } của Owl trong flex). */
+.owl-carousel .owl-item {
+  flex-shrink: 0;
+  min-height: 1px;
+  position: relative;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+}
+
+/* Dot là <button> (a11y tốt hơn div của Owl) — reset chrome mặc định của
+   trình duyệt, giữ nguyên style span của theme (.owl-theme .owl-dots .owl-dot span). */
+.owl-carousel .owl-dots .owl-dot {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  line-height: 1;
+  cursor: pointer;
+}
+
+/* Nút nav là <button> — reset tương tự, theme CSS (.owl-theme .owl-nav [class*="owl-"])
+   sẽ style phần còn lại. */
+.owl-carousel .owl-nav button.owl-prev,
+.owl-carousel .owl-nav button.owl-next {
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* Ẩn nav/dots theo breakpoint — adapter toggle attribute [hidden]
+  (Owl hỗ trợ responsive nav/dots, Swiper không nên adapter tự quản). */
+.owl-carousel .owl-nav[hidden],
+.owl-carousel .owl-dots[hidden] {
+  display: none !important;
+}
+
+/* ── Hero slider (slider-fade) ──────────────────────────────────────────────
+   Swiper tự set height:100% inline trên slide, nhưng theme cần slide cao
+   100vh (`.slider-fade .owl-item { height: 100vh }`) với item absolute bên
+   trong. Swiper CSS thường để container auto → ép container cao 100% của
+   .header (min-height 100vh) và ghi đè height inline của slide. */
+.owl-carousel .swiper-slide {
+  height: 100%;
+}
+
+.slider-fade .owl-carousel {
+  height: 100vh;
+}
+
+.slider-fade .owl-carousel .owl-item {
+  height: 100vh !important;
+}
+
+/* Fade effect: Swiper để slide xếp chồng absolute — đảm bảo slide đầu hiển thị */
+.slider-fade .owl-carousel.swiper-fade .swiper-slide {
+  pointer-events: none;
+}
+
+.slider-fade .owl-carousel.swiper-fade .swiper-slide-active {
+  pointer-events: auto;
+}
+
+/* Container .owl-carousel ban đầu không có height (Owl tự tính) → Swiper
+   cũng tự tính, nhưng với fade mode cần height rõ ràng từ parent. */
+.owl-carousel.swiper {
+  display: block;
+}

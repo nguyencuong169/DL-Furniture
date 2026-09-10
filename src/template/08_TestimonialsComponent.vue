@@ -125,7 +125,9 @@ onBeforeUnmount(() => {
                 </div>
               </div>
               <div class="owl-carousel owl-theme">
-                <div class="item" v-for="item in testimonials" :key="item.id">
+                <!-- .owl-stage: wrapper mà Swiper adapter (utils/carousel.ts) điều khiển -->
+                <div class="owl-stage">
+                  <div class="item" v-for="item in testimonials" :key="item.id">
                   <span class="quote"><img src="../assets/img/quot.png" alt="Trích dẫn" /></span>
                   <div class="testimonial-rating" :aria-label="`${item.rating} trên 5 sao`">
                     <i
@@ -148,6 +150,7 @@ onBeforeUnmount(() => {
                       </span>
                     </div>
                   </div>
+                </div>
                 </div>
               </div>
             </div>

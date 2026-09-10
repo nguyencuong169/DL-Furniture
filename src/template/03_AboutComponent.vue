@@ -160,20 +160,35 @@ onBeforeUnmount(() => {
         </div>
 
         <!-- Center: large image -->
-        <div class="col-lg-5 col-md-7 mb-30 animate-box" data-animate-effect="fadeInUp">
-          <div class="about-image">
-            <img
-              src="@/assets/img/intros/intro6.jpg"
-              alt="Không gian nội thất do D&L Furniture thiết kế và thi công"
-            />
-            <!-- Seal "15+ năm": điểm nhấn editorial đè mép ảnh. Số liệu bind từ
-                 stat 'experience' (stats[0]) — cùng nguồn với cột phải, không hardcode -->
-            <div class="about-badge">
-              <span class="about-badge-value">{{ stats[0]?.value }}{{ stats[0]?.suffix }}</span>
-              <span class="about-badge-label">{{ stats[0]?.label }}</span>
-            </div>
-          </div>
-        </div>
+        <!-- Center: diamond image cluster -->
+<div class="col-lg-5 col-md-7 mb-30 animate-box" data-animate-effect="fadeInUp">
+  <div class="about-collage">
+    <div class="diamond diamond-lg">
+      <img
+        src="@/assets/img/intros/intro1.jpg"
+        alt="Không gian phòng khách do D&L Furniture thiết kế"
+      />
+    </div>
+    <div class="diamond diamond-md">
+      <img
+        src="@/assets/img/intros/intro4.jpg"
+        alt="Ghế armchair và tủ gỗ D&L Furniture"
+      />
+    </div>
+    <div class="diamond diamond-sm">
+      <img
+        src="@/assets/img/intros/intro5.jpg"
+        alt="Chi tiết chế tác gỗ D&L Furniture"
+      />
+    </div>
+
+    <!-- Seal "15+ năm" — vẫn bind từ stats[0], chỉ đổi vị trí neo -->
+    <div class="about-badge">
+      <span class="about-badge-value">{{ stats[0]?.value }}{{ stats[0]?.suffix }}</span>
+      <span class="about-badge-label">{{ stats[0]?.label }}</span>
+    </div>
+  </div>
+</div>
 
         <!-- Right: stats column -->
         <div class="col-lg-3 col-md-5 mb-30 animate-box" data-animate-effect="fadeInUp">
@@ -421,6 +436,143 @@ onBeforeUnmount(() => {
   }
   .stat-value {
     font-size: 30px;
+  }
+}
+
+.about-collage {
+  position: relative; /* neo cho các viên trám + seal */
+  height: 460px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Khung ngoài xoay 45deg tạo hình trám, overflow ẩn phần ảnh dư */
+.diamond {
+  position: absolute;
+  overflow: hidden;
+  transform: rotate(45deg);
+  border: 3px solid #f7f3ec;
+  border-radius: 6px; /* bo nhẹ góc trám, đỡ gắt */
+  box-shadow: 0 18px 40px rgba(20, 16, 10, 0.18);
+  transition: transform 0.4s ease;
+}
+.diamond:hover {
+  transform: rotate(45deg) scale(1.03);
+}
+
+/* Ảnh xoay ngược lại để giữ ảnh thẳng, phóng to 145% để lấp góc trám */
+.diamond img {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 145%;
+  height: 145%;
+  transform: translate(-50%, -50%) rotate(-45deg);
+  object-fit: cover;
+}
+
+.diamond-lg {
+  width: 250px;
+  height: 250px;
+  top: 5%;
+  left: 2%;
+  z-index: 1;
+}
+
+.diamond-md {
+  width: 170px;
+  height: 170px;
+  top: -2%;
+  right: 4%;
+  z-index: 2;
+}
+
+.diamond-sm {
+  width: 170px;
+  height: 170px;
+  bottom: 0;
+  left: 28%;
+  z-index: 2;
+}
+
+/* Seal dời vào khoảng trống giữa 3 viên trám (giống icon nhà ở ảnh mẫu) */
+.about-badge {
+  position: absolute;
+  top: 38%;
+  right: 20%;
+  z-index: 3;
+  width: 110px;
+  height: 110px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  border-radius: 50%;
+  background: rgba(32, 29, 25, 0.92);
+  border: 1px solid rgba(212, 178, 128, 0.75);
+  box-shadow:
+    0 0 0 6px rgba(32, 29, 25, 0.18),
+    0 16px 36px rgba(34, 29, 22, 0.35);
+  text-align: center;
+}
+.about-badge::before {
+  position: absolute;
+  inset: 6px;
+  border: 1px dashed rgba(212, 178, 128, 0.65);
+  border-radius: 50%;
+  content: '';
+}
+.about-badge-value {
+  font-family: 'Gilda Display', serif;
+  font-size: 28px;
+  color: #d7b98a;
+  line-height: 1;
+}
+.about-badge-label {
+  max-width: 76px;
+  font-family: 'Barlow', sans-serif;
+  font-size: 8.5px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  line-height: 1.3;
+  color: rgba(255, 255, 255, 0.82);
+  text-transform: uppercase;
+}
+
+/* Mobile: cụm trám quá rối trên màn hẹp → gộp về 1 ảnh chữ nhật bo góc như cũ */
+@media (max-width: 991px) {
+  .about-collage {
+    height: 300px;
+  }
+  .diamond-md,
+  .diamond-sm {
+    display: none;
+  }
+  .diamond-lg {
+    position: static;
+    width: 100%;
+    height: 100%;
+    transform: none;
+    border-radius: 4px;
+  }
+  .diamond-lg img {
+    position: static;
+    width: 100%;
+    height: 100%;
+    transform: none;
+  }
+  .about-badge {
+    top: auto;
+    right: auto;
+    left: 14px;
+    bottom: 14px;
+    width: 96px;
+    height: 96px;
+  }
+  .about-badge-value {
+    font-size: 24px;
   }
 }
 </style>

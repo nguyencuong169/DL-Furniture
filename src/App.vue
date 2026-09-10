@@ -5,6 +5,7 @@ import NavbarComponent from './template/01_NavbarComponent.vue'
 import FooterComponent from './template/13_FooterComponent.vue'
 import StickyContact from './components/StickyContact.vue'
 import { initScrollAnimations } from './utils/animations'
+import { initProgressBar } from './utils/progressBar'
 
 const router = useRouter()
 
@@ -19,6 +20,8 @@ function focusMainContent(preventScroll = true) {
 
 onMounted(() => {
   initScrollAnimations()
+  // Nút scroll-to-top (vòng tròn tiến độ) — phần tử tĩnh trong index.html
+  initProgressBar()
 })
 
 // Section được Vue render lại sau mỗi lần điều hướng → re-bind hiệu ứng scroll.

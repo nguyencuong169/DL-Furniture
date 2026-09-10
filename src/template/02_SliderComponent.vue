@@ -44,17 +44,6 @@ const owlOptions = {
   }
 }
 
-// Owl carousel loop-mode sao chép các slide (clone) — ẩn chúng khỏi cây
-// accessibility để screen reader không đọc trùng nội dung.
-const hideCarouselClones = (attempts = 10) => {
-  const clones = document.querySelectorAll(`${SLIDER_SELECTOR} .owl-item.cloned`)
-  if (!clones.length && attempts > 0) {
-    window.setTimeout(() => hideCarouselClones(attempts - 1), 100)
-    return
-  }
-  clones.forEach((clone) => clone.setAttribute('aria-hidden', 'true'))
-}
-
 // ── Pause autoplay CHỈ trên CTA chính ("Đặt lịch tư vấn") ──────────────────
 // autoplayHoverPause của Owl pause cả vùng hero, gây khó chịu (phải kéo chuột
 // qua hẳn slider mới chạy lại). Thay bằng: hover/focus vào nút vàng → stop;
@@ -93,7 +82,6 @@ const unbindCtaHoverPause = () => {
 
 onMounted(() => {
   initOwlCarousel(SLIDER_SELECTOR, owlOptions)
-  hideCarouselClones()
   bindCtaHoverPause()
 })
 
@@ -106,6 +94,8 @@ onBeforeUnmount(() => {
 <template>
   <header class="header slider-fade" aria-labelledby="home-hero-title">
     <div class="owl-carousel owl-theme">
+      <!-- .owl-stage: wrapper mà Swiper adapter (utils/carousel.ts) điều khiển -->
+      <div class="owl-stage">
       <!-- The opacity on the image is made with "data-overlay-dark="number". You can change it using the numbers 0-9. -->
       <div
         class="text-center item bg-img"
@@ -180,6 +170,7 @@ onBeforeUnmount(() => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
     <!-- slider reservation -->

@@ -1,24 +1,69 @@
 <script setup lang="ts">
-import { computed, onMounted, ref } from 'vue'
-import { useRoute } from 'vue-router'
-import { fetchProductById, formatPrice, type ProductResponse } from '../api/productClient'
+import { computed, nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { fetchProductBySlug, formatPrice, type ProductResponse } from '../api/productClient'
 import PricingComponent from '../template/05_PricingComponent.vue'
+import { destroyOwlCarousel, initOwlCarousel } from '../utils/carousel'
+import fallbackHeroImage from '../assets/img/slider/3.jpg'
+import { setPageSeo } from '../utils/seo'
 
 const route = useRoute()
+const router = useRouter()
 
 const product = ref<ProductResponse | null>(null)
 const loading = ref(true)
 
-const productId = computed(() => Number(route.params.id))
+// P1-2: route param là slug SEO (hoặc id dạng số từ URL cũ /san-pham/detail/12)
+const slugOrId = computed(() => String(route.params.slug ?? ''))
 
 onMounted(async () => {
-  product.value = await fetchProductById(productId.value)
+  product.value = await fetchProductBySlug(slugOrId.value)
+  // URL cũ dạng số → replace lên URL slug chuẩn (canonical, có từ khóa)
+  if (product.value && /^\d+$/.test(slugOrId.value)) {
+    void router.replace({
+      name: 'product-detail',
+      params: { slug: product.value.slug },
+      hash: route.hash
+    })
+  }
+  setPageSeo({
+    title: product.value
+      ? `${product.value.name} | Nội Thất Gỗ Óc Chó Cao Cấp – D&L Furniture`
+      : 'Sản phẩm không tồn tại | D&L Furniture',
+    description:
+      product.value?.summary ||
+      `Chi tiết sản phẩm nội thất gỗ óc chó tại D&L Furniture: kích thước, chất liệu, báo giá. Hotline 0961 109 897.`,
+    path: router.currentRoute.value.path
+  })
   loading.value = false
 })
 
 const mainImage = computed(() => {
   if (!product.value) return ''
   return product.value.mainImage || product.value.images[0]?.imageUrl || ''
+})
+
+// Hero slider 1 slide — init qua Swiper adapter (custom.js đã gỡ).
+// Không dots/nav: chỉ cần engine hiển thị slide đúng cấu trúc theme CSS.
+const HERO_SELECTOR = '.header.slider .owl-carousel'
+
+const initHeroSlider = async () => {
+  await nextTick()
+  initOwlCarousel(HERO_SELECTOR, {
+    items: 1,
+    loop: false,
+    dots: false,
+    nav: false,
+    mouseDrag: false
+  })
+}
+
+watch(loading, async (isLoading) => {
+  if (!isLoading) await initHeroSlider()
+})
+
+onBeforeUnmount(() => {
+  destroyOwlCarousel(HERO_SELECTOR)
 })
 
 const galleryImages = computed(() => {
@@ -35,11 +80,15 @@ const galleryImages = computed(() => {
     <!-- Room Page Slider -->
     <header class="header slider">
       <div class="owl-carousel owl-theme">
-        <div
-          class="text-center item bg-img"
-          data-overlay-dark="3"
-          :data-background="mainImage || '/src/assets/img/slider/3.jpg'"
-        ></div>
+        <div class="owl-stage">
+          <div
+            class="text-center item bg-img"
+            data-overlay-dark="3"
+            :style="{
+              backgroundImage: `url(${mainImage || fallbackHeroImage})`
+            }"
+          ></div>
+        </div>
       </div>
       <!-- arrow down -->
       <div class="arrow bounce text-center">

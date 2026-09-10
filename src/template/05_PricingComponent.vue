@@ -72,7 +72,9 @@ onBeforeUnmount(() => {
         </div>
         <div class="col-md-8">
           <div class="owl-carousel owl-theme">
-            <div class="pricing-card" v-for="item in featuredServices" :key="item.id">
+            <!-- .owl-stage: wrapper mà Swiper adapter (utils/carousel.ts) điều khiển -->
+            <div class="owl-stage">
+              <div class="pricing-card" v-for="item in featuredServices" :key="item.id">
               <img :src="item.image" :alt="item.name" />
               <div class="desc">
                 <div class="name">{{ item.name }}</div>
@@ -84,6 +86,7 @@ onBeforeUnmount(() => {
                   Nhận báo giá <i class="ti-arrow-right" aria-hidden="true"></i>
                 </RouterLink>
               </div>
+            </div>
             </div>
           </div>
         </div>

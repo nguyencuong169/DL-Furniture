@@ -41,7 +41,9 @@ onMounted(async () => {
       </div>
       <div class="row">
         <div class="col-md-12 owl-carousel owl-theme">
-          <div class="item" v-for="member in teamMembers" :key="member.id">
+          <!-- .owl-stage: wrapper mà Swiper adapter (utils/carousel.ts) điều khiển -->
+          <div class="owl-stage">
+            <div class="item" v-for="member in teamMembers" :key="member.id">
             <div class="img"><img :src="member.avatarImage" :alt="member.fullName" /></div>
             <div class="info">
               <h6>{{ member.fullName }}</h6>
@@ -56,6 +58,7 @@ onMounted(async () => {
                 </div>
               </div>
             </div>
+          </div>
           </div>
         </div>
       </div>
