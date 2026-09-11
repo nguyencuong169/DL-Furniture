@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, reactive } from 'vue'
 import { destroyOwlCarousel, initOwlCarousel, triggerOwlAutoplay } from '../utils/carousel'
-import { Phone } from 'lucide-vue-next'
+import { ArrowUpRight, Phone } from 'lucide-vue-next'
 import slider1 from '../assets/img/slider/image.jpg'
 import slider2 from '../assets/img/slider/slider_1.jpg'
 import slider3 from '../assets/img/slider/artisan-walnut-chair.webp'
@@ -108,13 +108,18 @@ onBeforeUnmount(() => {
               <div class="col-md-12">
                 <span class="hero-line" aria-hidden="true"></span>
                 <h4>Nội thất gỗ óc chó cao cấp</h4>
+                <!-- Hero copy kiểu "tuyên ngôn" (Oak & Origin polish P1-1):
+                     ngắn, 3 nhịp, đập thẳng — từ khóa "gỗ óc chó" giữ ở h4 -->
                 <h1 id="home-hero-title">
-                  Vẻ đẹp trường tồn <br />
-                  từ <em class="hero-accent">gỗ óc chó</em> thật
+                  Làm bằng tay. <br />
+                  Làm để <em class="hero-accent">trường tồn</em>.
                 </h1>
                 <div class="butn-dark mt-30 mb-30">
                   <RouterLink :to="{ name: 'home', hash: '#consultation' }">
-                    <span>Đặt lịch tư vấn</span>
+                    <span>
+                      Đặt lịch tư vấn
+                      <ArrowUpRight :size="15" :stroke-width="2" aria-hidden="true" />
+                    </span>
                   </RouterLink>
                 </div>
               </div>
@@ -139,7 +144,10 @@ onBeforeUnmount(() => {
                 </h1>
                 <div class="butn-dark mt-30 mb-30">
                   <RouterLink :to="{ name: 'home', hash: '#consultation' }">
-                    <span>Đặt lịch tư vấn</span>
+                    <span>
+                      Đặt lịch tư vấn
+                      <ArrowUpRight :size="15" :stroke-width="2" aria-hidden="true" />
+                    </span>
                   </RouterLink>
                 </div>
               </div>
@@ -163,7 +171,10 @@ onBeforeUnmount(() => {
                 </h1>
                 <div class="butn-light mt-30 mb-30">
                   <RouterLink data-scroll-nav="1" to="/thu-vien">
-                    <span>Khám phá thư viện</span>
+                    <span>
+                      Khám phá thư viện
+                      <ArrowUpRight :size="15" :stroke-width="2" aria-hidden="true" />
+                    </span>
                   </RouterLink>
                 </div>
               </div>
@@ -296,5 +307,18 @@ onBeforeUnmount(() => {
 /* Icon goi dien trong khoi reservation: Lucide thay flaticon (thong nhat bo icon) */
 .header .reservation-phone {
   color: #fff;
+}
+
+/* CTA hero: chữ + mũi tên ↗ trên cùng một dòng (Oak & Origin polish P3-7) */
+.header .caption .butn-dark a span,
+.header .caption .butn-light a span {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.header .caption .butn-dark a svg,
+.header .caption .butn-light a svg {
+  flex-shrink: 0;
 }
 </style>

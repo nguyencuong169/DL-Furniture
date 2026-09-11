@@ -1,9 +1,17 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 import { computed, nextTick, reactive, ref } from 'vue'
 import { submitConsultation } from '../api/consultationClient'
 import image1 from '../assets/img/1.jpg'
 import { bookingUseStore } from '../stores/bookingstore'
-import { Phone } from 'lucide-vue-next'
+import { Hammer, Phone, ShieldCheck, Trees, type LucideIcon } from 'lucide-vue-next'
+
+/* Hàng 3 cam kết thương hiệu trong dải CTA tối (Oak & Origin polish P1-2):
+   xóa lo ngại đúng lúc khách quyết định điền form. */
+const ASSURANCES: { icon: LucideIcon; title: string; detail: string }[] = [
+  { icon: Trees, title: 'Gỗ tự nhiên 100%', detail: 'Gỗ óc chó FAS tuyển chọn' },
+  { icon: Hammer, title: 'Chế tác thủ công', detail: 'Hoàn thiện tại xưởng D&L' },
+  { icon: ShieldCheck, title: 'Bảo hành dài hạn', detail: 'Bảo trì định kỳ trọn đời' }
+]
 
 type ConsultationField =
   | 'fullName'
@@ -234,6 +242,9 @@ async function handleSubmit() {
               Từ ý tưởng ban đầu đến thi công hoàn thiện, đội ngũ D&amp;L Furniture đồng hành để cân
               bằng thẩm mỹ, công năng, vật liệu và ngân sách.
             </p>
+
+            <!-- Điểm nhấn viết tay (P2-3): chất thủ công cho dải CTA tối -->
+            <p class="consultation-script">Từ xưởng gỗ đến ngôi nhà của bạn.</p>
 
             <ul class="consultation-benefits" aria-label="Quyền lợi tư vấn">
               <li><i class="ti-check" aria-hidden="true"></i> Khảo sát nhu cầu và hiện trạng</li>
@@ -617,6 +628,17 @@ async function handleSubmit() {
             </div>
           </div>
         </div>
+
+        <!-- Hàng cam kết thương hiệu — "trust badges" của dải CTA tối (P1-2) -->
+        <ul v-if="!compact" class="consultation-assurances" aria-label="Cam kết của D&L Furniture">
+          <li v-for="item in ASSURANCES" :key="item.title">
+            <component :is="item.icon" :size="27" :stroke-width="1.4" aria-hidden="true" />
+            <span class="consultation-assurance-text">
+              <strong>{{ item.title }}</strong>
+              <small>{{ item.detail }}</small>
+            </span>
+          </li>
+        </ul>
       </div>
     </div>
   </section>
@@ -704,6 +726,65 @@ async function handleSubmit() {
 
 .consultation-hotline {
   margin-bottom: 0;
+}
+
+/* Chữ viết tay điểm nhấn (font Dancing Script) — chất thủ công (P2-3) */
+.consultation-script {
+  margin: 0 0 18px;
+  color: #d8b98d;
+  /* Dancing Script: font viết tay có subset tiếng Việt (Caveat không có → dấu méo) */
+  font-family: 'Dancing Script', cursive;
+  font-size: 27px;
+  font-weight: 600;
+  line-height: 1.2;
+  transform: rotate(-1.2deg);
+  transform-origin: left center;
+}
+
+/* Hàng 3 cam kết thương hiệu (P1-2) — icon Lucide + tiêu đề + mô tả ngắn.
+   Section cha dùng section-padding pb-0 → tự lo padding đáy tại đây. */
+.consultation-assurances {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px 48px;
+  justify-content: center;
+  padding: 28px 0 48px;
+  margin: 46px 0 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.14);
+  list-style: none;
+}
+
+.consultation-assurances li {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  min-width: 220px;
+}
+
+.consultation-assurances li > svg {
+  flex-shrink: 0;
+  color: #d8b98d;
+}
+
+.consultation-assurance-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.consultation-assurance-text strong {
+  color: #fff;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.consultation-assurance-text small {
+  color: rgba(255, 255, 255, 0.62);
+  font-family: 'Barlow', sans-serif;
+  font-size: 12.5px;
 }
 
 .consultation-box {

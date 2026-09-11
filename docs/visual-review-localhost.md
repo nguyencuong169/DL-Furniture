@@ -1,6 +1,33 @@
 # Review tổng thể http://localhost:5173/ (kiểm tra trực quan bằng trình duyệt)
 
 > Ngày review: 07/09/2026 · Viewport desktop 1280×800 · Vue 3 + Vite dev server
+> Review bổ sung: 11/09/2026 — xác minh các thay đổi polish "Oak & Origin" (xem `docs/oak-and-origin-review.md`)
+
+---
+
+## 0. Review bổ sung 11/09/2026 — Polish "Oak & Origin" ✅ TẤT CẢ PASS
+
+Kiểm tra tự động bằng Chrome headless thật (`scripts/review-localhost.cjs`, Puppeteer + Chrome hệ thống — Chromium 84 bundle của puppeteer 1.20 không đọc được syntax ES2022 của Vite dev nên phải trỏ `executablePath` sang Chrome cài sẵn):
+
+| Hạng mục | Kết quả |
+|---|---|
+| Console errors | ✅ **0 lỗi** (trước đó puppeteer cũ báo giả "Unexpected token '.'" do Chromium 84) |
+| Hero P1-1 | ✅ H1 "Làm bằng tay. Làm để trường tồn." + eyebrow giữ từ khóa "Nội thất gỗ óc chó cao cấp" |
+| CTA mũi tên ↗ P3-7 | ✅ SVG `ArrowUpRight` có trong nút hero |
+| Nền kem P3-6 | ✅ `body` = `rgb(250, 246, 239)` (#faf6ef) |
+| Font viết tay P2-3 | ✅ Dancing Script load thành công (`document.fonts.check` = true); "Được làm bằng cả trái tim." render đúng font |
+| Badge vòng tròn P2-5 | ✅ SVG textPath "GỖ ÓC CHÓ THẬT · D&L FURNITURE" + animation `about-badge-spin` chạy |
+| Rail taglines P2-4 | ✅ 3/3 câu hứa lợi ích hiển thị dưới tên danh mục |
+| Hàng cam kết P1-2 | ✅ 3/3 item (Gỗ tự nhiên 100% / Chế tác thủ công / Bảo hành dài hạn) có icon + visible |
+| Overflow ngang | ✅ Không có (desktop 1280px) |
+
+**Ghi chú nhỏ:** hàng cam kết nằm dưới fold khi `#consultation` scrollIntoView (section cao) — chấp nhận được vì nó là "chốt" cuối trang; có thể cân nhắc giảm `margin-top` từ 46px nếu muốn thấy sớm hơn.
+
+**Screenshots:** `docs/review-hero.png`, `docs/review-about.png`, `docs/review-collection.png`, `docs/review-booking.png`.
+
+**Kết luận:** toàn bộ 7 điểm polish học từ Oak & Origin đã hoạt động đúng trên dev, không phát sinh lỗi runtime. Sẵn sàng commit + deploy.
+
+---
 
 ## 1. Trang chủ (`/`) — ✅ Xuất sắc
 

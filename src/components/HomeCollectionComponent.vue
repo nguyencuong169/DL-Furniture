@@ -22,6 +22,17 @@ onMounted(async () => {
 const categoryUrl = (category: ProductCategoryResponse) => `/san-pham/${category.slug}`
 const categoryNumber = (index: number) => String(index + 1).padStart(2, '0')
 
+/* Câu hứa lợi ích ngắn dưới tên danh mục trên rail (Oak & Origin polish P2-4).
+   Fallback: cắt câu đầu của description từ API nếu slug chưa có trong map. */
+const CATEGORY_TAGLINES: Record<string, string> = {
+  'phong-khach': 'Nơi cả gia đình quây quần',
+  'phong-ngu': 'Giấc ngủ trọn vẹn trên gỗ thật',
+  'phong-bep': 'Trái tim của mọi ngôi nhà'
+}
+
+const categoryTagline = (category: ProductCategoryResponse) =>
+  CATEGORY_TAGLINES[category.slug] ?? category.description?.split(/[.!]/)[0] ?? ''
+
 const setActiveCategory = (index: number) => {
   activeIndex.value = index
 }
@@ -99,7 +110,12 @@ const setActiveCategory = (index: number) => {
           @click="setActiveCategory(index)"
         >
           <span class="collection-rail-number">{{ categoryNumber(index) }}</span>
-          <span class="collection-rail-name">{{ category.name }}</span>
+          <span class="collection-rail-info">
+            <span class="collection-rail-name">{{ category.name }}</span>
+            <span v-if="categoryTagline(category)" class="collection-rail-tag">
+              {{ categoryTagline(category) }}
+            </span>
+          </span>
           <i class="ti-arrow-right" aria-hidden="true"></i>
         </button>
       </div>
@@ -364,6 +380,30 @@ const setActiveCategory = (index: number) => {
   letter-spacing: 0.15em;
 }
 
+.collection-rail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+/* Câu hứa lợi ích dưới tên danh mục (P2-4) — mờ hơn tên, nổi lên khi active */
+.collection-rail-tag {
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.44);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12.5px;
+  letter-spacing: 0.05em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  transition: color 0.35s ease;
+}
+
+.collection-rail-item:hover .collection-rail-tag,
+.collection-rail-item.is-active .collection-rail-tag {
+  color: rgba(255, 255, 255, 0.75);
+}
+
 .collection-rail-name {
   overflow: hidden;
   font-family: 'Gilda Display', serif;
@@ -546,6 +586,11 @@ const setActiveCategory = (index: number) => {
 
   .collection-rail-name {
     font-size: 20px;
+  }
+
+  /* Mobile: rail hẹp → gác tagline 1 dòng với ellipsis, không phá layout */
+  .collection-rail-tag {
+    font-size: 11.5px;
   }
 }
 

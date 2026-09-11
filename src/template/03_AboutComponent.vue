@@ -149,6 +149,9 @@ onBeforeUnmount(() => {
             Vật liệu, tỷ lệ và từng điểm tiếp xúc được đặt trong cùng một hệ ngôn ngữ để nội thất
             trở thành một phần tự nhiên của kiến trúc — chỉn chu nhưng không phô trương.
           </p>
+
+          <!-- Điểm nhấn viết tay (Oak & Origin polish P2-3) — chất thủ công, gia truyền -->
+          <p class="about-script">Được làm bằng cả trái tim.</p>
           <!-- call -->
           <div class="reservations">
             <div class="icon"><span><Phone :size="34" :stroke-width="1.25" /></span></div>
@@ -182,8 +185,21 @@ onBeforeUnmount(() => {
       />
     </div>
 
-    <!-- Seal "15+ năm" — vẫn bind từ stats[0], chỉ đổi vị trí neo -->
+    <!-- Seal "15+ năm" — vẫn bind từ stats[0], chỉ đổi vị trí neo.
+         Vành chữ chạy vòng tròn SVG textPath (P2-5): chất "con dấu khắc gỗ". -->
     <div class="about-badge">
+      <svg class="about-badge-ring" viewBox="0 0 110 110" aria-hidden="true">
+        <defs>
+          <path
+            id="about-badge-circle"
+            d="M 55,55 m -41,0 a 41,41 0 1,1 82,0 a 41,41 0 1,1 -82,0"
+            fill="none"
+          />
+        </defs>
+        <text class="about-badge-ring-text">
+          <textPath href="#about-badge-circle">GỖ ÓC CHÓ THẬT · D&L FURNITURE ·</textPath>
+        </text>
+      </svg>
       <span class="about-badge-value">{{ stats[0]?.value }}{{ stats[0]?.suffix }}</span>
       <span class="about-badge-label">{{ stats[0]?.label }}</span>
     </div>
@@ -574,5 +590,52 @@ onBeforeUnmount(() => {
   .about-badge-value {
     font-size: 24px;
   }
+}
+
+/* ── Vành chữ chạy vòng tròn trên seal (P2-5) ──────────────────────────────
+   SVG textPath quay chậm 26s/vòng, tôn trọng prefers-reduced-motion.
+   Bán kính 41 ↔ chu vi ~258px: letter-spacing 2.4px để chữ chan đều vành. */
+.about-badge-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transform-origin: 50% 50%;
+  animation: about-badge-spin 26s linear infinite;
+}
+
+.about-badge-ring-text {
+  fill: rgba(215, 185, 138, 0.85);
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 2.4px;
+}
+
+@keyframes about-badge-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about-badge-ring {
+    animation: none;
+  }
+}
+
+/* ── Chữ viết tay điểm nhấn (P2-3) — Dancing Script, chỉ 1 câu/section.
+   Dùng p.about-script để thắng .about p phía trên (cùng specifying màu/size) */
+.about p.about-script {
+  margin: 6px 0 0;
+  color: #aa8453;
+  /* Dancing Script: font viết tay có subset tiếng Việt (Caveat không có → dấu méo) */
+  font-family: 'Dancing Script', cursive;
+  font-size: 30px;
+  font-weight: 600;
+  line-height: 1.15;
+  transform: rotate(-1.5deg);
+  transform-origin: left center;
 }
 </style>

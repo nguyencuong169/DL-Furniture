@@ -398,6 +398,13 @@ blockquote cite:before {
 .bg-cream {
   background: #f8f5f0;
 }
+
+/* ── Nền kem ấm cho cả trang (Oak & Origin polish P3-6) ────────────────────
+   body trắng tinh → kem ấm #faf6ef: hợp tông gỗ, làm nổi các thẻ/card trắng.
+   Khai báo sau cùng để thắng mọi body background phía trên trong file. */
+body {
+  background-color: #faf6ef;
+}
 .color-1 {
   color: #fff;
 }
