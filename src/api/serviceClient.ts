@@ -29,7 +29,7 @@ const FALLBACK_SERVICES: ServiceResponse[] = [
     id: 1,
     name: 'Nội thất biệt thự',
     description:
-      'Thiết kế & thi công không gian biệt thự sang trọng từ gỗ óc chó, cân chỉnh tỷ lệ và chi tiết theo kiến trúc của gia chủ.',
+      'Biệt thự xứng tầm gia chủ — nội thất gỗ óc chó FAS được phát triển riêng theo hiện trạng, không dùng mẫu có sẵn.',
     image: serviceImg1,
     category: 'Thi công',
     sortOrder: 0
@@ -38,7 +38,7 @@ const FALLBACK_SERVICES: ServiceResponse[] = [
     id: 2,
     name: 'Nội thất chung cư',
     description:
-      'Trọn gói từ khảo sát hiện trường đến lắp đặt: tối ưu công năng, lưu trữ và thẩm mỹ cho diện tích căn hộ.',
+      'Tối ưu từng m² cho không gian sống hiện đại — lưu trữ thông minh, công năng trọn vẹn mà không đánh đổi thẩm mỹ.',
     image: serviceImg2,
     category: 'Thi công',
     sortOrder: 1
@@ -47,7 +47,7 @@ const FALLBACK_SERVICES: ServiceResponse[] = [
     id: 3,
     name: 'Văn phòng & Showroom',
     description:
-      'Thiết kế không gian làm việc và trưng bày theo concept riêng, đồng bộ thương hiệu và nhu cầu vận hành của doanh nghiệp.',
+      'Không gian làm việc đồng bộ thương hiệu — từ quầy lễ tân đến phòng họp, sản xuất tại xưởng riêng, bàn giao đúng tiến độ.',
     image: serviceImg3,
     category: 'Thi công',
     sortOrder: 2
@@ -56,7 +56,7 @@ const FALLBACK_SERVICES: ServiceResponse[] = [
     id: 4,
     name: 'Nội thất theo yêu cầu',
     description:
-      'Đóng tủ, vách, bàn ghế gỗ óc chó từ đo đạc hiện trường; đồng hành từ chọn phôi đến hoàn thiện tại công trình.',
+      'Đo đạc hiện trường, đóng tủ, vách, bàn ghế gỗ óc chó — đồng hành từ chọn phôi đến hoàn thiện tại công trình.',
     image: serviceImg4,
     category: 'Thi công',
     sortOrder: 3

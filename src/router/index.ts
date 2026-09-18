@@ -5,10 +5,12 @@ const GalleryView = () => import('../views/GalleryView.vue')
 const AboutView = () => import('../views/AboutView.vue')
 const ProductView = () => import('../views/ProductView.vue')
 const ProjectView = () => import('../views/ProjectView.vue')
+const ProjectDetailView = () => import('../views/ProjectDetailView.vue')
 const ProductDetailView = () => import('../views/ProductDetailView.vue')
 const ThuocLoBanView = () => import('../views/ThuocLoBanView.vue')
 const NotFoundComponent = () => import('../template/15_NotFoundComponent.vue')
 const ProductComponent = () => import('../template/04_ProductComponent.vue')
+const ProductCategoryComponent = () => import('../template/ProductCategoryComponent.vue')
 const NewsView = () => import('../views/NewsView.vue')
 const NewsDetailView = () => import('../views/NewsDetailView.vue')
 const ContactUsView = () => import('../views/ContactUsView.vue')
@@ -68,6 +70,11 @@ const router = createRouter({
       }
     },
     {
+      path: '/du-an/:id(\\d+)',
+      name: 'project-detail',
+      component: ProjectDetailView
+    },
+    {
       path: '/tin-tuc',
       name: 'news',
       component: NewsView,
@@ -92,12 +99,12 @@ const router = createRouter({
           'Bộ sưu tập nội thất gỗ óc chó cao cấp: sofa, bàn trà, bàn ăn, giường ngủ, tủ bếp… thiết kế riêng theo yêu cầu.'
       },
       children: [
-        // Default child: /san-pham thuần hiển thị danh sách toàn bộ sản phẩm
-        // (trước đây router-view rỗng → trang chỉ còn banner + footer)
+        // Default child: /san-pham thuần hiển thị danh mục (Phòng khách/ngủ/bếp).
+        // Trước đây hiển thị danh sách sản phẩm — người dùng muốn thấy danh mục trước.
         {
           path: '',
           name: 'product-list',
-          component: ProductComponent
+          component: ProductCategoryComponent
         },
         {
           path: 'phong-ngu',

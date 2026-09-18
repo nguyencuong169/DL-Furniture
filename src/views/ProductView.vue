@@ -3,22 +3,21 @@ import { computed, watch } from 'vue'
 
 import router from '../router'
 import { setPageSeo } from '../utils/seo'
+import { resolveProductBreadcrumb } from '../utils/productCategories'
 
-const cateTitle = computed(() => {
-  if (router.currentRoute.value.path.startsWith('/san-pham/phong-khach/')) {
-    return 'Phòng Khách'
-  } else if (router.currentRoute.value.path.startsWith('/san-pham/phong-ngu/')) {
-    return 'Phòng Ngủ'
-  } else if (router.currentRoute.value.path.startsWith('/san-pham/phong-bep/')) {
-    return 'Phòng Bếp'
-  } else {
-    return 'Sản phẩm'
-  }
-})
+const breadcrumb = computed(() =>
+  resolveProductBreadcrumb(router.currentRoute.value.path)
+)
 
-// Tiêu đề trang đổi theo danh mục đang xem (phòng khách / phòng ngủ / phòng bếp)
+// Eyebrow (dòng nhỏ phía trên): cấp cha nếu có, ngược lại là tên thương hiệu.
+const eyebrow = computed(() => breadcrumb.value?.parent || 'D&L Furniture')
+
+// Title (dòng lớn): cấp hiện tại — "Sofa", "Phòng Khách", hoặc "Sản phẩm".
+const pageTitle = computed(() => breadcrumb.value?.current || 'Sản phẩm')
+
+// Tiêu đề trang đổi theo danh mục đang xem (phòng khách / phòng ngủ / phòng bếp / danh mục con)
 watch(
-  cateTitle,
+  pageTitle,
   (title) =>
     setPageSeo({
       title,
@@ -36,14 +35,14 @@ watch(
     <div
       class="banner-header section-padding valign bg-img bg-fixed"
       data-overlay-dark="4"
-      :style="{ backgroundImage: 'url(https://dl-furniture.netlify.app/assets/1-FQ5yJaaV.jpg)' }"
+      :style="{ backgroundImage: 'url(/media/gallery/walnut-villa-living.webp)' }"
     >
       <div class="container">
         <div class="row">
           <div class="col-md-12 caption mt-90">
             <span class="hero-line" aria-hidden="true"></span>
-            <h5>{{ cateTitle }}</h5>
-            <h1>{{ cateTitle }}</h1>
+            <h5>{{ eyebrow }}</h5>
+            <h1>{{ pageTitle }}</h1>
           </div>
         </div>
       </div>

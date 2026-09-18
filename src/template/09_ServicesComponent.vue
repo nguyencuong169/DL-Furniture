@@ -12,6 +12,7 @@ import {
 
 interface ProcessStep {
   number: string
+  duration: string
   icon: LucideIcon
   title: string
   description: string
@@ -20,6 +21,7 @@ interface ProcessStep {
 const processSteps: ProcessStep[] = [
   {
     number: '01',
+    duration: '1–3 ngày',
     icon: MessageCircle,
     title: 'Lắng nghe & định hướng',
     description:
@@ -27,6 +29,7 @@ const processSteps: ProcessStep[] = [
   },
   {
     number: '02',
+    duration: '2–5 ngày',
     icon: Ruler,
     title: 'Khảo sát hiện trạng',
     description:
@@ -34,6 +37,7 @@ const processSteps: ProcessStep[] = [
   },
   {
     number: '03',
+    duration: '7–14 ngày',
     icon: DraftingCompass,
     title: 'Phát triển thiết kế',
     description:
@@ -41,12 +45,14 @@ const processSteps: ProcessStep[] = [
   },
   {
     number: '04',
+    duration: '30–45 ngày',
     icon: Cog,
     title: 'Sản xuất & kiểm soát',
     description: 'Kiểm tra kích thước, mối ghép, bề mặt hoàn thiện và sự đồng đều giữa các module.'
   },
   {
     number: '05',
+    duration: '5–10 ngày',
     icon: Wrench,
     title: 'Lắp đặt & hiệu chỉnh',
     description:
@@ -54,6 +60,7 @@ const processSteps: ProcessStep[] = [
   },
   {
     number: '06',
+    duration: 'Bảo hành 5 năm',
     icon: BadgeCheck,
     title: 'Nghiệm thu & đồng hành',
     description: 'Bàn giao hướng dẫn sử dụng, phạm vi bảo hành và đầu mối tiếp nhận khi cần hỗ trợ.'
@@ -139,7 +146,7 @@ onBeforeUnmount(() => {
 <template>
   <section
     id="home-process"
-    class="home-process section-padding bg-cream"
+    class="home-process section-padding"
     aria-labelledby="process-title"
   >
     <div ref="pinEl" class="home-process-pin">
@@ -182,7 +189,9 @@ onBeforeUnmount(() => {
                 <component :is="step.icon" :size="26" :stroke-width="1.5" />
               </span>
               <div class="home-process-step-body">
-                <span class="home-process-step-num" aria-hidden="true">Bước {{ step.number }}</span>
+                <span class="home-process-step-num" aria-hidden="true"
+                  >Bước {{ step.number }} · {{ step.duration }}</span
+                >
                 <h3>{{ step.title }}</h3>
                 <p>{{ step.description }}</p>
               </div>
@@ -201,7 +210,7 @@ onBeforeUnmount(() => {
           </Transition>
 
           <footer class="home-process-footer">
-            <p>Bạn đã có mặt bằng hoặc ý tưởng ban đầu?</p>
+            <p>Sẵn sàng biến ý tưởng thành hiện thực?</p>
             <div>
               <RouterLink class="home-process-link" :to="{ name: 'home', hash: '#consultation' }">
                 Đặt lịch tư vấn <i class="ti-arrow-right" aria-hidden="true"></i>
@@ -221,7 +230,7 @@ onBeforeUnmount(() => {
 .home-process {
   padding: 108px 0 110px;
   scroll-margin-top: 100px;
-  /* background: #f1ede6; */
+  background-color: #fff; /* Nhịp Cappa: Services (Quy trình) nền SÁNG (trắng) */
 }
 
 /* Mở rộng nhẹ chiều rộng timeline (chuẩn xxl của Bootstrap) để 6 bước thở dễ hơn */

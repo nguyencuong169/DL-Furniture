@@ -1,4 +1,4 @@
-﻿<script setup lang="ts">
+<script setup lang="ts">
 // Đồng bộ 1 bộ icon outline duy nhất (Lucide) với phần Quy trình (09)
 import { Cog, Globe, Hammer, Paintbrush, ShieldCheck, Thermometer } from 'lucide-vue-next'
 </script>
@@ -33,7 +33,7 @@ import { Cog, Globe, Hammer, Paintbrush, ShieldCheck, Thermometer } from 'lucide
               <span><Hammer :size="40" :stroke-width="1.5" /></span>
               <span class="facility-tag">Chế tác</span>
             </div>
-            <h5>Gia công chuẩn khớp nối</h5>
+            <h5>Lắp thử tại xưởng, chuẩn khớp nối</h5>
             <p>
               Mỗi bộ chi tiết được lắp thử tại xưởng trước khi vận chuyển, bảo đảm khớp nối và
               khe hở đạt chuẩn ngay tại công trình.
@@ -47,7 +47,7 @@ import { Cog, Globe, Hammer, Paintbrush, ShieldCheck, Thermometer } from 'lucide
               <span><Paintbrush :size="40" :stroke-width="1.5" /></span>
               <span class="facility-tag">Hoàn thiện</span>
             </div>
-            <h5>Bề mặt sơn cao cấp</h5>
+            <h5>Hệ sơn nhập khẩu, không mùi</h5>
             <p>
               Hệ sơn nhập khẩu giữ trọn vẻ đẹp tự nhiên của gỗ, không mùi, an toàn cho sức khỏe
               gia đình.
@@ -61,7 +61,7 @@ import { Cog, Globe, Hammer, Paintbrush, ShieldCheck, Thermometer } from 'lucide
               <span><Cog :size="40" :stroke-width="1.5" /></span>
               <span class="facility-tag">Phụ kiện</span>
             </div>
-            <h5>Cơ khí chính xác, chịu tải</h5>
+            <h5>Bản lề giảm chấn, ray chịu tải</h5>
             <p>
               Bản lề giảm chấn, ray trượt và móc treo được chọn theo tải trọng và tần suất sử
               dụng thực tế của từng hạng mục.
@@ -75,7 +75,7 @@ import { Cog, Globe, Hammer, Paintbrush, ShieldCheck, Thermometer } from 'lucide
               <span><Thermometer :size="40" :stroke-width="1.5" /></span>
               <span class="facility-tag">Kỹ thuật</span>
             </div>
-            <h5>Sấy gỗ đạt chuẩn</h5>
+            <h5>Sấy gỗ đạt độ ẩm dưới 12%</h5>
             <p>
               Gỗ được tẩm sấy theo công nghệ hiện đại, đạt độ ẩm dưới 12%, hạn chế cong vênh, co
               ngót trong khí hậu Việt Nam.
@@ -103,6 +103,12 @@ import { Cog, Globe, Hammer, Paintbrush, ShieldCheck, Thermometer } from 'lucide
 </template>
 
 <style scoped>
+/* Nhịp Cappa: Facilities ("Chất liệu & bảo hành") nền SÁNG (trắng) như Hotel
+   Facilities, tách khỏi tông be của Collection / Services. */
+.facilities {
+  background-color: #fff;
+}
+
 .facilities .container > .row:first-child {
   margin-bottom: 46px;
 }

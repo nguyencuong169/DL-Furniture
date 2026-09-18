@@ -126,9 +126,9 @@ onBeforeUnmount(() => {
         mặt, sự chính xác của mối ghép và chuyển động nhẹ nhàng trong từng thao tác sử dụng.
       </p>
       <ul>
-        <li>Chọn phôi và cân sắc độ giữa các module.</li>
-        <li>Kiểm soát mối ghép, cạnh tiếp xúc và bề mặt chạm.</li>
-        <li>Hiệu chỉnh tại công trình theo điều kiện sử dụng thực tế.</li>
+        <li>Gỗ óc chó Bắc Mỹ chuẩn FAS — chọn phôi cùng lô, cân sắc độ và hướng vân.</li>
+        <li>Sấy gỗ đạt độ ẩm dưới 12% — hạn chế cong vênh, co ngót trong khí hậu Việt Nam.</li>
+        <li>Lắp thử tại xưởng trước khi vận chuyển — khớp nối chuẩn, khe hở đồng đều.</li>
       </ul>
       <RouterLink to="/thu-vien" class="home-craft-link">
         Khám phá thư viện vật liệu <i class="ti-arrow-right" aria-hidden="true"></i>

@@ -1,14 +1,20 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
+import { ArrowUpRight } from 'lucide-vue-next'
 import { fetchProductCategories, type ProductCategoryResponse } from '../api/productCategoryClient'
 
+// ==========================================================================
+// HomeCollectionComponent — "Khám phá theo không gian" (bản redesign):
+//   Trước đây: sân khấu tối full-màn hình + rail chuyển danh mục → NHỊP TRANG
+//   bị "2 rạp phim tối liền nhau" khi đứng ngay trước HomeFeaturedProjects.
+//   Bây giờ: grid card NỀN KEM kiểu "Crafted with Passion" (Oak & Origin):
+//     • Header: subtitle + title + câu viết tay trái | link "Xem tất cả" phải
+//     • Card: ảnh dọc 4:5 + gạch gold + tên serif + tagline lợi ích
+//   Nhịp mới: Tối(Slider) → Sáng(About, trắng) → Be(Collection) → Tối(Projects).
+//   Giữ nguyên logic fetch categories + CATEGORY_TAGLINES từ bản cũ.
+// ==========================================================================
 const categories = ref<ProductCategoryResponse[]>([])
-const activeIndex = ref(0)
 const isLoading = ref(true)
-
-const activeCategory = computed(() => categories.value[activeIndex.value] ?? null)
-const categoryCount = computed(() => categories.value.length)
-const hasOverflowingRail = computed(() => categoryCount.value > 5)
 
 onMounted(async () => {
   try {
@@ -20,434 +26,260 @@ onMounted(async () => {
 })
 
 const categoryUrl = (category: ProductCategoryResponse) => `/san-pham/${category.slug}`
-const categoryNumber = (index: number) => String(index + 1).padStart(2, '0')
 
-/* Câu hứa lợi ích ngắn dưới tên danh mục trên rail (Oak & Origin polish P2-4).
+/* Câu hứa lợi ích ngắn dưới tên danh mục (giữ từ bản rail P2-4).
    Fallback: cắt câu đầu của description từ API nếu slug chưa có trong map. */
 const CATEGORY_TAGLINES: Record<string, string> = {
-  'phong-khach': 'Nơi cả gia đình quây quần',
-  'phong-ngu': 'Giấc ngủ trọn vẹn trên gỗ thật',
-  'phong-bep': 'Trái tim của mọi ngôi nhà'
+  'phong-khach': 'Nơi khách bước vào đầu tiên — cũng là nơi kể gu sống của bạn',
+  'phong-ngu': 'Thiết kế cho giấc ngủ ngon — không chỉ đẹp mắt',
+  'phong-bep': 'Trái tim của mọi ngôi nhà — nơi cả nhà sum họp mỗi ngày'
 }
 
 const categoryTagline = (category: ProductCategoryResponse) =>
   CATEGORY_TAGLINES[category.slug] ?? category.description?.split(/[.!]/)[0] ?? ''
 
-const setActiveCategory = (index: number) => {
-  activeIndex.value = index
-}
+/* Skeleton 3 ô trong lúc tải danh mục */
+const skeletonPlaceholders = computed(() => Array.from({ length: 3 }, (_, i) => i))
 </script>
 
 <template>
   <section class="home-collection" aria-labelledby="home-collection-title">
-    <div class="container home-collection-heading-wrap">
-      <div class="home-collection-heading">
-        <div class="home-collection-title-wrap">
+    <div class="container">
+      <!-- Header: title trái | link "Xem tất cả" phải (đồng bộ pattern fp-header) -->
+      <div class="collection-header">
+        <div class="collection-title-wrap">
           <p class="section-subtitle"><span>Bộ sưu tập</span></p>
           <h2 id="home-collection-title" class="section-title">Khám phá theo không gian</h2>
+          <p class="collection-script">Mỗi không gian, một câu chuyện.</p>
         </div>
-      </div>
-    </div>
-
-    <div v-if="activeCategory" class="collection-stage">
-      <div class="collection-stage-media">
-        <img
-          v-for="(category, index) in categories"
-          :key="category.id"
-          class="collection-stage-image"
-          :class="{ 'is-active': index === activeIndex }"
-          :src="category.imageUrl"
-          :alt="index === activeIndex ? category.imageAlt : ''"
-          :aria-hidden="index !== activeIndex"
-          width="1920"
-          height="1080"
-          loading="lazy"
-          decoding="async"
-        />
-        <span class="collection-stage-overlay" aria-hidden="true"></span>
+        <RouterLink class="collection-all" to="/san-pham">
+          Xem tất cả sản phẩm <i class="ti-arrow-right" aria-hidden="true"></i>
+        </RouterLink>
       </div>
 
-      <div class="container collection-stage-inner" aria-live="polite" aria-atomic="true">
-        <div class="collection-stage-count" aria-hidden="true">
-          <span>{{ categoryNumber(activeIndex) }}</span>
-          <span class="collection-stage-count-line"></span>
-          <span>{{ categoryNumber(categoryCount - 1) }}</span>
-        </div>
-
+      <!-- Grid card danh mục -->
+      <div v-if="categories.length" class="collection-grid">
         <RouterLink
-          :key="activeCategory.id"
-          class="collection-stage-content"
-          :to="categoryUrl(activeCategory)"
-          :aria-label="`Khám phá danh mục ${activeCategory.name}`"
+          v-for="category in categories"
+          :key="category.id"
+          class="collection-card"
+          :to="categoryUrl(category)"
+          :aria-label="`Khám phá danh mục ${category.name}`"
         >
-          <span class="collection-stage-kicker">Không gian sống</span>
-          <span class="collection-stage-title">{{ activeCategory.name }}</span>
-          <span v-if="activeCategory.description" class="collection-stage-description">
-            {{ activeCategory.description }}
+          <span class="collection-card-media">
+            <img
+              :src="category.imageUrl"
+              :alt="category.imageAlt"
+              width="800"
+              height="1000"
+              loading="lazy"
+              decoding="async"
+            />
+            <span class="collection-card-badge" aria-hidden="true">
+              <ArrowUpRight :size="16" :stroke-width="1.75" />
+            </span>
           </span>
-          <span class="collection-stage-cta">
-            Khám phá không gian <i class="ti-arrow-right" aria-hidden="true"></i>
+          <span class="collection-card-name">{{ category.name }}</span>
+          <span class="collection-card-rule" aria-hidden="true"></span>
+          <span v-if="categoryTagline(category)" class="collection-card-tag">
+            {{ categoryTagline(category) }}
           </span>
         </RouterLink>
       </div>
 
-      <div
-        class="collection-rail"
-        :class="{ 'collection-rail--overflow': hasOverflowingRail }"
-        role="group"
-        aria-label="Chọn không gian"
-      >
-        <button
-          v-for="(category, index) in categories"
-          :key="category.id"
-          class="collection-rail-item"
-          :class="{ 'is-active': index === activeIndex }"
-          type="button"
-          :aria-pressed="index === activeIndex"
-          :aria-label="`Hiển thị ${category.name}`"
-          @mouseenter="setActiveCategory(index)"
-          @focus="setActiveCategory(index)"
-          @click="setActiveCategory(index)"
-        >
-          <span class="collection-rail-number">{{ categoryNumber(index) }}</span>
-          <span class="collection-rail-info">
-            <span class="collection-rail-name">{{ category.name }}</span>
-            <span v-if="categoryTagline(category)" class="collection-rail-tag">
-              {{ categoryTagline(category) }}
-            </span>
-          </span>
-          <i class="ti-arrow-right" aria-hidden="true"></i>
-        </button>
+      <!-- Skeleton khi đang tải -->
+      <div v-else class="collection-grid" :aria-busy="isLoading">
+        <span class="sr-only">Đang tải danh mục sản phẩm</span>
+        <div v-for="n in skeletonPlaceholders" :key="n" class="collection-card--skeleton"></div>
       </div>
-    </div>
-
-    <div v-else class="collection-stage collection-stage--loading" :aria-busy="isLoading">
-      <span class="sr-only">Đang tải danh mục sản phẩm</span>
     </div>
   </section>
 </template>
 
 <style scoped>
 .home-collection {
-  padding: 104px 0 24px;
-  /* Chuẩn hóa về cream brand duy nhất #f8f5f0 (đồng bộ .bg-cream) —
-     trước đây #f1ede6 tạo hai tông kem lệch nhau trên cùng một trang */
+  padding: 96px 0 110px;
+  /* Nền be (bg-cream #f8f5f0) theo nhịp Cappa:
+     Tối(Slider) → Sáng(About, trắng) → Be(Collection) → Tối(Projects) */
   background: #f8f5f0;
-  overflow: hidden;
 }
 
-.home-collection-heading-wrap {
+/* ── HEADER ─────────────────────────────────────────────────────────── */
+.collection-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+  margin-bottom: 42px;
+}
+
+/* Câu viết tay điểm nhấn — cùng ngôn ngữ Dancing Script với About/Booking */
+.collection-script {
+  margin: 12px 0 0;
+  color: #aa8453;
+  font-family: 'Dancing Script', cursive;
+  font-size: 26px;
+  font-weight: 600;
+  line-height: 1.15;
+  transform: rotate(-1.5deg);
+  transform-origin: left center;
+}
+
+/* Link "Xem tất cả sản phẩm" — pattern .fp-all nhưng bản nền sáng */
+.collection-all {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 6px;
+  padding-bottom: 7px;
+  border-bottom: 1px solid rgba(34, 30, 26, 0.25);
+  color: #3a362f;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.collection-all i {
+  font-size: 13px;
+  transition: transform 0.3s ease;
+}
+
+.collection-all:hover {
+  color: #aa8453;
+  border-color: #aa8453;
+}
+
+.collection-all:hover i {
+  transform: translateX(4px);
+}
+
+.collection-all:focus-visible {
+  outline: 2px solid #aa8453;
+  outline-offset: 4px;
+}
+
+/* ── GRID CARD ──────────────────────────────────────────────────────── */
+.collection-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 30px;
+}
+
+.collection-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.collection-card-media {
   position: relative;
-  z-index: 2;
-}
-
-.home-collection-heading {
-  margin-bottom: 22px;
-}
-
-.collection-stage {
-  position: relative;
-  width: min(1560px, calc(100% - 40px));
-  height: clamp(650px, 74vh, 760px);
-  margin: 0 auto;
-  isolation: isolate;
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
   overflow: hidden;
-  background: #191713;
+  background: #e9e2d6;
 }
 
-.collection-stage-media,
-.collection-stage-image,
-.collection-stage-overlay {
-  position: absolute;
-  inset: 0;
-}
-
-.collection-stage-image {
+.collection-card-media img {
   display: block;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center;
-  opacity: 0;
-  filter: saturate(0.86) contrast(1.02);
-  transform: scale(1.025);
+  transform: scale(1.001);
   transition:
-    opacity 0.7s ease,
-    filter 0.5s ease,
-    transform 0.5s ease;
+    transform 0.8s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.5s ease;
 }
 
-.collection-stage-image.is-active {
+.collection-card:hover .collection-card-media img,
+.collection-card:focus-visible .collection-card-media img {
+  transform: scale(1.06);
+}
+
+/* Badge mũi tên ↗ — chất Oak & Origin, chỉ hiện trên hover/focus */
+.collection-card-badge {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  color: #fff;
+  background: rgba(31, 29, 26, 0.85);
+  border: 1px solid rgba(212, 178, 128, 0.55);
+  border-radius: 50%;
+  opacity: 0;
+  transform: translateY(8px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+}
+
+.collection-card:hover .collection-card-badge,
+.collection-card:focus-visible .collection-card-badge {
   opacity: 1;
-  transform: scale(1);
+  transform: translateY(0);
 }
 
-.collection-stage:hover .collection-stage-image.is-active,
-.collection-stage:focus-within .collection-stage-image.is-active {
-  filter: brightness(75%);
-  transform: scale(1.09);
-  transition:
-    opacity 0.7s ease,
-    filter 1s ease,
-    transform 1s ease;
-}
-
-.collection-stage-overlay {
-  z-index: 1;
-  background: linear-gradient(
-      90deg,
-      rgba(13, 12, 10, 0.74) 0%,
-      rgba(13, 12, 10, 0.42) 37%,
-      transparent 70%
-    ),
-    linear-gradient(0deg, rgba(13, 12, 10, 0.74) 0%, transparent 48%),
-    linear-gradient(180deg, rgba(13, 12, 10, 0.18) 0%, transparent 30%);
-}
-
-.collection-stage-inner {
-  position: relative;
-  z-index: 2;
-  height: 100%;
-  pointer-events: none;
-}
-
-.collection-stage-count {
-  position: absolute;
-  top: 42px;
-  right: 12px;
-  display: flex;
-  align-items: center;
-  gap: 11px;
-  color: rgba(255, 255, 255, 0.78);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.15em;
-}
-
-.collection-stage-count-line {
-  display: block;
-  width: 42px;
-  height: 1px;
-  background: rgba(255, 255, 255, 0.42);
-}
-
-.collection-stage-content {
-  position: absolute;
-  bottom: 148px;
-  left: 12px;
-  display: block;
-  max-width: 570px;
-  color: #fff;
-  pointer-events: auto;
-  animation: collection-content-in 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
-}
-
-.collection-stage-kicker {
-  display: block;
-  margin-bottom: 13px;
-  color: #d3ad7b;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.24em;
-  text-transform: uppercase;
-}
-
-.collection-stage-title {
-  display: block;
-  font-family: 'Gilda Display', serif;
-  font-size: clamp(54px, 5.4vw, 78px);
-  line-height: 1;
-  letter-spacing: -0.025em;
-}
-
-.collection-stage-description {
-  display: block;
-  max-width: 500px;
+.collection-card-name {
   margin-top: 20px;
-  color: rgba(255, 255, 255, 0.8);
-  font-size: 15px;
-  line-height: 1.75;
-}
-
-.collection-stage-cta {
-  display: inline-flex;
-  align-items: center;
-  gap: 13px;
-  margin-top: 28px;
-  padding-bottom: 7px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.45);
-  color: #fff;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  transition:
-    border-color 0.3s ease,
-    gap 0.3s ease;
-}
-
-.collection-stage-content:hover .collection-stage-cta,
-.collection-stage-content:focus-visible .collection-stage-cta {
-  gap: 18px;
-  border-color: #fff;
-}
-
-.collection-stage-content:focus-visible {
-  outline: 1px solid rgba(255, 255, 255, 0.88);
-  outline-offset: 10px;
-}
-
-.collection-rail {
-  position: absolute;
-  z-index: 3;
-  right: 0;
-  bottom: 0;
-  left: 0;
-  display: flex;
-  height: 104px;
-  overflow-x: auto;
-  border-top: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(17, 16, 14, 0.76);
-  backdrop-filter: blur(14px);
-  scrollbar-width: none;
-}
-
-.collection-rail::-webkit-scrollbar {
-  display: none;
-}
-
-.collection-rail-item {
-  position: relative;
-  display: grid;
-  flex: 1 1 0;
-  min-width: 0;
-  grid-template-columns: auto 1fr auto;
-  align-items: center;
-  gap: 18px;
-  padding: 0 clamp(24px, 3vw, 52px);
-  border: 0;
-  border-right: 1px solid rgba(255, 255, 255, 0.12);
-  background: transparent;
-  color: rgba(255, 255, 255, 0.58);
-  text-align: left;
-  cursor: pointer;
-  transition:
-    background 0.35s ease,
-    color 0.35s ease;
-}
-
-.collection-rail--overflow .collection-rail-item {
-  flex: 0 0 clamp(210px, 20vw, 300px);
-}
-
-.collection-rail-item::before {
-  position: absolute;
-  top: -1px;
-  right: 50%;
-  left: 50%;
-  height: 2px;
-  background: #c29a68;
-  content: '';
-  transition:
-    right 0.45s cubic-bezier(0.22, 1, 0.36, 1),
-    left 0.45s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.collection-rail-item:hover,
-.collection-rail-item:focus-visible,
-.collection-rail-item.is-active {
-  background: rgba(255, 255, 255, 0.055);
-  color: #fff;
-}
-
-.collection-rail-item.is-active::before {
-  right: 0;
-  left: 0;
-}
-
-.collection-rail-item:focus-visible {
-  z-index: 1;
-  outline: 1px solid rgba(255, 255, 255, 0.8);
-  outline-offset: -5px;
-}
-
-.collection-rail-number {
-  color: #c29a68;
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12px;
-  letter-spacing: 0.15em;
-}
-
-.collection-rail-info {
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-
-/* Câu hứa lợi ích dưới tên danh mục (P2-4) — mờ hơn tên, nổi lên khi active */
-.collection-rail-tag {
-  overflow: hidden;
-  color: rgba(255, 255, 255, 0.44);
-  font-family: 'Barlow Condensed', sans-serif;
-  font-size: 12.5px;
-  letter-spacing: 0.05em;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-  transition: color 0.35s ease;
-}
-
-.collection-rail-item:hover .collection-rail-tag,
-.collection-rail-item.is-active .collection-rail-tag {
-  color: rgba(255, 255, 255, 0.75);
-}
-
-.collection-rail-name {
-  overflow: hidden;
+  color: #26221d;
   font-family: 'Gilda Display', serif;
-  font-size: clamp(18px, 1.45vw, 22px);
-  line-height: 1.15;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  font-size: clamp(19px, 1.6vw, 23px);
+  line-height: 1.25;
+  transition: color 0.3s ease;
 }
 
-.collection-rail-item i {
-  font-size: 11px;
-  opacity: 0;
-  transform: translateX(-7px);
-  transition:
-    opacity 0.3s ease,
-    transform 0.3s ease;
+.collection-card:hover .collection-card-name,
+.collection-card:focus-visible .collection-card-name {
+  color: #aa8453;
 }
 
-.collection-rail-item.is-active i {
-  opacity: 0.72;
-  transform: translateX(0);
+/* Gạch gold ngắn dưới tên — đúng chi tiết caption của Oak & Origin */
+.collection-card-rule {
+  display: block;
+  width: 34px;
+  height: 2px;
+  margin-top: 12px;
+  background: linear-gradient(90deg, #aa8453, #d7b98a);
+  transform-origin: left center;
+  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.collection-stage--loading {
-  background: linear-gradient(
-      100deg,
-      transparent 30%,
-      rgba(255, 255, 255, 0.055) 50%,
-      transparent 70%
-    ),
-    #1b1916;
+.collection-card:hover .collection-card-rule,
+.collection-card:focus-visible .collection-card-rule {
+  transform: scaleX(1.8);
+}
+
+.collection-card-tag {
+  margin-top: 11px;
+  color: #6f6a62;
+  font-family: 'Barlow', sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.collection-card:focus-visible {
+  outline: 2px solid #aa8453;
+  outline-offset: 6px;
+}
+
+/* ── SKELETON ───────────────────────────────────────────────────────── */
+.collection-card--skeleton {
+  aspect-ratio: 4 / 5;
+  background:
+    linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.55) 50%, transparent 70%),
+    #e9e2d6;
   background-size: 220% 100%;
   animation: collection-loading 1.5s ease-in-out infinite;
-}
-
-@keyframes collection-content-in {
-  from {
-    opacity: 0;
-    transform: translateY(18px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
 }
 
 @keyframes collection-loading {
@@ -456,156 +288,63 @@ const setActiveCategory = (index: number) => {
   }
 }
 
-@media (max-width: 1199px) {
-  .collection-stage {
-    width: calc(100% - 30px);
-    height: 650px;
-  }
-
-  .collection-stage-content {
-    right: 12px;
-    bottom: 142px;
-  }
-
-  .collection-rail-item {
-    gap: 13px;
-    padding: 0 24px;
-  }
-}
-
+/* ── RESPONSIVE ─────────────────────────────────────────────────────── */
 @media (max-width: 991px) {
   .home-collection {
-    padding-top: 86px;
+    padding: 80px 0 88px;
   }
 
-  .collection-stage {
-    height: 630px;
+  .collection-grid {
+    gap: 20px;
   }
 
-  .collection-stage-overlay {
-    background: linear-gradient(
-        90deg,
-        rgba(13, 12, 10, 0.68) 0%,
-        rgba(13, 12, 10, 0.25) 60%,
-        transparent 100%
-      ),
-      linear-gradient(0deg, rgba(13, 12, 10, 0.82) 0%, transparent 62%);
-  }
-
-  .collection-stage-content {
-    left: 30px;
-    max-width: 520px;
-  }
-
-  .collection-stage-count {
-    right: 30px;
-  }
-
-  .collection-rail-item,
-  .collection-rail--overflow .collection-rail-item {
-    flex: 0 0 44%;
+  .collection-card-tag {
+    font-size: 13px;
   }
 }
 
 @media (max-width: 767px) {
   .home-collection {
-    padding: 74px 0 0;
+    padding: 70px 0 76px;
   }
 
-  .home-collection-heading {
-    margin-bottom: 32px;
+  .collection-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 18px;
+    margin-bottom: 30px;
   }
 
-  .collection-stage {
-    width: 100%;
-    height: 600px;
+  .collection-all {
+    margin-bottom: 0;
   }
 
-  .collection-stage-image {
-    object-position: center;
+  .collection-script {
+    font-size: 22px;
   }
 
-  .collection-stage-overlay {
-    background: linear-gradient(
-        0deg,
-        rgba(13, 12, 10, 0.9) 0%,
-        rgba(13, 12, 10, 0.36) 58%,
-        rgba(13, 12, 10, 0.08) 100%
-      ),
-      linear-gradient(90deg, rgba(13, 12, 10, 0.28) 0%, transparent 75%);
+  .collection-grid {
+    gap: 30px;
+    grid-template-columns: 1fr;
   }
 
-  .collection-stage-count {
-    top: 24px;
-    right: 15px;
+  /* Mobile: ảnh ngang 16/10 gọn chiều dọc hơn ảnh dọc 4:5 */
+  .collection-card-media {
+    aspect-ratio: 16 / 10;
   }
 
-  .collection-stage-content {
-    right: 20px;
-    bottom: 120px;
-    left: 20px;
-    max-width: none;
-  }
-
-  .collection-stage-kicker {
-    margin-bottom: 10px;
-    font-size: 11px;
-  }
-
-  .collection-stage-title {
-    font-size: clamp(44px, 14vw, 58px);
-  }
-
-  .collection-stage-description {
-    display: -webkit-box;
-    max-width: 340px;
-    margin-top: 14px;
-    overflow: hidden;
-    font-size: 14px;
-    line-height: 1.6;
-    -webkit-box-orient: vertical;
-    -webkit-line-clamp: 2;
-  }
-
-  .collection-stage-cta {
-    margin-top: 20px;
-  }
-
-  .collection-rail {
-    height: 92px;
-    scroll-snap-type: x proximity;
-  }
-
-  .collection-rail-item,
-  .collection-rail--overflow .collection-rail-item {
-    flex-basis: 76%;
-    gap: 13px;
-    padding: 0 20px;
-    scroll-snap-align: start;
-  }
-
-  .collection-rail-name {
-    font-size: 20px;
-  }
-
-  /* Mobile: rail hẹp → gác tagline 1 dòng với ellipsis, không phá layout */
-  .collection-rail-tag {
-    font-size: 11.5px;
+  .collection-card-name {
+    margin-top: 15px;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .collection-stage-image,
-  .collection-stage-content,
-  .collection-stage-cta,
-  .collection-rail-item,
-  .collection-rail-item::before,
-  .collection-rail-item i {
-    animation: none;
+  .collection-card-media img,
+  .collection-card-badge,
+  .collection-card-rule,
+  .collection-card-name,
+  .collection-card--skeleton {
     transition: none;
-  }
-
-  .collection-stage--loading {
     animation: none;
   }
 }

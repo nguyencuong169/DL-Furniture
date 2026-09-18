@@ -117,7 +117,7 @@ onBeforeUnmount(() => {
                 <div class="butn-dark mt-30 mb-30">
                   <RouterLink :to="{ name: 'home', hash: '#consultation' }">
                     <span>
-                      Đặt lịch tư vấn
+                      Nhận bản vẽ miễn phí
                       <ArrowUpRight :size="15" :stroke-width="2" aria-hidden="true" />
                     </span>
                   </RouterLink>
@@ -138,14 +138,14 @@ onBeforeUnmount(() => {
               <div class="col-md-12">
                 <span class="hero-line" aria-hidden="true"></span>
                 <h4>Thiết kế &amp; thi công đồng bộ</h4>
-                <h1>
+                <h2>
                   Từ bản vẽ thiết kế <br />
                   đến từng mối ghép
-                </h1>
+                </h2>
                 <div class="butn-dark mt-30 mb-30">
                   <RouterLink :to="{ name: 'home', hash: '#consultation' }">
                     <span>
-                      Đặt lịch tư vấn
+                      Nhận bản vẽ miễn phí
                       <ArrowUpRight :size="15" :stroke-width="2" aria-hidden="true" />
                     </span>
                   </RouterLink>
@@ -166,9 +166,9 @@ onBeforeUnmount(() => {
               <div class="col-md-12">
                 <span class="hero-line" aria-hidden="true"></span>
                 <h4>Sự lựa chọn tốt nhất</h4>
-                <h1>
+                <h2>
                   Vật liệu tuyển chọn<br />hoàn thiện <em class="hero-accent">tinh tế</em>
-                </h1>
+                </h2>
                 <div class="butn-light mt-30 mb-30">
                   <RouterLink data-scroll-nav="1" to="/thu-vien">
                     <span>
@@ -218,6 +218,7 @@ onBeforeUnmount(() => {
 .header :deep(.owl-item .caption .hero-line),
 .header :deep(.owl-item .caption h4),
 .header :deep(.owl-item .caption h1),
+.header :deep(.owl-item .caption h2),
 .header :deep(.owl-item .caption .butn-light),
   .header :deep(.owl-item .caption .butn-dark) {
   opacity: 0;
@@ -232,7 +233,8 @@ onBeforeUnmount(() => {
   animation: hero-fade-down 1s ease 0.5s both;
 }
 
-.header :deep(.owl-item.active .caption h1) {
+.header :deep(.owl-item.active .caption h1),
+.header :deep(.owl-item.active .caption h2) {
   animation: hero-fade-up 1s ease 0.7s both;
 }
 
@@ -269,6 +271,7 @@ onBeforeUnmount(() => {
   .header :deep(.owl-item .caption .hero-line),
   .header :deep(.owl-item .caption h4),
   .header :deep(.owl-item .caption h1),
+  .header :deep(.owl-item .caption h2),
   .header :deep(.owl-item .caption .butn-light),
   .header :deep(.owl-item .caption .butn-dark) {
     opacity: 1;
@@ -288,14 +291,16 @@ onBeforeUnmount(() => {
 }
 
 /* Accent từ khoá trong hero headline: nghiêng nhẹ + tông đồng, tạo điểm nhấn. */
-.header .caption h1 .hero-accent {
+.header .caption h1 .hero-accent,
+.header .caption h2 .hero-accent {
   font-style: italic;
   font-weight: 400;
   color: #c39a62;
 }
 
 @supports ((-webkit-background-clip: text) or (background-clip: text)) {
-  .header .caption h1 .hero-accent {
+  .header .caption h1 .hero-accent,
+  .header .caption h2 .hero-accent {
     color: transparent;
     background: linear-gradient(115deg, #b8894b 0%, #d9b87d 55%, #c39a62 100%);
     -webkit-background-clip: text;

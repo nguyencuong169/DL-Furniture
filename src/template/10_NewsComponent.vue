@@ -191,7 +191,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <section v-if="state.items.length" class="news home-news section-padding bg-cream">
+  <section v-if="state.items.length" class="news home-news section-padding bg-blck">
     <div class="container">
       <div class="row align-items-end home-news-heading">
         <div class="col-md-8">
@@ -262,7 +262,6 @@ onBeforeUnmount(() => {
               </div>
                 </div>
               </div>
-            </div>
             <button
               v-if="isGrid"
               class="home-news-arrow home-news-arrow--next"
@@ -273,6 +272,7 @@ onBeforeUnmount(() => {
             >
               <i class="ti-angle-right" aria-hidden="true"></i>
             </button>
+            </div>
           </div>
         </div>
       </div>
@@ -281,8 +281,9 @@ onBeforeUnmount(() => {
 
 <style scoped>
 .home-news {
+  /* Nen toi kieu Cappa demo2 (.bg-blck #222) */
   padding: 90px 0 94px;
-  background: #f8f5f0;
+  background: #222;
 }
 
 .home-news-heading {
@@ -294,7 +295,7 @@ onBeforeUnmount(() => {
 }
 
 .home-news-heading .section-title span {
-  color: #221f1a;
+  color: #fff;
 }
 
 .home-news-all {
@@ -302,19 +303,31 @@ onBeforeUnmount(() => {
   align-items: center;
   gap: 10px;
   padding-bottom: 7px;
-  border-bottom: 1px solid rgba(90, 70, 45, 0.35);
-  color: #4f4a43;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+  color: #ddd;
   font-family: 'Barlow Condensed', sans-serif;
   font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.15em;
   text-transform: uppercase;
+  transition:
+    color 0.3s ease,
+    border-color 0.3s ease;
+}
+
+.home-news-all i {
+  font-size: 13px;
+  transition: transform 0.3s ease;
 }
 
 .home-news-all:hover,
 .home-news-all:focus-visible {
-  border-color: #8a6a3f;
-  color: #8a6a3f;
+  border-color: #aa8453;
+  color: #aa8453;
+}
+
+.home-news-all:hover i {
+  transform: translateX(4px);
 }
 
 .home-news-grid-inner {
@@ -358,8 +371,9 @@ onBeforeUnmount(() => {
   color: #fff;
   font-size: 10px;
   cursor: pointer;
-  opacity: 0;
-  pointer-events: none;
+  /* Luon hien thi nhu owl-nav cua Cappa (khong an cho hover) */
+  opacity: 1;
+  pointer-events: auto;
   transform: translateY(-50%) scale(1);
   transition: all 0.2s ease-in-out;
 }

@@ -267,8 +267,9 @@ async function handleSubmit() {
           <div :class="compact ? 'col-lg-12' : 'col-lg-6 offset-lg-1'">
             <div class="booking-box consultation-box">
               <div class="head-box consultation-head">
-                <span class="consultation-brand">D&amp;L Furniture</span>
-                <h3>Đăng ký tư vấn thiết kế &amp; thi công</h3>
+                <span class="consultation-brand">D&L Furniture</span>
+                <h3>Đăng ký tư vấn thiết kế & thi công</h3>
+                <p class="consultation-head-note">Tư vấn miễn phí trong 24h · Không cam kết, chỉ tư vấn.</p>
               </div>
 
               <div class="booking-inner clearfix">
@@ -818,6 +819,15 @@ async function handleSubmit() {
   letter-spacing: 0;
   line-height: 1.25;
   text-transform: none;
+}
+
+/* Dòng giảm rào cản ngay dưới tiêu đề form — tăng tỷ lệ điền form */
+.consultation-head-note {
+  margin: -2px 0 14px;
+  color: #8a6a3f;
+  font-family: 'Barlow', sans-serif;
+  font-size: 13px;
+  line-height: 1.5;
 }
 
 .consultation-form {

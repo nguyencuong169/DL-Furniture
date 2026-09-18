@@ -89,6 +89,17 @@
   height: 100vh !important;
 }
 
+/* Inner-page slider (`.header.slider` — hero chi tiết phòng/sản phẩm):
+   mirror slider-fade — ép container + slide cao 100vh để `.item` absolute
+   (`height: 100%`) không bị co về 0 khi Swiper dùng slide height:100%. */
+.slider .owl-carousel {
+  height: 100vh;
+}
+
+.slider .owl-carousel .owl-item {
+  height: 100vh !important;
+}
+
 /* Fade effect: Swiper để slide xếp chồng absolute — đảm bảo slide đầu hiển thị */
 .slider-fade .owl-carousel.swiper-fade .swiper-slide {
   pointer-events: none;

@@ -51,7 +51,9 @@ setPageSeo({
                   <em class="client-year">{{ project.year }}</em>
                 </h3>
                 <h4>
-                  <RouterLink :to="{ name: 'project' }">{{ project.title }}</RouterLink>
+                  <RouterLink :to="{ name: 'project-detail', params: { id: project.id } }">
+                    {{ project.title }}
+                  </RouterLink>
                 </h4>
                 <p>{{ project.type }}</p>
                 <div class="row room-facilities">
@@ -66,7 +68,11 @@ setPageSeo({
                 <hr class="border-2" />
                 <div class="info-wrapper">
                   <div class="more">
-                    <RouterLink :to="{ name: 'project' }" class="link-btn" tabindex="0">
+                    <RouterLink
+                      :to="{ name: 'project-detail', params: { id: project.id } }"
+                      class="link-btn"
+                      tabindex="0"
+                    >
                       Chi tiết <i class="ti-arrow-right" aria-hidden="true"></i>
                     </RouterLink>
                   </div>

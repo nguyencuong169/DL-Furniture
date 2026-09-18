@@ -6,6 +6,7 @@ export interface FeaturedProject {
   location: string
   title: string
   type: string
+  result: string
   image: string
   year: string
   alt: string
@@ -23,6 +24,7 @@ export const featuredProjects: FeaturedProject[] = [
     location: 'Thủ Thiêm',
     title: 'Thiết kế nội thất Saroma Villa',
     type: 'Nội thất Villa - Biệt Thự',
+    result: '220 m² phòng khách & phòng ăn gỗ óc chó FAS',
     image: '/media/gallery/walnut-villa-living.webp',
     year: '2025',
     alt: 'Không gian phòng khách gỗ óc chó mở ra khu vườn tại Saroma Villa',
@@ -38,6 +40,7 @@ export const featuredProjects: FeaturedProject[] = [
     location: 'Vinhomes Grand Park',
     title: 'Thiết kế nội thất biệt thự Vinhomes Grand Park',
     type: 'Nội thất Villa - Biệt Thự',
+    result: '260 m² trọn gói nội thất — gỗ óc chó & da',
     image: '/media/gallery/villa-bedroom-lounge.webp',
     year: '2025',
     alt: 'Không gian phòng ngủ biệt thự Vinhomes Grand Park',
@@ -53,6 +56,7 @@ export const featuredProjects: FeaturedProject[] = [
     location: 'Vĩnh Yên',
     title: 'Thiết kế nội thất biệt thự KĐT Vĩnh Yên',
     type: 'Nội thất Villa - Biệt Thự',
+    result: '180 m² phòng ăn & phòng thờ gỗ óc chó',
     image: '/media/gallery/arched-dining.jpg',
     year: '2026',
     alt: 'Không gian phòng ăn biệt thự tại khu đô thị Vĩnh Yên',
@@ -68,6 +72,7 @@ export const featuredProjects: FeaturedProject[] = [
     location: 'Liễu Giai',
     title: 'Thiết kế nội thất chung cư Vinhomes Metropolis',
     type: 'Nội thất Căn hộ chung cư',
+    result: '95 m² thư phòng & phòng khách tối ưu công năng',
     image: '/media/gallery/walnut-home-library.webp',
     year: '2026',
     alt: 'Vách tủ thư phòng gỗ óc chó tại chung cư Vinhomes Metropolis',

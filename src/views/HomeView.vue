@@ -2,9 +2,9 @@
 import { onBeforeUnmount, onMounted } from 'vue'
 import SliderComponent from '../template/02_SliderComponent.vue'
 import AboutComponent from '../template/03_AboutComponent.vue'
+import PricingComponent from '../template/05_PricingComponent.vue'
 import HomeCollectionComponent from '../components/HomeCollectionComponent.vue'
 import HomeFeaturedProjectsComponent from '../components/HomeFeaturedProjectsComponent.vue'
-import PricingComponent from '../template/05_PricingComponent.vue'
 import StatementComponent from '../template/13_StatementComponent.vue'
 import HomeCraftComponent from '../template/06_CraftComponent.vue'
 import FacilitiesComponent from '../template/07_FacilitiesComponent.vue'
@@ -108,10 +108,9 @@ onBeforeUnmount(() => {
 <template>
   <main>
     <!-- NHỊP SÁNG/TỐI SO LE HOÀN TOÀN + MẠCH THUYẾT PHỤC:                    -->
-    <!--   Tối(Slider) → Sáng(About) → Tối(Collection) → Sáng(Projects)       -->
-    <!--   → Sáng-nghỉ(Statement*) → Tối(Craft) → Sáng(Materials)             -->
-    <!--   → Tối(Testimonials) → Sáng(Process) → Tối(Packages/Quote)          -->
-    <!--   → Sáng(News) → Booking CTA cuối.                                   -->
+    <!--   Tối(Slider) → Sáng(About, trắng) → Be(Collection) → Tối(Projects)   -->
+    <!--   → Sáng-nghỉ(Statement*) → Tối(Pricing) → Tối(Craft) → Sáng(Mats, trắng) -->
+    <!--   → Tối(Testimonials) → Sáng(Process, trắng) → Tối(News) → Booking CTA cuối -->
     <!--   (*) Statement là divider chữ chủ đích, ngoại lệ duy nhất.          -->
     <!--   Mạch: chất liệu & cam kết → bằng chứng xã hội → quy trình          -->
     <!--   hợp tác → phạm vi + báo giá → tin tức → CTA. KHÔNG đảo thứ tự      -->
@@ -121,11 +120,11 @@ onBeforeUnmount(() => {
     <HomeCollectionComponent />
     <HomeFeaturedProjectsComponent />
     <StatementComponent />
+    <PricingComponent />
     <HomeCraftComponent />
     <FacilitiesComponent />
     <TestimonialsComponent />
     <ServicesComponent />
-    <PricingComponent />
     <NewsComponent :limit="6" :loop="false" variant="grid" />
     <BookingFormComponent />
   </main>

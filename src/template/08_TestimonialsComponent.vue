@@ -110,7 +110,7 @@ onBeforeUnmount(() => {
             <div class="testimonials-box">
               <div class="head-box">
                 <h6>Khách hàng đánh giá</h6>
-                <h2 id="testimonials-title">Khách hàng nói gì về chúng tôi?</h2>
+                <h2 id="testimonials-title">98% khách hàng hài lòng — vì sao?</h2>
                 <div class="line"></div>
                 <!-- Rating tổng: sao trung bình + số đánh giá thực tế -->
                 <div

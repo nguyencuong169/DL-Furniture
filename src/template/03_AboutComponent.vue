@@ -140,14 +140,12 @@ onBeforeUnmount(() => {
           <p class="section-subtitle"><span>Về chúng tôi</span></p>
           <div class="section-title">Không gian được thiết kế từ cách bạn sống</div>
           <p>
-            Mỗi dự án bắt đầu bằng việc lắng nghe nhu cầu, khảo sát hiện trạng và nhận diện những
-            thói quen tạo nên nhịp sống riêng của gia chủ. Từ đó,
-            <strong>D&L Furniture</strong> phát triển giải pháp cân bằng giữa thẩm mỹ, công năng và
-            cảm giác sử dụng lâu dài.
+            Mỗi thiết kế bắt đầu từ việc lắng nghe thói quen, sở thích và nhịp sống của gia chủ —
+            trước khi đặt bút vẽ.
           </p>
           <p>
-            Vật liệu, tỷ lệ và từng điểm tiếp xúc được đặt trong cùng một hệ ngôn ngữ để nội thất
-            trở thành một phần tự nhiên của kiến trúc — chỉn chu nhưng không phô trương.
+            Vật liệu, tỷ lệ và từng điểm tiếp xúc sau đó được đặt trong cùng một hệ ngôn ngữ để nội
+            thất chỉn chu mà không phô trương.
           </p>
 
           <!-- Điểm nhấn viết tay (Oak & Origin polish P2-3) — chất thủ công, gia truyền -->
@@ -226,6 +224,11 @@ onBeforeUnmount(() => {
 </template>
 
 <style scoped>
+/* Nhịp Cappa: Hero(Tối) → About(Sáng, trắng) → Collection(Be) → Projects(Tối) */
+.about {
+  background-color: #fff;
+}
+
 .about .hero-line {
   display: block;
   width: 64px;

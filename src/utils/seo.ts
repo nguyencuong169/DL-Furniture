@@ -12,6 +12,21 @@ interface PageSeo {
   description?: string
   /** Đường dẫn tương đối (ví dụ '/gioi-thieu') để set canonical + og:url */
   path?: string
+  /** Đường dẫn ảnh đại diện (og:image, twitter:image) */
+  image?: string
+}
+
+/** Cập nhật / tạo JSON-LD structured data cho trang.
+ *  Truyền `data = null` để xóa JSON-LD cũ (khi rời trang không có schema). */
+export function setJsonLd(id: string, data: Record<string, unknown> | null): void {
+  const existing = document.getElementById(id)
+  if (existing) existing.remove()
+  if (!data) return
+  const script = document.createElement('script')
+  script.type = 'application/ld+json'
+  script.id = id
+  script.textContent = JSON.stringify(data)
+  document.head.appendChild(script)
 }
 
 function upsertMeta(attribute: 'name' | 'property', key: string, content: string): void {
@@ -34,7 +49,12 @@ function upsertCanonical(href: string): void {
   link.setAttribute('href', href)
 }
 
-export function setPageSeo({ title, description = DEFAULT_META_DESCRIPTION, path }: PageSeo): void {
+export function setPageSeo({
+  title,
+  description = DEFAULT_META_DESCRIPTION,
+  path,
+  image
+}: PageSeo): void {
   const fullTitle = title.includes(SITE_NAME) ? title : `${title} | ${SITE_NAME}`
   document.title = fullTitle
 
@@ -43,6 +63,13 @@ export function setPageSeo({ title, description = DEFAULT_META_DESCRIPTION, path
   upsertMeta('property', 'og:description', description)
   upsertMeta('name', 'twitter:title', fullTitle)
   upsertMeta('name', 'twitter:description', description)
+
+  if (image) {
+    const imageUrl = new URL(image, window.location.origin).href
+    upsertMeta('property', 'og:image', imageUrl)
+    upsertMeta('name', 'twitter:image', imageUrl)
+    upsertMeta('property', 'og:image:alt', title)
+  }
 
   if (path) {
     const url = new URL(path, window.location.origin).href

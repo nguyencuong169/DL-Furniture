@@ -14,6 +14,7 @@ public class AppDbContext : DbContext
     public DbSet<GalleryCategory> GalleryCategories { get; set; } = null!;
     public DbSet<GalleryItem> GalleryItems { get; set; } = null!;
     public DbSet<Project> Projects { get; set; } = null!;
+    public DbSet<ProjectImage> ProjectImages { get; set; } = null!;
     public DbSet<BookingRequest> BookingRequests { get; set; } = null!;
     public DbSet<Testimonial> Testimonials { get; set; } = null!;
     public DbSet<TeamMember> TeamMembers { get; set; } = null!;
@@ -159,6 +160,41 @@ public class AppDbContext : DbContext
             entity.HasKey(project => project.Id);
             entity.Property(project => project.Id).HasColumnName("id");
             entity.Property(project => project.Title).HasColumnName("title").HasMaxLength(255);
+            entity.Property(project => project.Subtitle).HasColumnName("subtitle").HasMaxLength(255);
+            entity.Property(project => project.ClientName).HasColumnName("client_name").HasMaxLength(255);
+            entity.Property(project => project.Location).HasColumnName("location").HasMaxLength(255);
+            entity.Property(project => project.CategoryId).HasColumnName("category_id");
+            entity.Property(project => project.Description).HasColumnName("description");
+            entity.Property(project => project.CoverImage).HasColumnName("cover_image").HasMaxLength(1024);
+            entity.Property(project => project.Status)
+                .HasColumnName("status")
+                .HasMaxLength(50)
+                .HasDefaultValue("published");
+            entity.Property(project => project.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.Property(project => project.UpdatedAt)
+                .HasColumnName("updated_at")
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+        });
+
+        modelBuilder.Entity<ProjectImage>(entity =>
+        {
+            entity.ToTable("project_images");
+            entity.HasKey(image => image.Id);
+            entity.Property(image => image.Id).HasColumnName("id");
+            entity.Property(image => image.ProjectId).HasColumnName("project_id");
+            entity.Property(image => image.ImageUrl).HasColumnName("image_url").HasMaxLength(1024);
+            entity.Property(image => image.Caption).HasColumnName("caption").HasMaxLength(255);
+            entity.Property(image => image.SortOrder).HasColumnName("sort_order").HasDefaultValue(0);
+            entity.Property(image => image.CreatedAt)
+                .HasColumnName("created_at")
+                .HasDefaultValueSql("SYSUTCDATETIME()");
+            entity.HasOne(image => image.Project)
+                .WithMany(project => project.ProjectImages)
+                .HasForeignKey(image => image.ProjectId)
+                .OnDelete(DeleteBehavior.Cascade);
+            entity.HasIndex(image => image.ProjectId);
         });
 
         modelBuilder.Entity<GalleryItem>(entity =>

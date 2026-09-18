@@ -599,6 +599,17 @@ body {
   display: block;
   outline: none;
 }
+/* Hit-area tối thiểu cho dot điều hướng (WCAG 2.5.8): span 12px quá nhỏ —
+   mở rộng vùng chạm của button lên ~26px mà không đổi kích thước dot hiển thị. */
+.owl-theme .owl-dots .owl-dot {
+  position: relative;
+  box-sizing: border-box;
+}
+.owl-theme .owl-dots .owl-dot::before {
+  content: '';
+  position: absolute;
+  inset: -7px;
+}
 .owl-theme .owl-dots .owl-dot span {
   width: 12px;
   height: 12px;
@@ -1219,7 +1230,8 @@ body {
   -webkit-animation-delay: 0.4s;
   animation-delay: 0.4s;
 }
-.header .caption h1 {
+.header .caption h1,
+.header .caption h2 {
   position: relative;
   margin-bottom: 20px;
   font-family: 'Gilda Display', serif;
@@ -5816,7 +5828,8 @@ select {
     background-attachment: scroll !important;
     background-position: 50% 0% !important;
   }
-  .header .caption h1 {
+  .header .caption h1,
+  .header .caption h2 {
     font-size: 40px;
   }
   .video-fullscreen-wrap .booking-box,
@@ -5826,7 +5839,8 @@ select {
   }
 }
 @media screen and (max-width: 767px) {
-  .header .caption h1 {
+  .header .caption h1,
+  .header .caption h2 {
     font-size: 30px;
     margin-bottom: 15px;
     letter-spacing: 10px;
